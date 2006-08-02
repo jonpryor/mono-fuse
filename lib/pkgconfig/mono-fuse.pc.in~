@@ -1,8 +1,0 @@
-prefix=@prefix@
-assemblies_dir=${prefix}/lib/mono-fuse
-Libraries=${assemblies_dir}/Mono.Fuse.dll
- 
-Name: Mono.Fuse
-Description: C# Binding for FUSE
-Version: 0.1
-Libs: -r:Mono.Fuse.dll
