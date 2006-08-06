@@ -7,7 +7,10 @@ using System.Text.RegularExpressions;
 using Mono.Unix;
 using Mono.Unix.Native;
 
+[assembly:Mono.Unix.Native.Header (Includes="fuse.h", Defines="FUSE_USE_VERSION=25")]
+
 namespace Mono.Fuse {
+
 
 	[StructLayout (LayoutKind.Sequential)]
 	public class FileSystemOperationContext {
@@ -20,7 +23,7 @@ namespace Mono.Fuse {
 
 	[StructLayout (LayoutKind.Sequential)]
 	public class OpenedFileInfo {
-		public OpenFlags flags;
+		public OpenFlags Flags;
 		public int WritePage;
 		public bool DirectIO;
 		public bool KeepCache;
@@ -53,7 +56,7 @@ namespace Mono.Fuse {
 	delegate Errno RemoveExtendedAttributesCb (string path, string name);
 	delegate Errno OpenDirectoryCb (string path, OpenedFileInfo info);
 	public delegate bool FillDirectoryCb (IntPtr buf, string name, IntPtr stbuf, long offset);
-	delegate Errno ReadDirectoryCb (string path, IntPtr buf, FillDirectoryCb cb, long offset, OpenedFileInfo info);
+	delegate Errno ReadDirectoryCb (string path, [Out] out string[] paths, OpenedFileInfo info);
 	delegate Errno CloseDirectoryCb (string path, OpenedFileInfo info);
 	delegate Errno SynchronizeDirectoryCb (string path, bool onlyUserData, OpenedFileInfo info);
 	delegate IntPtr InitCb ();
@@ -490,72 +493,72 @@ namespace Mono.Fuse {
 
 		protected virtual Errno OnGetFileAttributes (string path, ref Stat stat)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnCreateFileNode (string path, FilePermissions perms, ulong dev)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnCreateDirectory (string path, FilePermissions mode)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnRemoveFile (string path)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnRemoveDirectory (string path)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnCreateSymbolicLink (string oldpath, string newpath)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnRenameFile (string oldpath, string newpath)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnCreateHardlink (string oldpath, string newpath)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnChangePermissions (string path, FilePermissions mode)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnChangeOwner (string path, long owner, long group)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnTruncateFile (string path, long length)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnChangeTimes (string path, ref Utimbuf buf)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnOpen (string path, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
  
 		protected virtual int OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info)
@@ -570,62 +573,63 @@ namespace Mono.Fuse {
 
 		protected virtual Errno OnGetFileSystemStatistics (string path, ref Statvfs buf)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnFlush (string path, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnRelease (string path, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnSynchronizeFileDescriptor (string path, bool onlyUserData, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnSetExtendedAttributes (string path, string name, byte[] value, ulong size, XattrFlags flags)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnGetExtendedAttributes (string path, string name, byte[] value, ulong size)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnListExtendedAttributes (string path, byte[] list, ulong size)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnRemoveExtendedAttributes (string path, string name)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnOpenDirectory (string path, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
-		protected virtual Errno OnReadDirectory (string path, IntPtr buf, FillDirectoryCb cb, long offset, OpenedFileInfo info)
+		protected virtual Errno OnReadDirectory (string path, out string[] paths, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			paths = null;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnCloseDirectory (string path, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnSynchronizeDirectory (string path, bool onlyUserData, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual IntPtr OnInit ()
@@ -639,22 +643,22 @@ namespace Mono.Fuse {
 
 		protected virtual Errno OnAccess (string path, AccessModes mode)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnCreate (string path, FilePermissions mode, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnTruncateFileDescriptor (string path, long length, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 
 		protected virtual Errno OnGetFileDescriptorAttributes (string path, ref Stat buf, OpenedFileInfo info)
 		{
-			return (Errno) 0;
+			return Errno.ENOSYS;
 		}
 	}
 }

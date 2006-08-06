@@ -57,19 +57,21 @@ struct MakeMap_Test_Baz {
 struct MakeMap_Test_Foo {
 	int foo;
 };
+
 int
-MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo to);
-int
-MakeMap_Test_FromFoo (struct MakeMap_Test_Foo from, struct foo *to);
+MakeMap_Test_FromFoo (struct MakeMap_Test_Foo* from, struct foo *to);int
+MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo* to);
+
 
 struct MakeMap_Test_Qux {
 	int                      i;
 	struct MakeMap_Test_Baz* b;
 };
+
 int
+MakeMap_Test_FromQux (struct MakeMap_Test_Qux* from, struct qux *to);int
 MakeMap_Test_ToQux (struct qux *from, struct MakeMap_Test_Qux* to);
-int
-MakeMap_Test_FromQux (struct MakeMap_Test_Qux* from, struct qux *to);
+
 
 
 /*

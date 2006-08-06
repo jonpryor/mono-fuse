@@ -9,6 +9,10 @@
 #include <string.h>
 #include <mono/posix/limits.h>
 
+#ifndef FUSE_USE_VERSION
+#define FUSE_USE_VERSION 25
+#endif /* ndef FUSE_USE_VERSION=25 */
+#include <fuse.h>
 
 #include "map.h"
 
@@ -43,47 +47,47 @@ Mono_Fuse_ToArgs (struct fuse_args *from, struct Mono_Fuse_Args *to)
 	return 0;
 }
 
-#if 0
+
 int
 Mono_Fuse_FromOperations (struct Mono_Fuse_Operations *from, struct fuse_operations *to)
 {
 
 	memset (to, 0, sizeof(*to));
 
-	to->getattr = from->getattr;
-	to->readlink = from->readlink;
-	to->mknod = from->mknod;
-	to->mkdir = from->mkdir;
-	to->unlink = from->unlink;
-	to->rmdir = from->rmdir;
-	to->symlink = from->symlink;
-	to->rename = from->rename;
-	to->link = from->link;
-	to->chmod = from->chmod;
-	to->chown = from->chown;
-	to->truncate = from->truncate;
-	to->utime = from->utime;
-	to->open = from->open;
-	to->read = from->read;
-	to->write = from->write;
-	to->statfs = from->statfs;
-	to->flush = from->flush;
-	to->release = from->release;
-	to->fsync = from->fsync;
-	to->setxattr = from->setxattr;
-	to->getxattr = from->getxattr;
-	to->listxattr = from->listxattr;
+	to->getattr     = from->getattr;
+	to->readlink    = from->readlink;
+	to->mknod       = from->mknod;
+	to->mkdir       = from->mkdir;
+	to->unlink      = from->unlink;
+	to->rmdir       = from->rmdir;
+	to->symlink     = from->symlink;
+	to->rename      = from->rename;
+	to->link        = from->link;
+	to->chmod       = from->chmod;
+	to->chown       = from->chown;
+	to->truncate    = from->truncate;
+	to->utime       = from->utime;
+	to->open        = from->open;
+	to->read        = from->read;
+	to->write       = from->write;
+	to->statfs      = from->statfs;
+	to->flush       = from->flush;
+	to->release     = from->release;
+	to->fsync       = from->fsync;
+	to->setxattr    = from->setxattr;
+	to->getxattr    = from->getxattr;
+	to->listxattr   = from->listxattr;
 	to->removexattr = from->removexattr;
-	to->opendir = from->opendir;
-	to->readdir = from->readdir;
-	to->releasedir = from->releasedir;
-	to->fsyncdir = from->fsyncdir;
-	to->init = from->init;
-	to->destroy = from->destroy;
-	to->access = from->access;
-	to->create = from->create;
-	to->ftruncate = from->ftruncate;
-	to->fgetattr = from->fgetattr;
+	to->opendir     = from->opendir;
+	to->readdir     = from->readdir;
+	to->releasedir  = from->releasedir;
+	to->fsyncdir    = from->fsyncdir;
+	to->init        = from->init;
+	to->destroy     = from->destroy;
+	to->access      = from->access;
+	to->create      = from->create;
+	to->ftruncate   = from->ftruncate;
+	to->fgetattr    = from->fgetattr;
 
 	return 0;
 }
@@ -95,44 +99,42 @@ Mono_Fuse_ToOperations (struct fuse_operations *from, struct Mono_Fuse_Operation
 
 	memset (to, 0, sizeof(*to));
 
-	to->getattr = from->getattr;
-	to->readlink = from->readlink;
-	to->mknod = from->mknod;
-	to->mkdir = from->mkdir;
-	to->unlink = from->unlink;
-	to->rmdir = from->rmdir;
-	to->symlink = from->symlink;
-	to->rename = from->rename;
-	to->link = from->link;
-	to->chmod = from->chmod;
-	to->chown = from->chown;
-	to->truncate = from->truncate;
-	to->utime = from->utime;
-	to->open = from->open;
-	to->read = from->read;
-	to->write = from->write;
-	to->statfs = from->statfs;
-	to->flush = from->flush;
-	to->release = from->release;
-	to->fsync = from->fsync;
-	to->setxattr = from->setxattr;
-	to->getxattr = from->getxattr;
-	to->listxattr = from->listxattr;
+	to->getattr     = from->getattr;
+	to->readlink    = from->readlink;
+	to->mknod       = from->mknod;
+	to->mkdir       = from->mkdir;
+	to->unlink      = from->unlink;
+	to->rmdir       = from->rmdir;
+	to->symlink     = from->symlink;
+	to->rename      = from->rename;
+	to->link        = from->link;
+	to->chmod       = from->chmod;
+	to->chown       = from->chown;
+	to->truncate    = from->truncate;
+	to->utime       = from->utime;
+	to->open        = from->open;
+	to->read        = from->read;
+	to->write       = from->write;
+	to->statfs      = from->statfs;
+	to->flush       = from->flush;
+	to->release     = from->release;
+	to->fsync       = from->fsync;
+	to->setxattr    = from->setxattr;
+	to->getxattr    = from->getxattr;
+	to->listxattr   = from->listxattr;
 	to->removexattr = from->removexattr;
-	to->opendir = from->opendir;
-	to->readdir = from->readdir;
-	to->releasedir = from->releasedir;
-	to->fsyncdir = from->fsyncdir;
-	to->init = from->init;
-	to->destroy = from->destroy;
-	to->access = from->access;
-	to->create = from->create;
-	to->ftruncate = from->ftruncate;
-	to->fgetattr = from->fgetattr;
+	to->opendir     = from->opendir;
+	to->readdir     = from->readdir;
+	to->releasedir  = from->releasedir;
+	to->fsyncdir    = from->fsyncdir;
+	to->init        = from->init;
+	to->destroy     = from->destroy;
+	to->access      = from->access;
+	to->create      = from->create;
+	to->ftruncate   = from->ftruncate;
+	to->fgetattr    = from->fgetattr;
 
 	return 0;
 }
 
-
-#endif
 

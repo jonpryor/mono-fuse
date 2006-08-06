@@ -8,7 +8,6 @@
 #ifndef INC_Mono_Fuse_map_H
 #define INC_Mono_Fuse_map_H
 
-#include <fuse.h>
 #include <glib/gtypes.h>
 
 G_BEGIN_DECLS
@@ -16,6 +15,11 @@ G_BEGIN_DECLS
 /*
  * Enumerations
  */
+#ifndef FUSE_USE_VERSION
+#define FUSE_USE_VERSION 25
+#endif /* ndef FUSE_USE_VERSION=25 */
+#include <fuse.h>
+
 /*
  * Structure Declarations
  */
@@ -42,7 +46,6 @@ typedef int (*CreateFileNodeCb) (const char* path, unsigned int perms, guint64 d
 typedef int (*CreateHardlinkCb) (const char* oldpath, const char* newpath);
 typedef int (*CreateSymbolicLinkCb) (const char* oldpath, const char* newpath);
 typedef void (*DestroyCb) (void* privateData);
-typedef int (*FillDirectoryCb) (void* buf, const char* name, void* stbuf, gint64 offset);
 typedef int (*FlushCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*GetExtendedAttributesCb) (const char* path, const char* name, unsigned char* value, guint64 size);
 typedef int (*GetFileAttributesCb) (const char* path, struct Mono_Posix_Stat* stat);
@@ -53,7 +56,7 @@ typedef int (*ListExtendedAttributesCb) (const char* path, unsigned char* list, 
 typedef int (*OpenCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*OpenDirectoryCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*ReadCb) (const char* path, unsigned char* buf, guint64 size, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info);
-typedef int (*ReadDirectoryCb) (const char* path, void* buf, FillDirectoryCb cb, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info);
+typedef int (*ReadDirectoryCb) (const char* path, const char*** paths, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*ReadSymbolicLinkCb) (const char* path, char* buf, guint64 bufsize);
 typedef int (*ReleaseCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*RemoveDirectoryCb) (const char* path);
@@ -75,10 +78,11 @@ struct Mono_Fuse_Args {
 	void* argv;
 	int   allocated;
 };
+
 int
+Mono_Fuse_FromArgs (struct Mono_Fuse_Args* from, struct fuse_args *to);int
 Mono_Fuse_ToArgs (struct fuse_args *from, struct Mono_Fuse_Args* to);
-int
-Mono_Fuse_FromArgs (struct Mono_Fuse_Args* from, struct fuse_args *to);
+
 
 struct Mono_Fuse_FileSystemOperationContext {
 	void*  fuse;
@@ -89,7 +93,7 @@ struct Mono_Fuse_FileSystemOperationContext {
 };
 
 struct Mono_Fuse_OpenedFileInfo {
-	int     flags;
+	int     Flags;
 	int     WritePage;
 	int     DirectIO;
 	int     KeepCache;
@@ -132,10 +136,11 @@ struct Mono_Fuse_Operations {
 	TruncateFileDescriptorCb      ftruncate;
 	GetFileDescriptorAttributesCb fgetattr;
 };
+
 int
+Mono_Fuse_FromOperations (struct Mono_Fuse_Operations* from, struct fuse_operations *to);int
 Mono_Fuse_ToOperations (struct fuse_operations *from, struct Mono_Fuse_Operations* to);
-int
-Mono_Fuse_FromOperations (struct Mono_Fuse_Operations* from, struct fuse_operations *to);
+
 
 
 /*

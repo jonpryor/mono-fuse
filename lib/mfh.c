@@ -162,7 +162,7 @@ _to_file_info (struct fuse_file_info *from, struct Mono_Fuse_OpenedFileInfo *to)
 {
 	memset (to, 0, sizeof (*to));
 
-	if (Mono_Posix_ToOpenFlags (from->flags, &to->flags) != 0) {
+	if (Mono_Posix_ToOpenFlags (from->flags, &to->Flags) != 0) {
 		return -EINVAL;
 	}
 
@@ -179,7 +179,7 @@ _from_file_info (struct Mono_Fuse_OpenedFileInfo *from, struct fuse_file_info *t
 {
 	memset (to, 0, sizeof (*to));
 
-	if (Mono_Posix_FromOpenFlags (from->flags, &to->flags) != 0) {
+	if (Mono_Posix_FromOpenFlags (from->Flags, &to->flags) != 0) {
 		return -EINVAL;
 	}
 
@@ -506,7 +506,8 @@ _to_fuse_operations (struct Mono_Fuse_Operations *from, struct fuse_operations *
 	if (from->readdir)      to->readdir     = mfh_readdir;
 	if (from->releasedir)   to->releasedir  = mfh_releasedir;
 	if (from->fsyncdir)     to->fsyncdir    = mfh_fsyncdir;
-	/* if (from->destroy)      to->destroy     = mfh_destroy; */
+	if (from->init)         to->init        = from->init;
+	if (from->destroy)      to->destroy     = from->destroy;
 	if (from->access)       to->access      = mfh_access;
 	if (from->create)       to->create      = mfh_create;
 	if (from->ftruncate)    to->ftruncate   = mfh_ftruncate;
