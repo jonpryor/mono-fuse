@@ -67,7 +67,6 @@ namespace Mono.Fuse {
 	delegate Errno GetFileDescriptorAttributesCb (string path, ref Stat buf, OpenedFileInfo info);
 
 	[StructLayout (LayoutKind.Sequential)]
-	[Map ("struct fuse_operations")]
 	class Operations {
 		public GetFileAttributesCb            getattr;
 		public ReadSymbolicLinkCb             readlink;
@@ -131,10 +130,20 @@ namespace Mono.Fuse {
 		[DllImport (LIB, SetLastError=true)]
 		private static extern void mfh_destroy (IntPtr fusep);
 
+		[DllImport (LIB, SetLastError=true)]
+		private static extern void mfh_fuse_loop (IntPtr fusep);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern void mfh_fuse_loop_mt (IntPtr fusep);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern void mfh_fuse_exit (IntPtr fusep);
+
 		private string mountPoint;
 		private int fd = -1;
 		private IntPtr fusep = IntPtr.Zero;
 		Dictionary <string, string> opts = new Dictionary <string, string> ();
+		private Operations ops;
 
 		public FileSystem (string mountPoint)
 		{
@@ -320,9 +329,10 @@ namespace Mono.Fuse {
 				if (fd == -1)
 					throw new Exception ("Unable to mount " + mountPoint + ".");
 				unmount = false;
-				Operations ops = GetOperations ();
+				this.ops = GetOperations ();
 				fusep = mfh_fuse_new (fd, args, ops);
 				if (fusep == IntPtr.Zero) {
+					this.ops = null;
 					unmount = true;
 					throw new Exception ("Unable to create FUSE object.");
 				}
@@ -448,6 +458,8 @@ namespace Mono.Fuse {
 		private Operations GetOperations ()
 		{
 			Operations ops = new Operations ();
+			ops.init = OnInit;
+			ops.destroy = OnDestroy;
 			foreach (string method in operations.Keys) {
 				MethodInfo m = this.GetType().GetMethod (method, 
 						BindingFlags.NonPublic | BindingFlags.Instance);
@@ -467,6 +479,9 @@ namespace Mono.Fuse {
 
 		protected virtual void Dispose (bool disposing)
 		{
+			if (disposing)
+				ops = null;
+
 			if (fusep != IntPtr.Zero) {
 				mfh_unmount (MountPoint);
 				mfh_destroy (fusep);
@@ -479,9 +494,21 @@ namespace Mono.Fuse {
 			Dispose (false);
 		}
 
-		public void Loop () {/*fuse_loop(this);*/}
-		public void Exit () {/*fuse_exit (this);*/}
-		public void LoopMultithreaded () {/*fuse_loop_mt (this);*/}
+		public void Start ()
+		{
+			Create ();
+			mfh_fuse_loop (fusep);
+		}
+
+		public void Exit ()
+		{
+			mfh_fuse_exit (fusep);
+		}
+		public void StartMultithreaded ()
+		{
+			Create ();
+			mfh_fuse_loop_mt (fusep);
+		}
 
 		protected static FileSystemOperationContext GetOperationContext ()
 		{
@@ -632,13 +659,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		protected virtual IntPtr OnInit ()
+		private IntPtr OnInit ()
 		{
-			return IntPtr.Zero;
+			IntPtr p = UnixMarshal.AllocHeap (Marshal.SizeOf (ops));
+			Marshal.StructureToPtr (ops, p, false);
+			return p;
 		}
 
-		protected virtual void OnDestroy (IntPtr privateData)
+		private void OnDestroy (IntPtr privateData)
 		{
+			Marshal.DestroyStructure (privateData, typeof(Operations));
+			UnixMarshal.FreeHeap (privateData);
 		}
 
 		protected virtual Errno OnAccess (string path, AccessModes mode)

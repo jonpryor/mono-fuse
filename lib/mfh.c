@@ -586,9 +586,27 @@ mfh_mount (const char* path, struct Mono_Fuse_Args* args)
 	return r;
 }
 
-int mfh_unmount (const char* path)
+int
+mfh_unmount (const char* path)
 {
 	fuse_unmount (path);
 	return 0;
 }
 
+int
+mfh_fuse_exit (void *fusep)
+{
+	fuse_exit ((struct fuse*) fusep);
+}
+
+int
+mfh_fuse_loop (void *fusep)
+{
+	fuse_loop ((struct fuse*) fusep);
+}
+
+int
+mfh_fuse_loop_mt (void *fusep)
+{
+	fuse_loop_mt ((struct fuse*) fusep);
+}

@@ -137,16 +137,14 @@ struct Mono_Fuse_Operations {
 	GetFileDescriptorAttributesCb fgetattr;
 };
 
-int
-Mono_Fuse_FromOperations (struct Mono_Fuse_Operations* from, struct fuse_operations *to);int
-Mono_Fuse_ToOperations (struct fuse_operations *from, struct Mono_Fuse_Operations* to);
-
-
 
 /*
  * Functions
  */
 void mfh_destroy (void* fusep);
+void mfh_fuse_exit (void* fusep);
+void mfh_fuse_loop (void* fusep);
+void mfh_fuse_loop_mt (void* fusep);
 void* mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, struct Mono_Fuse_Operations* ops);
 int mfh_get_fuse_context (struct Mono_Fuse_FileSystemOperationContext* context);
 int mfh_mount (const char* path, struct Mono_Fuse_Args* args);

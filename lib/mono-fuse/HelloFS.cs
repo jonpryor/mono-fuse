@@ -1,5 +1,6 @@
 // Mono.Fuse example program
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using Mono.Fuse;
 using Mono.Unix.Native;
@@ -34,15 +35,18 @@ namespace Mono.Fuse.Samples {
 			return res;
 		}
 
-		protected override Errno OnReadDirectory (string path, IntPtr buf, 
-				FillDirectoryCb filler, long offset, OpenedFileInfo fi)
+		protected override Errno OnReadDirectory (string path, 
+				[Out] out string[] paths, OpenedFileInfo fi)
 		{
+			paths = null;
 			if (path != "/")
 				return Errno.ENOENT;
 
-			filler (buf, ".", IntPtr.Zero, 0);
-			filler (buf, "..", IntPtr.Zero, 0);
-			filler (buf, "hello", IntPtr.Zero, 0);
+			paths = new string[]{
+				".",
+				"..",
+				"hello",
+			};
 
 			return 0;
 		}
@@ -52,7 +56,7 @@ namespace Mono.Fuse.Samples {
 			if (path != hello_path)
 				return Errno.ENOENT;
 			// if ((fi.flags & 3) != OpenFlags.O_RDONLY)
-			if (fi.flags != OpenFlags.O_RDONLY)
+			if (fi.Flags != OpenFlags.O_RDONLY)
 				return Errno.EACCES;
 			return 0;
 		}
@@ -77,7 +81,7 @@ namespace Mono.Fuse.Samples {
 		{
 			using (FileSystem fs = new HelloFS (args)) {
 				// fs.MountAt ("path" /* , args? */);
-				fs.Loop ();
+				fs.Start ();
 			}
 		}
 	}
