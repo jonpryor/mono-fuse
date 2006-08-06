@@ -368,6 +368,25 @@ static int
 mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *info)
 {
+	struct Mono_Fuse_OpenedFileInfo _info;
+	const char **paths;
+	int r;
+
+	if (_to_file_info (info, &_info) != 0)
+		return -EINVAL;
+
+	r = _mfh_get_private_data ()->readdir (path, &paths, &_info);
+
+	if (r == 0) {
+		int i;
+		for (i = 0; paths [i]; ++i)
+			filler (buf, paths [i], NULL, 0);
+	}
+
+	if (_from_file_info (&_info, info) != 0)
+		return -EINVAL;
+
+	return _convert_errno (r);
 }
 
 static int
