@@ -179,7 +179,15 @@ static class MapUtils {
 		bool isDelegate = typeof(Delegate).IsAssignableFrom (t);
 		if (type == null)
 			type = isDelegate ? t.Name : GetStructName (t);
-		return (t.IsByRef || t.IsArray || (!t.IsValueType && !isDelegate)) ? type + "*" : type;
+		if (!et.IsValueType && !isDelegate) {
+			type += "*";
+		}
+		while (t.HasElementType) {
+			t = t.GetElementType ();
+			type += "*";
+		}
+		return type;
+		//return (t.IsByRef || t.IsArray || (!t.IsValueType && !isDelegate)) ? type + "*" : type;
 	}
 
 	private static string GetStructName (Type t)
@@ -366,16 +374,59 @@ class HeaderFileGenerator : FileGenerator {
 	public override void CreateFile (string assembly_name, string file_prefix)
 	{
 		sh = File.CreateText (file_prefix + ".h");
+		file_prefix = file_prefix.Replace ("../", "");
 		this.assembly_file = assembly_name;
 		WriteHeader (sh, assembly_name);
-		sh.WriteLine ("#ifndef INC_Mono_Posix_" + file_prefix + "_H");
-		sh.WriteLine ("#define INC_Mono_Posix_" + file_prefix + "_H\n");
+		assembly_name = assembly_name.Replace (".dll", "").Replace (".", "_");
+		sh.WriteLine ("#ifndef INC_" + assembly_name + "_" + file_prefix + "_H");
+		sh.WriteLine ("#define INC_" + assembly_name + "_" + file_prefix + "_H\n");
 		sh.WriteLine ("#include <glib/gtypes.h>\n");
 		sh.WriteLine ("G_BEGIN_DECLS\n");
 
 		sh.WriteLine ("/*\n * Enumerations\n */");
 		// Kill warning about unused method
 		DumpTypeInfo (null);
+	}
+
+	public override void WriteAssemblyAttributes (Assembly assembly)
+	{
+		HeaderAttribute hattr = MapUtils.GetCustomAttribute <HeaderAttribute> (assembly);
+		if (hattr != null) {
+			WriteDefines (sh, hattr);
+			WriteIncludes (sh, hattr);
+		}
+		sh.WriteLine ();
+	}
+
+	static void WriteDefines (TextWriter writer, HeaderAttribute hattr)
+	{
+		string [] defines = hattr.Defines.Split (',');
+		foreach (string def in defines) {
+			if (def.Length == 0)
+				continue;
+			string[] val = def.Split ('=');
+			writer.WriteLine ("#ifndef {0}", val [0]);
+			writer.WriteLine ("#define {0}{1}", val [0], 
+					val.Length > 1 ? " " + val [1] : "");
+			writer.WriteLine ("#endif /* ndef {0} */", def);
+		}
+	}
+
+	static void WriteIncludes (TextWriter writer, HeaderAttribute hattr)
+	{
+		string [] includes = hattr.Includes.Split (',');
+		foreach (string inc in includes){
+			if (inc.Length == 0)
+				continue;
+			if (inc.Length > 3 && 
+					string.CompareOrdinal (inc, 0, "ah:", 0, 3) == 0) {
+				string i = inc.Substring (3);
+				writer.WriteLine ("#ifdef HAVE_" + (i.ToUpper ().Replace ("/", "_").Replace (".", "_")));
+				writer.WriteLine ("#include <{0}>", i);
+				writer.WriteLine ("#endif");
+			} else 
+				writer.WriteLine ("#include <{0}>", inc);
+		}
 	}
 
 	public override void WriteType (Type t, string ns, string fn)
@@ -447,7 +498,7 @@ class HeaderFileGenerator : FileGenerator {
 			if (dia.Value != "MonoFuseHelper" || IsOnExcludeList (dia.EntryPoint))
 				continue;
 			methods [dia.EntryPoint] = m;
-			RecordStructs (m);
+			RecordTypes (m);
 		}
 	}
 
@@ -487,33 +538,30 @@ class HeaderFileGenerator : FileGenerator {
 		return (idx >= 0 && idx < ExcludeList.Length) ? true : false;
 	}
 
-	private void RecordStructs (MethodInfo method)
+	private void RecordTypes (MethodInfo method)
 	{
 		ParameterInfo[] parameters = method.GetParameters ();
 		foreach (ParameterInfo pi in parameters) {
-			if (typeof(Delegate).IsAssignableFrom (pi.ParameterType)) {
-				MethodInfo mi = pi.ParameterType.GetMethod ("Invoke");
-				delegates [pi.ParameterType.Name] = mi;
-				continue;
-			}
-			Type t = MapUtils.GetElementType (pi.ParameterType);
-			string s = MapUtils.GetNativeType (t);
-			if (s.StartsWith ("struct ")) {
-				structs [t.Name] = t;
-				RecordDelegates (t);
-			}
+			RecordTypes (pi.ParameterType);
 		}
 	}
 
-	private void RecordDelegates (Type t)
+	private void RecordTypes (Type st)
 	{
-		foreach (FieldInfo field in t.GetFields (BindingFlags.Instance | 
-				BindingFlags.Public | BindingFlags.NonPublic)) {
-			if (!(typeof(Delegate).IsAssignableFrom (field.FieldType)))
-				continue;
-			MethodInfo method = field.FieldType.GetMethod ("Invoke");
-			delegates [field.FieldType.Name] = method;
-			RecordStructs (method);
+		if (!delegates.ContainsKey (st.Name) && typeof(Delegate).IsAssignableFrom (st)) {
+			MethodInfo mi = st.GetMethod ("Invoke");
+			delegates [st.Name] = mi;
+			RecordTypes (mi);
+			return;
+		}
+		Type et = MapUtils.GetElementType (st);
+		string s = MapUtils.GetNativeType (et);
+		if (s.StartsWith ("struct ") && !structs.ContainsKey (et.Name)) {
+			structs [et.Name] = et;
+			foreach (FieldInfo fi in et.GetFields (BindingFlags.Instance | 
+					BindingFlags.Public | BindingFlags.NonPublic)) {
+				RecordTypes (fi.FieldType);
+			}
 		}
 	}
 
@@ -585,11 +633,13 @@ class HeaderFileGenerator : FileGenerator {
 		}
 		sh.WriteLine ("};");
 		if (MapUtils.GetCustomAttributes <MapAttribute> (t).Length > 0) {
+			sh.WriteLine ();
 			MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
 			sh.WriteLine (
-					"int\n{0}_To{1} ({2} *from, {3} to);\n" + 
-					"int\n{0}_From{1} ({3} from, {2} *to);",
-					MapUtils.GetNamespace (t), t.Name, map.NativeType, MapUtils.GetNativeType (t));
+					"int\n{0}_From{1} ({3}{4} from, {2} *to);" + 
+					"int\n{0}_To{1} ({2} *from, {3}{4} to);\n",
+					MapUtils.GetNamespace (t), t.Name, map.NativeType, 
+					MapUtils.GetNativeType (t), t.IsValueType ? "*" : "");
 		}
 		sh.WriteLine ();
 	}
@@ -693,6 +743,7 @@ class SourceFileGenerator : FileGenerator {
 			file_prefix = file_prefix.Substring (file_prefix.IndexOf ("/") + 1);
 		this.file_prefix = file_prefix;
 		sc.WriteLine ("#include <stdlib.h>");
+		sc.WriteLine ("#include <string.h>");
 		sc.WriteLine ("#include <mono/posix/limits.h>");
 		sc.WriteLine ();
 	}
@@ -713,8 +764,12 @@ class SourceFileGenerator : FileGenerator {
 	{
 		string [] defines = hattr.Defines.Split (',');
 		foreach (string def in defines) {
-			writer.WriteLine ("#ifndef {0}", def);
-			writer.WriteLine ("#define {0}", def);
+			if (def.Length == 0)
+				continue;
+			string[] val = def.Split ('=');
+			writer.WriteLine ("#ifndef {0}", val [0]);
+			writer.WriteLine ("#define {0}{1}", val [0], 
+					val.Length > 1 ? " " + val [1] : "");
 			writer.WriteLine ("#endif /* ndef {0} */", def);
 		}
 	}
@@ -723,6 +778,8 @@ class SourceFileGenerator : FileGenerator {
 	{
 		string [] includes = hattr.Includes.Split (',');
 		foreach (string inc in includes){
+			if (inc.Length == 0)
+				continue;
 			if (inc.Length > 3 && 
 					string.CompareOrdinal (inc, 0, "ah:", 0, 3) == 0) {
 				string i = inc.Substring (3);
@@ -732,7 +789,6 @@ class SourceFileGenerator : FileGenerator {
 			} else 
 				writer.WriteLine ("#include <{0}>", inc);
 		}
-		writer.WriteLine ();
 	}
 
 	public override void WriteType (Type t, string ns, string fn)
@@ -827,7 +883,7 @@ class SourceFileGenerator : FileGenerator {
 	private void WriteFromManagedClass (Type t, string ns, string fn, string etype)
 	{
 		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
-		sc.WriteLine ("int\n{0}_From{1} (struct {0}_{1} *from, {2} *to);",
+		sc.WriteLine ("int\n{0}_From{1} (struct {0}_{1} *from, {2} *to)",
 				MapUtils.GetNamespace (t), t.Name, map.NativeType);
 		WriteManagedClassConversion (t, delegate (FieldInfo field) {
 				MapAttribute ft = MapUtils.GetCustomAttribute <MapAttribute> (field);
@@ -847,6 +903,7 @@ class SourceFileGenerator : FileGenerator {
 		SortFieldsInOffsetOrder (t, fields);
 		int max_len = 0;
 		foreach (FieldInfo f in fields) {
+			max_len = Math.Max (max_len, f.Name.Length);
 			if (!MapUtils.IsIntegralType (f.FieldType))
 				continue;
 			string d = GetAutoconfDefine (map, f);
@@ -856,7 +913,6 @@ class SourceFileGenerator : FileGenerator {
 					gft (f), f.Name);
 			if (d != null)
 				sc.WriteLine ("#endif /* ndef " + d + " */");
-			max_len = Math.Max (max_len, f.Name.Length);
 		}
 		sc.WriteLine ("\n\tmemset (to, 0, sizeof(*to));\n");
 		foreach (FieldInfo f in fields) {
@@ -881,38 +937,6 @@ class SourceFileGenerator : FileGenerator {
 		WriteManagedClassConversion (t, delegate (FieldInfo field) {
 				return MapUtils.GetNativeType (field.FieldType);
 		});
-#if false
-		sc.WriteLine ("{");
-		sc.WriteLine ("\tmemset (to, 0, sizeof(*to));\n");
-		FieldInfo[] fields = GetFieldsToCopy (t);
-		SortFieldsInOffsetOrder (t, fields);
-		int max_len = 0;
-		foreach (FieldInfo f in fields) {
-			if (!MapUtils.IsIntegralType (f.FieldType))
-				continue;
-			string d = GetAutoconfDefine (map, f);
-			if (d != null)
-				sc.WriteLine ("#ifdef " + d);
-			sc.WriteLine ("\tmph_return_val_if_overflow ({0}, from->{1}, -1);",
-					MapUtils.GetNativeType (f.FieldType), f.Name);
-			if (d != null)
-				sc.WriteLine ("#endif /* ndef " + d + " */");
-			max_len = Math.Max (max_len, f.Name.Length);
-		}
-		sc.WriteLine ();
-		foreach (FieldInfo f in fields) {
-			string d = GetAutoconfDefine (map, f);
-			if (d != null)
-				sc.WriteLine ("#ifdef " + d);
-			sc.WriteLine ("\tto->{0,-" + max_len + "} = from->{0};", f.Name);
-			if (d != null)
-				sc.WriteLine ("#endif /* ndef " + d + " */");
-		}
-		sc.WriteLine ();
-		sc.WriteLine ("\treturn 0;");
-		sc.WriteLine ("}\n");
-		sc.WriteLine ();
-#endif
 	}
 
 	private static FieldInfo[] GetFieldsToCopy (Type t)
