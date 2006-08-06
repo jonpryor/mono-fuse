@@ -131,10 +131,10 @@ namespace Mono.Fuse {
 		private static extern void mfh_destroy (IntPtr fusep);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern void mfh_fuse_loop (IntPtr fusep);
+		private static extern int mfh_fuse_loop (IntPtr fusep);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern void mfh_fuse_loop_mt (IntPtr fusep);
+		private static extern int mfh_fuse_loop_mt (IntPtr fusep);
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern void mfh_fuse_exit (IntPtr fusep);

@@ -593,7 +593,7 @@ mfh_unmount (const char* path)
 	return 0;
 }
 
-int
+void
 mfh_fuse_exit (void *fusep)
 {
 	fuse_exit ((struct fuse*) fusep);
@@ -602,11 +602,11 @@ mfh_fuse_exit (void *fusep)
 int
 mfh_fuse_loop (void *fusep)
 {
-	fuse_loop ((struct fuse*) fusep);
+	return fuse_loop ((struct fuse*) fusep);
 }
 
 int
 mfh_fuse_loop_mt (void *fusep)
 {
-	fuse_loop_mt ((struct fuse*) fusep);
+	return fuse_loop_mt ((struct fuse*) fusep);
 }
