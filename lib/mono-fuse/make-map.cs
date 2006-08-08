@@ -632,7 +632,7 @@ class HeaderFileGenerator : FileGenerator {
 		}
 		sh.WriteLine ("};");
 		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
-		if (map != null && map.NativeType != null) {
+		if (map != null && map.NativeType != null && map.NativeType.Length != 0) {
 			sh.WriteLine ();
 			sh.WriteLine (
 					"int\n{0}_From{1} ({3}{4} from, {2} *to);" + 
