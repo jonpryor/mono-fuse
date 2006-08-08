@@ -300,8 +300,8 @@ namespace Mono.Fuse {
 			set {mountPoint = value;}
 		}
 
-		const string NameValueRegex = @"(?<Name>\w+)\s*(=\s*(?<Value>.*))$";
-		const string OptRegex = @"^-o\s*(" + NameValueRegex + ")?";
+		const string NameValueRegex = @"(?<Name>\w+)(\s*=\s*(?<Value>.*))?";
+		const string OptRegex = @"^-o\s*(" + NameValueRegex + ")?$";
 
 		private void Parse (string[] args)
 		{
@@ -311,7 +311,7 @@ namespace Mono.Fuse {
 			for (int i = 0; i < args.Length; ++i) {
 				Match m = o.Match (args [i]);
 				if (m.Success) {
-					if (m.Groups.Count == 0) {
+					if (!m.Groups ["Name"].Success) {
 						m = nv.Match (args [++i]);
 						if (!m.Success)
 							throw new ArgumentException ("args");
@@ -320,6 +320,7 @@ namespace Mono.Fuse {
 						m.Groups ["Value"].Success ? m.Groups ["Value"].Value : "";
 				}
 				else if (args [i] == "-d") {
+					Console.WriteLine ("\t-d match");
 					opts ["debug"] = "";
 				}
 				else {
@@ -365,9 +366,14 @@ namespace Mono.Fuse {
 
 		private string[] GetFuseArgs ()
 		{
-			string[] args = new string [opts.Keys.Count];
+			string[] args = new string [opts.Keys.Count + 1];
 			int i = 0;
+			args [i++] = Environment.GetCommandLineArgs () [0];
 			foreach (string key in opts.Keys) {
+				if (key == "debug") {
+					args [i++] = "-d";
+					continue;
+				}
 				string v = opts [key];
 				string a = "-o" + key;
 				if (v.Length > 0) {
@@ -375,6 +381,9 @@ namespace Mono.Fuse {
 				}
 				args [i++] = a;
 			}
+			Console.WriteLine ("FUSE Arguments");
+			foreach (string s in args)
+				Console.WriteLine ("\t" + s);
 			return args;
 		}
 
@@ -693,11 +702,13 @@ namespace Mono.Fuse {
 
 		private IntPtr OnInit ()
 		{
+			Console.WriteLine ("OnInit Invoked");
 			return opsp;
 		}
 
 		private void OnDestroy (IntPtr privateData)
 		{
+			Console.WriteLine ("OnDestroy Invoked");
 			Marshal.DestroyStructure (privateData, typeof(Operations));
 			UnixMarshal.FreeHeap (privateData);
 		}
