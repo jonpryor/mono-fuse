@@ -477,9 +477,8 @@ class HeaderFileGenerator : FileGenerator {
 	{
 		if (t.IsEnum)
 			return;
-		if (MapUtils.GetCustomAttributes <MapAttribute> (t).Length > 0) {
-			structs [t.Name] = t;
-		}
+		if (MapUtils.GetCustomAttributes <MapAttribute> (t).Length > 0)
+			RecordTypes (t);
 	}
 
 	private void CacheExternalMethods (Type t, string ns, string fn)
@@ -490,7 +489,7 @@ class HeaderFileGenerator : FileGenerator {
 				continue;
 			DllImportAttribute dia = GetDllImportInfo (m);
 			if (dia == null) {
-				Console.WriteLine ("Unable to emit native prototype for P/Invoke " + 
+				Console.WriteLine ("warning: unable to emit native prototype for P/Invoke " + 
 						"method: {0}", m);
 				continue;
 			}
@@ -513,14 +512,14 @@ class HeaderFileGenerator : FileGenerator {
 		// methods...
 		Type MonoMethod = Type.GetType ("System.Reflection.MonoMethod", false);
 		if (MonoMethod == null) {
-			Console.WriteLine ("cannot find MonoMethod");
+			Console.WriteLine ("warning: cannot find MonoMethod");
 			return null;
 		}
 		MethodInfo GetDllImportAttribute = 
 			MonoMethod.GetMethod ("GetDllImportAttribute", 
 					BindingFlags.Static | BindingFlags.NonPublic);
 		if (GetDllImportAttribute == null) {
-			Console.WriteLine ("cannot find GetDllImportAttribute");
+			Console.WriteLine ("warning: cannot find GetDllImportAttribute");
 			return null;
 		}
 		IntPtr mhandle = method.MethodHandle.Value;
@@ -548,7 +547,7 @@ class HeaderFileGenerator : FileGenerator {
 
 	private void RecordTypes (Type st)
 	{
-		if (!delegates.ContainsKey (st.Name) && typeof(Delegate).IsAssignableFrom (st)) {
+		if (typeof(Delegate).IsAssignableFrom (st) && !delegates.ContainsKey (st.Name)) {
 			MethodInfo mi = st.GetMethod ("Invoke");
 			delegates [st.Name] = mi;
 			RecordTypes (mi);
@@ -632,9 +631,9 @@ class HeaderFileGenerator : FileGenerator {
 			sh.WriteLine ();
 		}
 		sh.WriteLine ("};");
-		if (MapUtils.GetCustomAttributes <MapAttribute> (t).Length > 0) {
+		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
+		if (map != null && map.NativeType != null) {
 			sh.WriteLine ();
-			MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
 			sh.WriteLine (
 					"int\n{0}_From{1} ({3}{4} from, {2} *to);" + 
 					"int\n{0}_To{1} ({2} *from, {3}{4} to);\n",
@@ -883,6 +882,8 @@ class SourceFileGenerator : FileGenerator {
 	private void WriteFromManagedClass (Type t, string ns, string fn, string etype)
 	{
 		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
+		if (map == null || map.NativeType == null || map.NativeType.Length == 0)
+			return;
 		sc.WriteLine ("int\n{0}_From{1} (struct {0}_{1} *from, {2} *to)",
 				MapUtils.GetNamespace (t), t.Name, map.NativeType);
 		WriteManagedClassConversion (t, delegate (FieldInfo field) {
@@ -932,6 +933,8 @@ class SourceFileGenerator : FileGenerator {
 	private void WriteToManagedClass (Type t, string ns, string fn, string etype)
 	{
 		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
+		if (map == null || map.NativeType == null || map.NativeType.Length == 0)
+			return;
 		sc.WriteLine ("int\n{0}_To{1} ({2} *from, struct {0}_{1} *to)", 
 				MapUtils.GetNamespace (t), t.Name, map.NativeType);
 		WriteManagedClassConversion (t, delegate (FieldInfo field) {

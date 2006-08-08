@@ -21,6 +21,7 @@ namespace Mono.Fuse {
 		public IntPtr PrivateData;
 	}
 
+	[Map]
 	[StructLayout (LayoutKind.Sequential)]
 	public class OpenedFileInfo {
 		public OpenFlags Flags;
@@ -44,19 +45,29 @@ namespace Mono.Fuse {
 	delegate Errno TruncateCb (string path, long length);
 	delegate Errno ChangeTimesCb (string path, ref Utimbuf buf);
 	delegate Errno OpenCb (string path, OpenedFileInfo info); 
-	delegate int ReadCb (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info);
-	delegate int WriteCb (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info);
+	delegate int ReadCb (string path, 
+			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
+			byte[] buf, ulong size, long offset, OpenedFileInfo info);
+	delegate int WriteCb (string path, 
+			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
+			byte[] buf, ulong size, long offset, OpenedFileInfo info);
 	delegate Errno GetFileSystemStatisticsCb (string path, ref Statvfs buf);
 	delegate Errno FlushCb (string path, OpenedFileInfo info);
 	delegate Errno ReleaseCb (string path, OpenedFileInfo info);
 	delegate Errno SynchronizeFileDescriptorCb (string path, bool onlyUserData, OpenedFileInfo info);
-	delegate Errno SetExtendedAttributesCb (string path, string name, byte[] value, ulong size, XattrFlags flags);
-	delegate Errno GetExtendedAttributesCb (string path, string name, byte[] value, ulong size);
-	delegate Errno ListExtendedAttributesCb (string path, byte[] list, ulong size);
+	delegate Errno SetExtendedAttributesCb (string path, string name, 
+			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
+			byte[] value, ulong size, XattrFlags flags);
+	delegate Errno GetExtendedAttributesCb (string path, string name, 
+			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
+			byte[] value, ulong size);
+	delegate Errno ListExtendedAttributesCb (string path, 
+			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
+			byte[] list, ulong size);
 	delegate Errno RemoveExtendedAttributesCb (string path, string name);
 	delegate Errno OpenDirectoryCb (string path, OpenedFileInfo info);
 	public delegate bool FillDirectoryCb (IntPtr buf, string name, IntPtr stbuf, long offset);
-	delegate Errno ReadDirectoryCb (string path, [Out] out string[] paths, OpenedFileInfo info);
+	delegate Errno ReadDirectoryCb (string path, out IntPtr paths, OpenedFileInfo info);
 	delegate Errno CloseDirectoryCb (string path, OpenedFileInfo info);
 	delegate Errno SynchronizeDirectoryCb (string path, bool onlyUserData, OpenedFileInfo info);
 	delegate IntPtr InitCb ();
@@ -66,6 +77,7 @@ namespace Mono.Fuse {
 	delegate Errno TruncateFileDescriptorCb (string path, long length, OpenedFileInfo info);
 	delegate Errno GetFileDescriptorAttributesCb (string path, ref Stat buf, OpenedFileInfo info);
 
+	[Map]
 	[StructLayout (LayoutKind.Sequential)]
 	class Operations {
 		public GetFileAttributesCb            getattr;
@@ -105,6 +117,7 @@ namespace Mono.Fuse {
 	}
 
 	[Map ("struct fuse_args")]
+	[StructLayout (LayoutKind.Sequential)]
 	class Args {
 		public int argc;
 		public IntPtr argv;
@@ -116,7 +129,7 @@ namespace Mono.Fuse {
 		const string LIB = "MonoFuseHelper";
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern IntPtr mfh_fuse_new (int fd, Args args, Operations ops);
+		private static extern IntPtr mfh_fuse_new (int fd, Args args, IntPtr ops);
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern int mfh_get_fuse_context (FileSystemOperationContext context);
@@ -144,6 +157,7 @@ namespace Mono.Fuse {
 		private IntPtr fusep = IntPtr.Zero;
 		Dictionary <string, string> opts = new Dictionary <string, string> ();
 		private Operations ops;
+		private IntPtr opsp;
 
 		public FileSystem (string mountPoint)
 		{
@@ -320,7 +334,7 @@ namespace Mono.Fuse {
 				throw new InvalidOperationException ("MountPoint must not be null");
 			string[] _args = GetFuseArgs ();
 			Args args = new Args ();
-			bool unmount = true;
+			bool unmount = false;
 			try {
 				args.argc = _args.Length;
 				args.argv = AllocArgv (_args);
@@ -328,14 +342,19 @@ namespace Mono.Fuse {
 				fd = mfh_mount (mountPoint, args);
 				if (fd == -1)
 					throw new Exception ("Unable to mount " + mountPoint + ".");
-				unmount = false;
+				unmount = true;
+				Console.WriteLine ("# Getting Operations...");
 				this.ops = GetOperations ();
-				fusep = mfh_fuse_new (fd, args, ops);
+				Console.WriteLine ("# Converting Operations...");
+				this.opsp = UnixMarshal.AllocHeap (Marshal.SizeOf (ops));
+				Marshal.StructureToPtr (ops, opsp, false);
+				Console.WriteLine ("# Creating fuse object...");
+				fusep = mfh_fuse_new (fd, args, opsp);
 				if (fusep == IntPtr.Zero) {
 					this.ops = null;
-					unmount = true;
 					throw new Exception ("Unable to create FUSE object.");
 				}
+				unmount = false;
 			}
 			finally {
 				FreeArgv (args.argc, args.argv);
@@ -453,6 +472,8 @@ namespace Mono.Fuse {
 					delegate (Operations to, FileSystem from) {to.ftruncate = from.OnTruncateFileDescriptor;});
 			operations.Add ("OnGetFileDescriptorAttributes", 
 					delegate (Operations to, FileSystem from) {to.fgetattr = from.OnGetFileDescriptorAttributes;});
+#if false
+#endif
 		}
 
 		private Operations GetOperations ()
@@ -643,7 +664,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		protected virtual Errno OnReadDirectory (string path, out string[] paths, OpenedFileInfo info)
+		private Errno OnReadDirectory (string path, out IntPtr paths, OpenedFileInfo info)
+		{
+			paths = IntPtr.Zero;
+			string[] _paths;
+			Errno r = OnReadDirectory (path, out _paths, info);
+			if (_paths != null) {
+				paths = AllocArgv (_paths);
+			}
+			return r;
+		}
+
+		protected virtual Errno OnReadDirectory (string path, [Out] out string[] paths, OpenedFileInfo info)
 		{
 			paths = null;
 			return Errno.ENOSYS;
@@ -661,9 +693,7 @@ namespace Mono.Fuse {
 
 		private IntPtr OnInit ()
 		{
-			IntPtr p = UnixMarshal.AllocHeap (Marshal.SizeOf (ops));
-			Marshal.StructureToPtr (ops, p, false);
-			return p;
+			return opsp;
 		}
 
 		private void OnDestroy (IntPtr privateData)

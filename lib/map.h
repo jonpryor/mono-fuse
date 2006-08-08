@@ -56,7 +56,7 @@ typedef int (*ListExtendedAttributesCb) (const char* path, unsigned char* list, 
 typedef int (*OpenCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*OpenDirectoryCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*ReadCb) (const char* path, unsigned char* buf, guint64 size, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info);
-typedef int (*ReadDirectoryCb) (const char* path, const char*** paths, struct Mono_Fuse_OpenedFileInfo* info);
+typedef int (*ReadDirectoryCb) (const char* path, void** paths, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*ReadSymbolicLinkCb) (const char* path, char* buf, guint64 bufsize);
 typedef int (*ReleaseCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*RemoveDirectoryCb) (const char* path);
@@ -143,9 +143,9 @@ struct Mono_Fuse_Operations {
  */
 void mfh_destroy (void* fusep);
 void mfh_fuse_exit (void* fusep);
-void mfh_fuse_loop (void* fusep);
-void mfh_fuse_loop_mt (void* fusep);
-void* mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, struct Mono_Fuse_Operations* ops);
+int mfh_fuse_loop (void* fusep);
+int mfh_fuse_loop_mt (void* fusep);
+void* mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, void* ops);
 int mfh_get_fuse_context (struct Mono_Fuse_FileSystemOperationContext* context);
 int mfh_mount (const char* path, struct Mono_Fuse_Args* args);
 int mfh_unmount (const char* path);

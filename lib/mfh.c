@@ -143,6 +143,7 @@ mfh_truncate (const char *path, off_t len)
 static int
 mfh_utime (const char *path, struct utimbuf *buf)
 {
+#if 0
 	struct Mono_Posix_Utimbuf _buf;
 	int r;
 
@@ -155,6 +156,9 @@ mfh_utime (const char *path, struct utimbuf *buf)
 		return -EINVAL;
 
 	return _convert_errno (r);
+#else
+	return -ENOSYS;
+#endif
 }
 
 static int
@@ -223,6 +227,8 @@ mfh_read (const char *path, char *buf, size_t size, off_t offset,
 	if (_from_file_info (&_info, info) != 0)
 		return -EINVAL;
 
+	if (r > 0)
+		return r;
 	return _convert_errno (r);
 }
 
@@ -241,12 +247,15 @@ mfh_write (const char *path, const char *buf, size_t size, off_t offset,
 	if (_from_file_info (&_info, info) != 0)
 		return -EINVAL;
 
+	if (r > 0)
+		return r;
 	return _convert_errno (r);
 }
 
 static int
 mfh_statfs (const char *path, struct statvfs *buf)
 {
+#if 0
 	struct Mono_Posix_Statvfs _buf;
 	int r;
 
@@ -259,6 +268,9 @@ mfh_statfs (const char *path, struct statvfs *buf)
 		return -EINVAL;
 
 	return _convert_errno (r);
+#else
+	return -ENOSYS;
+#endif
 }
 
 static int
@@ -364,24 +376,40 @@ mfh_opendir (const char *path, struct fuse_file_info *info)
 	return _convert_errno (r);
 }
 
+static void
+_free_argv (char **argv)
+{
+	if (argv == NULL)
+		return;
+
+	while (*argv)
+		free (*argv++);
+	free (argv);
+}
+
 static int
 mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *info)
 {
 	struct Mono_Fuse_OpenedFileInfo _info;
-	const char **paths;
+	const char **paths = NULL;
 	int r;
+
+	printf ("mfh_readdir invoked!\n");
 
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
 	r = _mfh_get_private_data ()->readdir (path, &paths, &_info);
 
-	if (r == 0) {
+	if (r == 0 && paths) {
 		int i;
 		for (i = 0; paths [i]; ++i)
 			filler (buf, paths [i], NULL, 0);
 	}
+
+	if (paths)
+		_free_argv (paths);
 
 	if (_from_file_info (&_info, info) != 0)
 		return -EINVAL;
@@ -534,13 +562,18 @@ _to_fuse_operations (struct Mono_Fuse_Operations *from, struct fuse_operations *
 }
 
 void*
-mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, struct Mono_Fuse_Operations* ops)
+mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, void* ops)
 {
+	struct Mono_Fuse_Operations *mops;
 	struct fuse_operations _ops;
 	struct fuse_args _args;
 	struct fuse *fuse;
 
-	_to_fuse_operations (ops, &_ops);
+	mops = (struct Mono_Fuse_Operations*) ops;
+
+	_to_fuse_operations (mops, &_ops);
+
+	printf ("mfh_fuse_new: readdir=%p\n", _ops.readdir);
 
 	if (Mono_Fuse_FromArgs (args, &_args) != 0)
 		return NULL;

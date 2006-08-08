@@ -12,14 +12,16 @@ namespace Mono.Fuse.Samples {
 
 		public HelloFS (string[] args) : base (args)
 		{
+			Console.WriteLine ("(HelloFS creating)");
 		}
 
 		protected override Errno OnGetFileAttributes (string path, ref Stat stbuf)
 		{
+			Console.WriteLine ("(OnGetFileAttributes {0})", path);
 			Errno res = 0;
 
 			stbuf = new Stat ();
-			if (path.StartsWith ("/")) {
+			if (path == "/") {
 				stbuf.st_mode = FilePermissions.S_IFDIR | 
 					NativeConvert.FromOctalPermissionString ("0755");
 				stbuf.st_nlink = 2;
@@ -38,6 +40,7 @@ namespace Mono.Fuse.Samples {
 		protected override Errno OnReadDirectory (string path, 
 				[Out] out string[] paths, OpenedFileInfo fi)
 		{
+			Console.WriteLine ("(OnReadDirectory {0})", path);
 			paths = null;
 			if (path != "/")
 				return Errno.ENOENT;
@@ -53,16 +56,19 @@ namespace Mono.Fuse.Samples {
 
 		protected override Errno OnOpen (string path, OpenedFileInfo fi)
 		{
+			Console.WriteLine ("(OnOpen {0})", path);
 			if (path != hello_path)
 				return Errno.ENOENT;
 			// if ((fi.flags & 3) != OpenFlags.O_RDONLY)
-			if (fi.Flags != OpenFlags.O_RDONLY)
+			Console.WriteLine ("OnOpen Flags={0}", fi.Flags);
+			if (((OpenFlags)((int) fi.Flags & 3)) != OpenFlags.O_RDONLY)
 				return Errno.EACCES;
 			return 0;
 		}
 
 		protected override int OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo fi)
 		{
+			Console.WriteLine ("(OnRead {0})", path);
 			if (path != hello_path)
 				return -(int) Errno.ENOENT;
 
@@ -80,6 +86,9 @@ namespace Mono.Fuse.Samples {
 		public static void Main (string[] args)
 		{
 			using (FileSystem fs = new HelloFS (args)) {
+				foreach (string key in fs.Options.Keys) {
+					Console.WriteLine ("Option: {0}={1}", key, fs.Options [key]);
+				}
 				// fs.MountAt ("path" /* , args? */);
 				fs.Start ();
 			}

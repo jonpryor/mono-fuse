@@ -1,7 +1,7 @@
 
-libMonoFuseHelper.so: map.o mfh.o
-	gcc -shared -o $@ $^ `pkg-config --libs fuse glib-2.0`
+libMonoFuseHelper.so: map.o mfh.o mph.o
+	gcc -g -shared -o $@ $^ `pkg-config --libs fuse glib-2.0` -lMonoPosixHelper
 
 .c.o:
-	gcc -c -I. -o $@ $^ `pkg-config --cflags fuse glib-2.0`
+	gcc -Wall -g -c -I. -o $@ $^ `pkg-config --cflags fuse glib-2.0`
 
