@@ -71,7 +71,6 @@ namespace Mono.Fuse {
 	delegate Errno CloseDirectoryCb (string path, OpenedFileInfo info);
 	delegate Errno SynchronizeDirectoryCb (string path, bool onlyUserData, OpenedFileInfo info);
 	delegate IntPtr InitCb ();
-	delegate void DestroyCb (IntPtr privateData);
 	delegate Errno AccessCb (string path, AccessModes mode);
 	delegate Errno CreateCb (string path, FilePermissions mode, OpenedFileInfo info);
 	delegate Errno TruncateFileDescriptorCb (string path, long length, OpenedFileInfo info);
@@ -109,7 +108,6 @@ namespace Mono.Fuse {
 		public CloseDirectoryCb               releasedir;
 		public SynchronizeDirectoryCb         fsyncdir;
 		public InitCb                         init;
-		public DestroyCb                      destroy;
 		public AccessCb                       access;
 		public CreateCb                       create;
 		public TruncateFileDescriptorCb       ftruncate;
@@ -320,7 +318,6 @@ namespace Mono.Fuse {
 						m.Groups ["Value"].Success ? m.Groups ["Value"].Value : "";
 				}
 				else if (args [i] == "-d") {
-					Console.WriteLine ("\t-d match");
 					opts ["debug"] = "";
 				}
 				else {
@@ -418,78 +415,75 @@ namespace Mono.Fuse {
 			operations = new Dictionary <string, CopyOperation> ();
 
 			operations.Add ("OnGetFileAttributes", 
-					delegate (Operations to, FileSystem from) {to.getattr = from.OnGetFileAttributes;});
+					delegate (Operations to, FileSystem from) {to.getattr = from._OnGetFileAttributes;});
 			operations.Add ("OnReadSymbolicLink", 
-					delegate (Operations to, FileSystem from) {to.readlink = from.OnReadSymbolicLink;});
+					delegate (Operations to, FileSystem from) {to.readlink = from._OnReadSymbolicLink;});
 			operations.Add ("OnCreateFileNode", 
-					delegate (Operations to, FileSystem from) {to.mknod = from.OnCreateFileNode;});
+					delegate (Operations to, FileSystem from) {to.mknod = from._OnCreateFileNode;});
 			operations.Add ("OnCreateDirectory", 
-					delegate (Operations to, FileSystem from) {to.mkdir = from.OnCreateDirectory;});
+					delegate (Operations to, FileSystem from) {to.mkdir = from._OnCreateDirectory;});
 			operations.Add ("OnRemoveFile", 
-					delegate (Operations to, FileSystem from) {to.unlink = from.OnRemoveFile;});
+					delegate (Operations to, FileSystem from) {to.unlink = from._OnRemoveFile;});
 			operations.Add ("OnRemoveDirectory", 
-					delegate (Operations to, FileSystem from) {to.rmdir = from.OnRemoveDirectory;});
+					delegate (Operations to, FileSystem from) {to.rmdir = from._OnRemoveDirectory;});
 			operations.Add ("OnCreateSymbolicLink", 
-					delegate (Operations to, FileSystem from) {to.symlink = from.OnCreateSymbolicLink;});
+					delegate (Operations to, FileSystem from) {to.symlink = from._OnCreateSymbolicLink;});
 			operations.Add ("OnRenameFile", 
-					delegate (Operations to, FileSystem from) {to.rename = from.OnRenameFile;});
-			operations.Add ("OnCreateHardlink", 
-					delegate (Operations to, FileSystem from) {to.link = from.OnCreateHardlink;});
+					delegate (Operations to, FileSystem from) {to.rename = from._OnRenameFile;});
+			operations.Add ("OnCreateHardLink", 
+					delegate (Operations to, FileSystem from) {to.link = from._OnCreateHardLink;});
 			operations.Add ("OnChangePermissions", 
-					delegate (Operations to, FileSystem from) {to.chmod = from.OnChangePermissions;});
+					delegate (Operations to, FileSystem from) {to.chmod = from._OnChangePermissions;});
 			operations.Add ("OnChangeOwner", 
-					delegate (Operations to, FileSystem from) {to.chown = from.OnChangeOwner;});
+					delegate (Operations to, FileSystem from) {to.chown = from._OnChangeOwner;});
 			operations.Add ("OnTruncateFile", 
-					delegate (Operations to, FileSystem from) {to.truncate = from.OnTruncateFile;});
+					delegate (Operations to, FileSystem from) {to.truncate = from._OnTruncateFile;});
 			operations.Add ("OnChangeTimes", 
-					delegate (Operations to, FileSystem from) {to.utime = from.OnChangeTimes;});
+					delegate (Operations to, FileSystem from) {to.utime = from._OnChangeTimes;});
 			operations.Add ("OnOpen", 
-					delegate (Operations to, FileSystem from) {to.open = from.OnOpen;});
+					delegate (Operations to, FileSystem from) {to.open = from._OnOpen;});
 			operations.Add ("OnRead", 
-					delegate (Operations to, FileSystem from) {to.read = from.OnRead;});
+					delegate (Operations to, FileSystem from) {to.read = from._OnRead;});
 			operations.Add ("OnWrite", 
-					delegate (Operations to, FileSystem from) {to.write = from.OnWrite;});
+					delegate (Operations to, FileSystem from) {to.write = from._OnWrite;});
 			operations.Add ("OnGetFileSystemStatistics", 
-					delegate (Operations to, FileSystem from) {to.statfs = from.OnGetFileSystemStatistics;});
+					delegate (Operations to, FileSystem from) {to.statfs = from._OnGetFileSystemStatistics;});
 			operations.Add ("OnFlush", 
-					delegate (Operations to, FileSystem from) {to.flush = from.OnFlush;});
+					delegate (Operations to, FileSystem from) {to.flush = from._OnFlush;});
 			operations.Add ("OnRelease", 
-					delegate (Operations to, FileSystem from) {to.release = from.OnRelease;});
+					delegate (Operations to, FileSystem from) {to.release = from._OnRelease;});
 			operations.Add ("OnSynchronizeFileDescriptor", 
-					delegate (Operations to, FileSystem from) {to.fsync = from.OnSynchronizeFileDescriptor;});
+					delegate (Operations to, FileSystem from) {to.fsync = from._OnSynchronizeFileDescriptor;});
 			operations.Add ("OnSetExtendedAttributes", 
-					delegate (Operations to, FileSystem from) {to.setxattr = from.OnSetExtendedAttributes;});
+					delegate (Operations to, FileSystem from) {to.setxattr = from._OnSetExtendedAttributes;});
 			operations.Add ("OnGetExtendedAttributes", 
-					delegate (Operations to, FileSystem from) {to.getxattr = from.OnGetExtendedAttributes;});
+					delegate (Operations to, FileSystem from) {to.getxattr = from._OnGetExtendedAttributes;});
 			operations.Add ("OnListExtendedAttributes", 
-					delegate (Operations to, FileSystem from) {to.listxattr = from.OnListExtendedAttributes;});
+					delegate (Operations to, FileSystem from) {to.listxattr = from._OnListExtendedAttributes;});
 			operations.Add ("OnRemoveExtendedAttributes", 
-					delegate (Operations to, FileSystem from) {to.removexattr = from.OnRemoveExtendedAttributes;});
+					delegate (Operations to, FileSystem from) {to.removexattr = from._OnRemoveExtendedAttributes;});
 			operations.Add ("OnOpenDirectory", 
-					delegate (Operations to, FileSystem from) {to.opendir = from.OnOpenDirectory;});
+					delegate (Operations to, FileSystem from) {to.opendir = from._OnOpenDirectory;});
 			operations.Add ("OnReadDirectory", 
-					delegate (Operations to, FileSystem from) {to.readdir = from.OnReadDirectory;});
+					delegate (Operations to, FileSystem from) {to.readdir = from._OnReadDirectory;});
 			operations.Add ("OnCloseDirectory", 
-					delegate (Operations to, FileSystem from) {to.releasedir = from.OnCloseDirectory;});
+					delegate (Operations to, FileSystem from) {to.releasedir = from._OnCloseDirectory;});
 			operations.Add ("OnSynchronizeDirectory", 
-					delegate (Operations to, FileSystem from) {to.fsyncdir = from.OnSynchronizeDirectory;});
+					delegate (Operations to, FileSystem from) {to.fsyncdir = from._OnSynchronizeDirectory;});
 			operations.Add ("OnAccess", 
-					delegate (Operations to, FileSystem from) {to.access = from.OnAccess;});
+					delegate (Operations to, FileSystem from) {to.access = from._OnAccess;});
 			operations.Add ("OnCreate", 
-					delegate (Operations to, FileSystem from) {to.create = from.OnCreate;});
+					delegate (Operations to, FileSystem from) {to.create = from._OnCreate;});
 			operations.Add ("OnTruncateFileDescriptor", 
-					delegate (Operations to, FileSystem from) {to.ftruncate = from.OnTruncateFileDescriptor;});
+					delegate (Operations to, FileSystem from) {to.ftruncate = from._OnTruncateFileDescriptor;});
 			operations.Add ("OnGetFileDescriptorAttributes", 
-					delegate (Operations to, FileSystem from) {to.fgetattr = from.OnGetFileDescriptorAttributes;});
-#if false
-#endif
+					delegate (Operations to, FileSystem from) {to.fgetattr = from._OnGetFileDescriptorAttributes;});
 		}
 
 		private Operations GetOperations ()
 		{
 			Operations ops = new Operations ();
 			ops.init = OnInit;
-			ops.destroy = OnDestroy;
 			foreach (string method in operations.Keys) {
 				MethodInfo m = this.GetType().GetMethod (method, 
 						BindingFlags.NonPublic | BindingFlags.Instance);
@@ -511,6 +505,12 @@ namespace Mono.Fuse {
 		{
 			if (disposing)
 				ops = null;
+
+			if (opsp != IntPtr.Zero) {
+				Marshal.DestroyStructure (opsp, typeof(Operations));
+				UnixMarshal.FreeHeap (opsp);
+				opsp = IntPtr.Zero;
+			}
 
 			if (fusep != IntPtr.Zero) {
 				mfh_unmount (MountPoint);
@@ -548,9 +548,29 @@ namespace Mono.Fuse {
 			return context;
 		}
 
+		private Errno _OnGetFileAttributes (string path, ref Stat stat)
+		{
+			try {
+				return OnGetFileAttributes (path, ref stat);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnGetFileAttributes (string path, ref Stat stat)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
+		{
+			try {
+				return OnReadSymbolicLink (path, buf, bufsize);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
@@ -558,9 +578,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnCreateFileNode (string path, FilePermissions perms, ulong dev)
+		{
+			try {
+				return OnCreateFileNode (path, perms, dev);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnCreateFileNode (string path, FilePermissions perms, ulong dev)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnCreateDirectory (string path, FilePermissions mode)
+		{
+			try {
+				return OnCreateDirectory (path, mode);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnCreateDirectory (string path, FilePermissions mode)
@@ -568,9 +608,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnRemoveFile (string path)
+		{
+			try {
+				return OnRemoveFile (path);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnRemoveFile (string path)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnRemoveDirectory (string path)
+		{
+			try {
+				return OnRemoveDirectory (path);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnRemoveDirectory (string path)
@@ -578,9 +638,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnCreateSymbolicLink (string oldpath, string newpath)
+		{
+			try {
+				return OnCreateSymbolicLink (oldpath, newpath);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnCreateSymbolicLink (string oldpath, string newpath)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnRenameFile (string oldpath, string newpath)
+		{
+			try {
+				return OnRenameFile (oldpath, newpath);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnRenameFile (string oldpath, string newpath)
@@ -588,9 +668,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		protected virtual Errno OnCreateHardlink (string oldpath, string newpath)
+		private Errno _OnCreateHardLink (string oldpath, string newpath)
+		{
+			try {
+				return OnCreateHardLink (oldpath, newpath);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
+		protected virtual Errno OnCreateHardLink (string oldpath, string newpath)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnChangePermissions (string path, FilePermissions mode)
+		{
+			try {
+				return OnChangePermissions (path, mode);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnChangePermissions (string path, FilePermissions mode)
@@ -598,9 +698,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnChangeOwner (string path, long owner, long group)
+		{
+			try {
+				return OnChangeOwner (path, owner, group);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnChangeOwner (string path, long owner, long group)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnTruncateFile (string path, long length)
+		{
+			try {
+				return OnTruncateFile (path, length);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnTruncateFile (string path, long length)
@@ -608,9 +728,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnChangeTimes (string path, ref Utimbuf buf)
+		{
+			try {
+				return OnChangeTimes (path, ref buf);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnChangeTimes (string path, ref Utimbuf buf)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnOpen (string path, OpenedFileInfo info)
+		{
+			try {
+				return OnOpen (path, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnOpen (string path, OpenedFileInfo info)
@@ -618,14 +758,44 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
  
-		protected virtual int OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info)
+		private int _OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info)
+		{
+			try {
+				return OnRead (path, buf, offset, info);
+			}
+			catch {
+				return - (int) Errno.EIO;
+			}
+		}
+
+		protected virtual int OnRead (string path, byte[] buf, long offset, OpenedFileInfo info)
 		{
 			return 0;
 		}
 
-		protected virtual int OnWrite (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info)
+		private int _OnWrite (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info)
+		{
+			try {
+				return OnWrite (path, buf, offset, info);
+			}
+			catch {
+				return - (int) Errno.EIO;
+			}
+		}
+
+		protected virtual int OnWrite (string path, byte[] buf, long offset, OpenedFileInfo info)
 		{
 			return 0;
+		}
+
+		private Errno _OnGetFileSystemStatistics (string path, ref Statvfs buf)
+		{
+			try {
+				return OnGetFileSystemStatistics (path, ref buf);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnGetFileSystemStatistics (string path, ref Statvfs buf)
@@ -633,9 +803,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnFlush (string path, OpenedFileInfo info)
+		{
+			try {
+				return OnFlush (path, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnFlush (string path, OpenedFileInfo info)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnRelease (string path, OpenedFileInfo info)
+		{
+			try {
+				return OnRelease (path, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnRelease (string path, OpenedFileInfo info)
@@ -643,24 +833,74 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnSynchronizeFileDescriptor (string path, bool onlyUserData, OpenedFileInfo info)
+		{
+			try {
+				return OnSynchronizeFileDescriptor (path, onlyUserData, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnSynchronizeFileDescriptor (string path, bool onlyUserData, OpenedFileInfo info)
 		{
 			return Errno.ENOSYS;
 		}
 
-		protected virtual Errno OnSetExtendedAttributes (string path, string name, byte[] value, ulong size, XattrFlags flags)
+		private Errno _OnSetExtendedAttributes (string path, string name, byte[] value, ulong size, XattrFlags flags)
+		{
+			try {
+				return OnSetExtendedAttributes (path, name, value, flags);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
+		protected virtual Errno OnSetExtendedAttributes (string path, string name, byte[] value, XattrFlags flags)
 		{
 			return Errno.ENOSYS;
 		}
 
-		protected virtual Errno OnGetExtendedAttributes (string path, string name, byte[] value, ulong size)
+		private Errno _OnGetExtendedAttributes (string path, string name, byte[] value, ulong size)
+		{
+			try {
+				return OnGetExtendedAttributes (path, name, value);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
+		protected virtual Errno OnGetExtendedAttributes (string path, string name, byte[] value)
 		{
 			return Errno.ENOSYS;
 		}
 
-		protected virtual Errno OnListExtendedAttributes (string path, byte[] list, ulong size)
+		private Errno _OnListExtendedAttributes (string path, byte[] list, ulong size)
+		{
+			try {
+				return OnListExtendedAttributes (path, list);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
+		protected virtual Errno OnListExtendedAttributes (string path, byte[] list)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnRemoveExtendedAttributes (string path, string name)
+		{
+			try {
+				return OnRemoveExtendedAttributes (path, name);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnRemoveExtendedAttributes (string path, string name)
@@ -668,20 +908,35 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnOpenDirectory (string path, OpenedFileInfo info)
+		{
+			try {
+				return OnOpenDirectory (path, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnOpenDirectory (string path, OpenedFileInfo info)
 		{
 			return Errno.ENOSYS;
 		}
 
-		private Errno OnReadDirectory (string path, out IntPtr paths, OpenedFileInfo info)
+		private Errno _OnReadDirectory (string path, out IntPtr paths, OpenedFileInfo info)
 		{
 			paths = IntPtr.Zero;
-			string[] _paths;
-			Errno r = OnReadDirectory (path, out _paths, info);
-			if (_paths != null) {
-				paths = AllocArgv (_paths);
+			try {
+				string[] _paths;
+				Errno r = OnReadDirectory (path, out _paths, info);
+				if (_paths != null) {
+					paths = AllocArgv (_paths);
+				}
+				return r;
 			}
-			return r;
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnReadDirectory (string path, [Out] out string[] paths, OpenedFileInfo info)
@@ -690,9 +945,29 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnCloseDirectory (string path, OpenedFileInfo info)
+		{
+			try {
+				return OnCloseDirectory (path, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnCloseDirectory (string path, OpenedFileInfo info)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnSynchronizeDirectory (string path, bool onlyUserData, OpenedFileInfo info)
+		{
+			try {
+				return OnSynchronizeDirectory (path, onlyUserData, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnSynchronizeDirectory (string path, bool onlyUserData, OpenedFileInfo info)
@@ -702,15 +977,17 @@ namespace Mono.Fuse {
 
 		private IntPtr OnInit ()
 		{
-			Console.WriteLine ("OnInit Invoked");
 			return opsp;
 		}
 
-		private void OnDestroy (IntPtr privateData)
+		private Errno _OnAccess (string path, AccessModes mode)
 		{
-			Console.WriteLine ("OnDestroy Invoked");
-			Marshal.DestroyStructure (privateData, typeof(Operations));
-			UnixMarshal.FreeHeap (privateData);
+			try {
+				return OnAccess (path, mode);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnAccess (string path, AccessModes mode)
@@ -718,14 +995,44 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnCreate (string path, FilePermissions mode, OpenedFileInfo info)
+		{
+			try {
+				return OnCreate (path, mode, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnCreate (string path, FilePermissions mode, OpenedFileInfo info)
 		{
 			return Errno.ENOSYS;
 		}
 
+		private Errno _OnTruncateFileDescriptor (string path, long length, OpenedFileInfo info)
+		{
+			try {
+				return OnTruncateFileDescriptor (path, length, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
+		}
+
 		protected virtual Errno OnTruncateFileDescriptor (string path, long length, OpenedFileInfo info)
 		{
 			return Errno.ENOSYS;
+		}
+
+		private Errno _OnGetFileDescriptorAttributes (string path, ref Stat buf, OpenedFileInfo info)
+		{
+			try {
+				return OnGetFileDescriptorAttributes (path, ref buf, info);
+			}
+			catch {
+				return Errno.EIO;
+			}
 		}
 
 		protected virtual Errno OnGetFileDescriptorAttributes (string path, ref Stat buf, OpenedFileInfo info)

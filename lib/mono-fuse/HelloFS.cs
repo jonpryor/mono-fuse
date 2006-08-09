@@ -8,7 +8,21 @@ using Mono.Unix.Native;
 namespace Mono.Fuse.Samples {
 	class HelloFS : FileSystem {
 		static readonly byte[] hello_str = Encoding.UTF8.GetBytes ("Hello World!\n");
+		static readonly byte[] data_str;
+
 		const string hello_path = "/hello";
+		const string data_path  = "/data";
+
+		static HelloFS ()
+		{
+			data_str = new byte [100000000];
+			for (int i = 0; i < data_str.Length; ++i) {
+				if ((i % 27) == 0)
+					data_str [i] = (byte) '\n';
+				else
+					data_str [i] = (byte) ((i % 26) + 'a');
+			}
+		}
 
 		public HelloFS (string[] args) : base (args)
 		{
@@ -32,6 +46,12 @@ namespace Mono.Fuse.Samples {
 				stbuf.st_nlink = 1;
 				stbuf.st_size = hello_str.Length;
 			}
+			else if (path == data_path) {
+				stbuf.st_mode = FilePermissions.S_IFREG |
+					NativeConvert.FromOctalPermissionString ("0444");
+				stbuf.st_nlink = 1;
+				stbuf.st_size = data_str.Length;
+			}
 			else
 				res = Errno.ENOENT;
 			return res;
@@ -49,6 +69,7 @@ namespace Mono.Fuse.Samples {
 				".",
 				"..",
 				"hello",
+				"data",
 			};
 
 			return 0;
@@ -57,7 +78,7 @@ namespace Mono.Fuse.Samples {
 		protected override Errno OnOpen (string path, OpenedFileInfo fi)
 		{
 			Console.WriteLine ("(OnOpen {0})", path);
-			if (path != hello_path)
+			if (path != hello_path && path != data_path)
 				return Errno.ENOENT;
 			// if ((fi.flags & 3) != OpenFlags.O_RDONLY)
 			Console.WriteLine ("OnOpen Flags={0}", fi.Flags);
@@ -66,16 +87,23 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		protected override int OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo fi)
+		protected override int OnRead (string path, byte[] buf, long offset, OpenedFileInfo fi)
 		{
 			Console.WriteLine ("(OnRead {0})", path);
-			if (path != hello_path)
+			byte[] source = null;
+			if (path == hello_path)
+				source = hello_str;
+			else if (path == data_path)
+				source = data_str;
+			else
 				return -(int) Errno.ENOENT;
 
-			if (offset < (long) hello_str.Length) {
-				if (offset + (long) size > (long) hello_str.Length)
-					size = (ulong) ((long) hello_str.Length - offset);
-				Buffer.BlockCopy (hello_str, (int) offset, buf, 0, (int) size);
+			int size = buf.Length;
+
+			if (offset < (long) source.Length) {
+				if (offset + (long) size > (long) source.Length)
+					size = (int) ((long) source.Length - offset);
+				Buffer.BlockCopy (source, (int) offset, buf, 0, size);
 			}
 			else
 				size = 0;
