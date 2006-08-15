@@ -82,12 +82,12 @@ namespace Mono.Fuse {
 	delegate Errno TruncateCb (string path, long length);
 	delegate Errno ChangeTimesCb (string path, ref Utimbuf buf);
 	delegate Errno OpenCb (string path, OpenedFileInfo info); 
-	delegate int ReadCb (string path, 
+	delegate Errno ReadCb (string path, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
-			byte[] buf, ulong size, long offset, OpenedFileInfo info);
-	delegate int WriteCb (string path, 
+			byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesRead);
+	delegate Errno WriteCb (string path, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
-			byte[] buf, ulong size, long offset, OpenedFileInfo info);
+			byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesRead);
 	delegate Errno GetFileSystemStatisticsCb (string path, out Statvfs buf);
 	delegate Errno FlushCb (string path, OpenedFileInfo info);
 	delegate Errno ReleaseCb (string path, OpenedFileInfo info);
@@ -97,10 +97,10 @@ namespace Mono.Fuse {
 			byte[] value, ulong size, XattrFlags flags);
 	delegate Errno GetExtendedAttributesCb (string path, string name, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
-			byte[] value, ulong size);
+			byte[] value, ulong size, out int bytesWritten);
 	delegate Errno ListExtendedAttributesCb (string path, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
-			byte[] list, ulong size);
+			byte[] list, ulong size, out int bytesWritten);
 	delegate Errno RemoveExtendedAttributesCb (string path, string name);
 	delegate Errno OpenDirectoryCb (string path, OpenedFileInfo info);
 	public delegate bool FillDirectoryCb (IntPtr buf, string name, IntPtr stbuf, long offset);
@@ -797,34 +797,38 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
  
-		private int _OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info)
+		private Errno _OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesWritten)
 		{
 			try {
-				return OnRead (path, buf, offset, info);
+				return OnRead (path, buf, offset, info, out bytesWritten);
 			}
 			catch {
-				return - (int) Errno.EIO;
+				bytesWritten = 0;
+				return Errno.EIO;
 			}
 		}
 
-		protected virtual int OnRead (string path, byte[] buf, long offset, OpenedFileInfo info)
+		protected virtual Errno OnRead (string path, byte[] buf, long offset, OpenedFileInfo info, out int bytesWritten)
 		{
-			return 0;
+			bytesWritten = 0;
+			return Errno.ENOSYS;
 		}
 
-		private int _OnWrite (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info)
+		private Errno _OnWrite (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesRead)
 		{
 			try {
-				return OnWrite (path, buf, offset, info);
+				return OnWrite (path, buf, offset, info, out bytesRead);
 			}
 			catch {
-				return - (int) Errno.EIO;
+				bytesRead = 0;
+				return Errno.EIO;
 			}
 		}
 
-		protected virtual int OnWrite (string path, byte[] buf, long offset, OpenedFileInfo info)
+		protected virtual Errno OnWrite (string path, byte[] buf, long offset, OpenedFileInfo info, out int bytesRead)
 		{
-			return 0;
+			bytesRead = 0;
+			return Errno.ENOSYS;
 		}
 
 		private Errno _OnGetFileSystemStatistics (string path, out Statvfs buf)
@@ -904,33 +908,37 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnGetExtendedAttributes (string path, string name, byte[] value, ulong size)
+		private Errno _OnGetExtendedAttributes (string path, string name, byte[] value, ulong size, out int bytesWritten)
 		{
 			try {
-				return OnGetExtendedAttributes (path, name, value);
+				return OnGetExtendedAttributes (path, name, value, out bytesWritten);
 			}
 			catch {
+				bytesWritten = 0;
 				return Errno.EIO;
 			}
 		}
 
-		protected virtual Errno OnGetExtendedAttributes (string path, string name, byte[] value)
+		protected virtual Errno OnGetExtendedAttributes (string path, string name, byte[] value, out int bytesWritten)
 		{
+			bytesWritten = 0;
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnListExtendedAttributes (string path, byte[] list, ulong size)
+		private Errno _OnListExtendedAttributes (string path, byte[] list, ulong size,  out int bytesWritten)
 		{
 			try {
-				return OnListExtendedAttributes (path, list);
+				return OnListExtendedAttributes (path, list, out bytesWritten);
 			}
 			catch {
+				bytesWritten = 0;
 				return Errno.EIO;
 			}
 		}
 
-		protected virtual Errno OnListExtendedAttributes (string path, byte[] list)
+		protected virtual Errno OnListExtendedAttributes (string path, byte[] list, out int bytesWritten)
 		{
+			bytesWritten = 0;
 			return Errno.ENOSYS;
 		}
 

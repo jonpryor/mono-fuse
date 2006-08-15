@@ -46,15 +46,15 @@ typedef int (*CreateFileNodeCb) (const char* path, unsigned int perms, guint64 d
 typedef int (*CreateHardlinkCb) (const char* oldpath, const char* newpath);
 typedef int (*CreateSymbolicLinkCb) (const char* oldpath, const char* newpath);
 typedef int (*FlushCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
-typedef int (*GetExtendedAttributesCb) (const char* path, const char* name, unsigned char* value, guint64 size);
+typedef int (*GetExtendedAttributesCb) (const char* path, const char* name, unsigned char* value, guint64 size, int* bytesWritten);
 typedef int (*GetFileAttributesCb) (const char* path, struct Mono_Posix_Stat* stat);
 typedef int (*GetFileDescriptorAttributesCb) (const char* path, struct Mono_Posix_Stat* buf, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*GetFileSystemStatisticsCb) (const char* path, struct Mono_Posix_Statvfs* buf);
 typedef void* (*InitCb) (void);
-typedef int (*ListExtendedAttributesCb) (const char* path, unsigned char* list, guint64 size);
+typedef int (*ListExtendedAttributesCb) (const char* path, unsigned char* list, guint64 size, int* bytesWritten);
 typedef int (*OpenCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*OpenDirectoryCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
-typedef int (*ReadCb) (const char* path, unsigned char* buf, guint64 size, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info);
+typedef int (*ReadCb) (const char* path, unsigned char* buf, guint64 size, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info, int* bytesRead);
 typedef int (*ReadDirectoryCb) (const char* path, void** paths, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*ReadSymbolicLinkCb) (const char* path, char* buf, guint64 bufsize);
 typedef int (*ReleaseCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
@@ -67,7 +67,7 @@ typedef int (*SynchronizeDirectoryCb) (const char* path, int onlyUserData, struc
 typedef int (*SynchronizeFileDescriptorCb) (const char* path, int onlyUserData, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*TruncateCb) (const char* path, gint64 length);
 typedef int (*TruncateFileDescriptorCb) (const char* path, gint64 length, struct Mono_Fuse_OpenedFileInfo* info);
-typedef int (*WriteCb) (const char* path, unsigned char* buf, guint64 size, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info);
+typedef int (*WriteCb) (const char* path, unsigned char* buf, guint64 size, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info, int* bytesRead);
 /*
  * Structures
  */

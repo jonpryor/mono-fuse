@@ -212,18 +212,19 @@ mfh_read (const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *info)
 {
 	struct Mono_Fuse_OpenedFileInfo _info;
-	int r;
+	int r, bytesRead = 0;
 
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
-	r = _mfh_get_private_data ()->read (path, (unsigned char*) buf, size, offset, &_info);
+	r = _mfh_get_private_data ()->read (path, (unsigned char*) buf, size, offset, 
+			&_info, &bytesRead);
 
 	if (_from_file_info (&_info, info) != 0)
 		return -EINVAL;
 
-	if (r > 0)
-		return r;
+	if (r == 0 && bytesRead >= 0)
+		return bytesRead;
 	return _convert_errno (r);
 }
 
@@ -232,18 +233,19 @@ mfh_write (const char *path, const char *buf, size_t size, off_t offset,
 		struct fuse_file_info *info)
 {
 	struct Mono_Fuse_OpenedFileInfo _info;
-	int r;
+	int r, bytesWritten = 0;
 
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
-	r = _mfh_get_private_data ()->write (path, (unsigned char*) buf, size, offset, &_info);
+	r = _mfh_get_private_data ()->write (path, (unsigned char*) buf, size, offset,
+			&_info, &bytesWritten);
 
 	if (_from_file_info (&_info, info) != 0)
 		return -EINVAL;
 
-	if (r > 0)
-		return r;
+	if (r == 0 && bytesWritten >= 0)
+		return bytesWritten;
 	return _convert_errno (r);
 }
 
@@ -329,14 +331,22 @@ mfh_setxattr (const char *path, const char *name, const char *value, size_t size
 static int
 mfh_getxattr (const char *path, const char *name, char *buf, size_t size)
 {
-	int r = _mfh_get_private_data ()->getxattr (path, name, (unsigned char *) buf, size);
+	int r, bytesWritten = 0;
+	r = _mfh_get_private_data ()->getxattr (path, name, (unsigned char *) buf, 
+			size, &bytesWritten);
+	if (r == 0 && bytesWritten >= 0)
+		return bytesWritten;
 	return _convert_errno (r);
 }
 
 static int
 mfh_listxattr (const char *path, char *buf, size_t size)
 {
-	int r = _mfh_get_private_data ()->listxattr (path, (unsigned char *) buf, size);
+	int r, bytesWritten = 0;
+	r = _mfh_get_private_data ()->listxattr (path, (unsigned char *) buf, size,
+			&bytesWritten);
+	if (r == 0 && bytesWritten >= 0)
+		return bytesWritten;
 	return _convert_errno (r);
 }
 

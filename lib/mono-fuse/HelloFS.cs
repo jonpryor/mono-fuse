@@ -88,16 +88,18 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		protected override int OnRead (string path, byte[] buf, long offset, OpenedFileInfo fi)
+		protected override Errno OnRead (string path, byte[] buf, long offset, OpenedFileInfo fi, out int bytesWritten)
 		{
 			Console.WriteLine ("(OnRead {0})", path);
+			bytesWritten = 0;
 			byte[] source = null;
 			if (path == hello_path)
 				source = hello_str;
 			else if (path == data_path)
 				source = data_str;
-			else
-				return -(int) Errno.ENOENT;
+			else {
+				return Errno.ENOENT;
+			}
 
 			int size = buf.Length;
 
@@ -109,7 +111,8 @@ namespace Mono.Fuse.Samples {
 			else
 				size = 0;
 
-			return (int) size;
+			bytesWritten = size;
+			return 0;
 		}
 
 		public static void Main (string[] args)
