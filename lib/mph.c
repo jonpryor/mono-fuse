@@ -6,8 +6,10 @@
 #include <mono/posix/limits.h>
 #include <mono/posix/helper.h>
 #include <sys/types.h>
+#include <sys/statvfs.h>
 #include <unistd.h>
 #include <string.h>
+#include <utime.h>
 
 int
 Mono_Posix_FromStat (struct Mono_Posix_Stat *from, struct stat *to)
@@ -79,4 +81,103 @@ Mono_Posix_ToStat (struct stat *from, struct Mono_Posix_Stat *to)
 	return 0;
 }
 
+int
+Mono_Posix_FromStatvfs (struct Mono_Posix_Statvfs *from, struct statvfs *to)
+{
+	mph_return_val_if_overflow (unsigned long, from->f_bsize, -1);
+	mph_return_val_if_overflow (unsigned long, from->f_frsize, -1);
+	mph_return_val_if_overflow (fsblkcnt_t, from->f_blocks, -1);
+	mph_return_val_if_overflow (fsblkcnt_t, from->f_bfree, -1);
+	mph_return_val_if_overflow (fsblkcnt_t, from->f_bavail, -1);
+	mph_return_val_if_overflow (fsfilcnt_t, from->f_files, -1);
+	mph_return_val_if_overflow (fsfilcnt_t, from->f_ffree, -1);
+	mph_return_val_if_overflow (fsfilcnt_t, from->f_favail, -1);
+	mph_return_val_if_overflow (unsigned long, from->f_fsid, -1);
+	mph_return_val_if_overflow (unsigned long, from->f_flag, -1);
+	mph_return_val_if_overflow (unsigned long, from->f_namemax, -1);
 
+	to->f_bsize   = from->f_bsize;
+	to->f_frsize  = from->f_frsize;
+	to->f_blocks  = from->f_blocks;
+	to->f_bfree   = from->f_bfree;
+	to->f_bavail  = from->f_bavail;
+	to->f_files   = from->f_files;
+	to->f_ffree   = from->f_ffree;
+	to->f_favail  = from->f_favail;
+	to->f_fsid    = from->f_fsid;
+	to->f_flag    = from->f_flag;
+	to->f_namemax = from->f_namemax;
+
+	return 0;
+}
+
+int
+Mono_Posix_ToStatvfs (struct statvfs *from, struct Mono_Posix_Statvfs *to)
+{
+	mph_return_val_if_overflow (guint64, from->f_bsize, -1);
+	mph_return_val_if_overflow (guint64, from->f_frsize, -1);
+	mph_return_val_if_overflow (guint64, from->f_blocks, -1);
+	mph_return_val_if_overflow (guint64, from->f_bfree, -1);
+	mph_return_val_if_overflow (guint64, from->f_bavail, -1);
+	mph_return_val_if_overflow (guint64, from->f_files, -1);
+	mph_return_val_if_overflow (guint64, from->f_ffree, -1);
+	mph_return_val_if_overflow (guint64, from->f_favail, -1);
+	mph_return_val_if_overflow (guint64, from->f_fsid, -1);
+	mph_return_val_if_overflow (guint64, from->f_flag, -1);
+	mph_return_val_if_overflow (guint64, from->f_namemax, -1);
+
+	to->f_bsize   = from->f_bsize;
+	to->f_frsize  = from->f_frsize;
+	to->f_blocks  = from->f_blocks;
+	to->f_bfree   = from->f_bfree;
+	to->f_bavail  = from->f_bavail;
+	to->f_files   = from->f_files;
+	to->f_ffree   = from->f_ffree;
+	to->f_favail  = from->f_favail;
+	to->f_fsid    = from->f_fsid;
+	to->f_flag    = from->f_flag;
+	to->f_namemax = from->f_namemax;
+
+	return 0;
+}
+
+
+int
+Mono_Posix_FromUtimbuf (struct Mono_Posix_Utimbuf *from, struct utimbuf *to)
+{
+	mph_return_val_if_overflow (time_t, from->actime, -1);
+	mph_return_val_if_overflow (time_t, from->modtime, -1);
+
+	to->actime  = from->actime;
+	to->modtime = from->modtime;
+
+	return 0;
+}
+
+int
+Mono_Posix_ToUtimbuf (struct utimbuf *from, struct Mono_Posix_Utimbuf *to)
+{
+	mph_return_val_if_overflow (gint64, from->actime, -1);
+	mph_return_val_if_overflow (gint64, from->modtime, -1);
+
+	to->actime  = from->actime;
+	to->modtime = from->modtime;
+
+	return 0;
+}
+
+#ifdef TEST
+#include <stdio.h>
+int
+main ()
+{
+	struct stat buf;
+	struct Mono_Posix_Stat mbuf;
+	int r;
+
+	buf.st_blksize = G_MAXINT64;
+
+	r = Mono_Posix_ToStat (&buf, &mbuf);
+	printf ("ToStat()=%i\n", r);
+}
+#endif

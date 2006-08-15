@@ -6,6 +6,8 @@
 #include <fuse.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <mono/posix/helper.h>
 
@@ -14,7 +16,7 @@
 
 #define _mfh_return_unless_perms(in, out) G_STMT_START {       \
 	if (Mono_Posix_ToFilePermissions (in, out) != 0)  \
-		return -EINVAL;                                 \
+		return -errno;                                 \
 	} G_STMT_END
 
 static inline int
@@ -31,13 +33,10 @@ mfh_getattr (const char *path, struct stat *stat)
 	struct Mono_Posix_Stat _stat;
 	int r;
 
-	if (Mono_Posix_ToStat (stat, &_stat) != 0)
-		return -EINVAL;
-
 	r = _mfh_get_private_data ()->getattr (path, &_stat);
 
 	if (Mono_Posix_FromStat (&_stat, stat) != 0)
-		return -EINVAL;
+		return -errno;
 	
 	return _convert_errno (r);
 }
@@ -143,7 +142,6 @@ mfh_truncate (const char *path, off_t len)
 static int
 mfh_utime (const char *path, struct utimbuf *buf)
 {
-#if 0
 	struct Mono_Posix_Utimbuf _buf;
 	int r;
 
@@ -156,9 +154,6 @@ mfh_utime (const char *path, struct utimbuf *buf)
 		return -EINVAL;
 
 	return _convert_errno (r);
-#else
-	return -ENOSYS;
-#endif
 }
 
 static int
@@ -166,14 +161,14 @@ _to_file_info (struct fuse_file_info *from, struct Mono_Fuse_OpenedFileInfo *to)
 {
 	memset (to, 0, sizeof (*to));
 
-	if (Mono_Posix_ToOpenFlags (from->flags, &to->Flags) != 0) {
-		return -EINVAL;
+	if (Mono_Posix_ToOpenFlags (from->flags, &to->flags) != 0) {
+		return -errno;
 	}
 
-	to->WritePage   = from->writepage;
-	to->DirectIO    = from->direct_io;
-	to->KeepCache   = from->keep_cache;
-	to->FileHandle  = from->fh;
+	to->write_page   = from->writepage;
+	to->direct_io    = from->direct_io;
+	to->keep_cache   = from->keep_cache;
+	to->file_handle  = from->fh;
 
 	return 0;
 }
@@ -183,14 +178,14 @@ _from_file_info (struct Mono_Fuse_OpenedFileInfo *from, struct fuse_file_info *t
 {
 	memset (to, 0, sizeof (*to));
 
-	if (Mono_Posix_FromOpenFlags (from->Flags, &to->flags) != 0) {
-		return -EINVAL;
+	if (Mono_Posix_FromOpenFlags (from->flags, &to->flags) != 0) {
+		return -errno;
 	}
 
-	to->writepage   = from->WritePage;
-	to->direct_io   = from->DirectIO ? 1 : 0;
-	to->keep_cache  = from->KeepCache ? 1 : 0;
-	to->fh          = from->FileHandle;
+	to->writepage   = from->write_page;
+	to->direct_io   = from->direct_io ? 1 : 0;
+	to->keep_cache  = from->keep_cache ? 1 : 0;
+	to->fh          = from->file_handle;
 
 	return 0;
 }
@@ -222,7 +217,7 @@ mfh_read (const char *path, char *buf, size_t size, off_t offset,
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
-	r = _mfh_get_private_data ()->read (path, buf, size, offset, &_info);
+	r = _mfh_get_private_data ()->read (path, (unsigned char*) buf, size, offset, &_info);
 
 	if (_from_file_info (&_info, info) != 0)
 		return -EINVAL;
@@ -242,7 +237,7 @@ mfh_write (const char *path, const char *buf, size_t size, off_t offset,
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
-	r = _mfh_get_private_data ()->write (path, (char*) buf, size, offset, &_info);
+	r = _mfh_get_private_data ()->write (path, (unsigned char*) buf, size, offset, &_info);
 
 	if (_from_file_info (&_info, info) != 0)
 		return -EINVAL;
@@ -255,12 +250,8 @@ mfh_write (const char *path, const char *buf, size_t size, off_t offset,
 static int
 mfh_statfs (const char *path, struct statvfs *buf)
 {
-#if 0
 	struct Mono_Posix_Statvfs _buf;
 	int r;
-
-	if (Mono_Posix_ToStatvfs (buf, &_buf) != 0)
-		return -EINVAL;
 
 	r = _mfh_get_private_data ()->statfs (path, &_buf);
 
@@ -268,9 +259,6 @@ mfh_statfs (const char *path, struct statvfs *buf)
 		return -EINVAL;
 
 	return _convert_errno (r);
-#else
-	return -ENOSYS;
-#endif
 }
 
 static int
@@ -333,7 +321,7 @@ mfh_setxattr (const char *path, const char *name, const char *value, size_t size
 	if (Mono_Posix_ToXattrFlags (flags, &_flags) != 0)
 		return -EINVAL;
 
-	r = _mfh_get_private_data ()->setxattr (path, name, (char*) value, size, flags);
+	r = _mfh_get_private_data ()->setxattr (path, name, (unsigned char*) value, size, flags);
 
 	return _convert_errno (r);
 }
@@ -341,14 +329,14 @@ mfh_setxattr (const char *path, const char *name, const char *value, size_t size
 static int
 mfh_getxattr (const char *path, const char *name, char *buf, size_t size)
 {
-	int r = _mfh_get_private_data ()->getxattr (path, name, buf, size);
+	int r = _mfh_get_private_data ()->getxattr (path, name, (unsigned char *) buf, size);
 	return _convert_errno (r);
 }
 
 static int
 mfh_listxattr (const char *path, char *buf, size_t size)
 {
-	int r = _mfh_get_private_data ()->listxattr (path, buf, size);
+	int r = _mfh_get_private_data ()->listxattr (path, (unsigned char *) buf, size);
 	return _convert_errno (r);
 }
 
@@ -379,12 +367,13 @@ mfh_opendir (const char *path, struct fuse_file_info *info)
 static void
 _free_argv (char **argv)
 {
+	char **s = argv;
 	if (argv == NULL)
 		return;
 
 	while (*argv)
 		free (*argv++);
-	free (argv);
+	free (s);
 }
 
 static int
@@ -392,7 +381,7 @@ mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *info)
 {
 	struct Mono_Fuse_OpenedFileInfo _info;
-	const char **paths = NULL;
+	char **paths = NULL;
 	int r;
 
 	printf ("mfh_readdir invoked!\n");
@@ -400,7 +389,7 @@ mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
-	r = _mfh_get_private_data ()->readdir (path, &paths, &_info);
+	r = _mfh_get_private_data ()->readdir (path, (void**) &paths, &_info);
 
 	if (r == 0 && paths) {
 		int i;
@@ -505,8 +494,6 @@ mfh_fgetattr (const char *path, struct stat *stat, struct fuse_file_info *info)
 	struct Mono_Posix_Stat _stat;
 	int r;
 
-	if (Mono_Posix_ToStat (stat, &_stat) != 0)
-		return -EINVAL;
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
@@ -554,7 +541,6 @@ _to_fuse_operations (struct Mono_Fuse_Operations *from, struct fuse_operations *
 	if (from->releasedir)   to->releasedir  = mfh_releasedir;
 	if (from->fsyncdir)     to->fsyncdir    = mfh_fsyncdir;
 	if (from->init)         to->init        = from->init;
-	if (from->destroy)      to->destroy     = from->destroy;
 	if (from->access)       to->access      = mfh_access;
 	if (from->create)       to->create      = mfh_create;
 	if (from->ftruncate)    to->ftruncate   = mfh_ftruncate;
@@ -585,13 +571,13 @@ mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, void* ops)
 }
 
 void
-mfh_destroy (void* fusep)
+mfh_fuse_destroy (void* fusep)
 {
 	fuse_destroy (fusep);
 }
 
 int
-mfh_get_fuse_context (struct Mono_Fuse_FileSystemOperationContext* context)
+mfh_fuse_get_context (struct Mono_Fuse_FileSystemOperationContext* context)
 {
 	struct fuse_context *from = fuse_get_context ();
 	if (from == NULL) {
@@ -609,7 +595,7 @@ mfh_get_fuse_context (struct Mono_Fuse_FileSystemOperationContext* context)
 }
 
 int
-mfh_mount (const char* path, struct Mono_Fuse_Args* args)
+mfh_fuse_mount (const char* path, struct Mono_Fuse_Args* args)
 {
 	struct fuse_args _args;
 	int r;
@@ -620,7 +606,7 @@ mfh_mount (const char* path, struct Mono_Fuse_Args* args)
 }
 
 int
-mfh_unmount (const char* path)
+mfh_fuse_unmount (const char* path)
 {
 	fuse_unmount (path);
 	return 0;

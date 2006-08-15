@@ -24,14 +24,51 @@ namespace Mono.Fuse {
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
 	public class OpenedFileInfo {
-		public OpenFlags Flags;
-		public int WritePage;
-		public bool DirectIO;
-		public bool KeepCache;
-		public ulong FileHandle;
+		private OpenFlags flags;
+		private int   write_page;
+		private bool  direct_io;
+		private bool  keep_cache;
+		private ulong file_handle;
+
+		public OpenFlags OpenFlags {
+			get {return flags;}
+			set {flags = value;}
+		}
+
+		public bool OpenReadOnly {
+			get {return ((OpenFlags) ((int) flags & 3)) == OpenFlags.O_RDONLY;}
+		}
+
+		public bool OpenWriteOnly {
+			get {return ((OpenFlags) ((int) flags & 3)) == OpenFlags.O_WRONLY;}
+		}
+
+		public bool OpenReadWrite {
+			get {return ((OpenFlags) ((int) flags & 3)) == OpenFlags.O_RDWR;}
+		}
+
+		public int WritePage {
+			get {return write_page;}
+			set {write_page = value;}
+		}
+
+		public bool DirectIO {
+			get {return direct_io;}
+			set {direct_io = value;}
+		}
+
+		public bool KeepCache {
+			get {return keep_cache;}
+			set {keep_cache = value;}
+		}
+
+		public long FileHandle {
+			get {return (long) file_handle;}
+			set {file_handle = (ulong) value;}
+		}
 	}
 
-	delegate Errno GetFileAttributesCb (string path, ref Stat stat);
+	delegate Errno GetFileAttributesCb (string path, out Stat stat);
 	delegate Errno ReadSymbolicLinkCb (string path, StringBuilder buf, ulong bufsize);
 	delegate Errno CreateFileNodeCb (string path, FilePermissions perms, ulong dev);
 	delegate Errno CreateDirectoryCb (string path, FilePermissions mode);
@@ -46,23 +83,23 @@ namespace Mono.Fuse {
 	delegate Errno ChangeTimesCb (string path, ref Utimbuf buf);
 	delegate Errno OpenCb (string path, OpenedFileInfo info); 
 	delegate int ReadCb (string path, 
-			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
+			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] buf, ulong size, long offset, OpenedFileInfo info);
 	delegate int WriteCb (string path, 
-			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
+			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] buf, ulong size, long offset, OpenedFileInfo info);
-	delegate Errno GetFileSystemStatisticsCb (string path, ref Statvfs buf);
+	delegate Errno GetFileSystemStatisticsCb (string path, out Statvfs buf);
 	delegate Errno FlushCb (string path, OpenedFileInfo info);
 	delegate Errno ReleaseCb (string path, OpenedFileInfo info);
 	delegate Errno SynchronizeFileDescriptorCb (string path, bool onlyUserData, OpenedFileInfo info);
 	delegate Errno SetExtendedAttributesCb (string path, string name, 
-			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
+			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size, XattrFlags flags);
 	delegate Errno GetExtendedAttributesCb (string path, string name, 
-			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
+			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size);
 	delegate Errno ListExtendedAttributesCb (string path, 
-			[In, Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
+			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] list, ulong size);
 	delegate Errno RemoveExtendedAttributesCb (string path, string name);
 	delegate Errno OpenDirectoryCb (string path, OpenedFileInfo info);
@@ -74,7 +111,7 @@ namespace Mono.Fuse {
 	delegate Errno AccessCb (string path, AccessModes mode);
 	delegate Errno CreateCb (string path, FilePermissions mode, OpenedFileInfo info);
 	delegate Errno TruncateFileDescriptorCb (string path, long length, OpenedFileInfo info);
-	delegate Errno GetFileDescriptorAttributesCb (string path, ref Stat buf, OpenedFileInfo info);
+	delegate Errno GetFileDescriptorAttributesCb (string path, out Stat buf, OpenedFileInfo info);
 
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
@@ -130,16 +167,16 @@ namespace Mono.Fuse {
 		private static extern IntPtr mfh_fuse_new (int fd, Args args, IntPtr ops);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_get_fuse_context (FileSystemOperationContext context);
+		private static extern int mfh_fuse_get_context (FileSystemOperationContext context);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_mount (string path, Args args);
+		private static extern int mfh_fuse_mount (string path, Args args);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_unmount (string path);
+		private static extern int mfh_fuse_unmount (string path);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern void mfh_destroy (IntPtr fusep);
+		private static extern void mfh_fuse_destroy (IntPtr fusep);
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern int mfh_fuse_loop (IntPtr fusep);
@@ -337,7 +374,7 @@ namespace Mono.Fuse {
 				args.argc = _args.Length;
 				args.argv = AllocArgv (_args);
 				args.allocated = 1;
-				fd = mfh_mount (mountPoint, args);
+				fd = mfh_fuse_mount (mountPoint, args);
 				if (fd == -1)
 					throw new Exception ("Unable to mount " + mountPoint + ".");
 				unmount = true;
@@ -357,7 +394,7 @@ namespace Mono.Fuse {
 			finally {
 				FreeArgv (args.argc, args.argv);
 				if (unmount)
-					mfh_unmount (mountPoint);
+					mfh_fuse_unmount (mountPoint);
 			}
 		}
 
@@ -513,8 +550,8 @@ namespace Mono.Fuse {
 			}
 
 			if (fusep != IntPtr.Zero) {
-				mfh_unmount (MountPoint);
-				mfh_destroy (fusep);
+				mfh_fuse_unmount (MountPoint);
+				mfh_fuse_destroy (fusep);
 				fusep = IntPtr.Zero;
 			}
 		}
@@ -543,23 +580,25 @@ namespace Mono.Fuse {
 		protected static FileSystemOperationContext GetOperationContext ()
 		{
 			FileSystemOperationContext context = new FileSystemOperationContext ();
-			int r = mfh_get_fuse_context (context);
+			int r = mfh_fuse_get_context (context);
 			UnixMarshal.ThrowExceptionForLastErrorIf (r);
 			return context;
 		}
 
-		private Errno _OnGetFileAttributes (string path, ref Stat stat)
+		private Errno _OnGetFileAttributes (string path, out Stat stat)
 		{
 			try {
-				return OnGetFileAttributes (path, ref stat);
+				return OnGetFileAttributes (path, out stat);
 			}
 			catch {
+				stat = new Stat ();
 				return Errno.EIO;
 			}
 		}
 
-		protected virtual Errno OnGetFileAttributes (string path, ref Stat stat)
+		protected virtual Errno OnGetFileAttributes (string path, out Stat stat)
 		{
+			stat = new Stat ();
 			return Errno.ENOSYS;
 		}
 
@@ -788,18 +827,20 @@ namespace Mono.Fuse {
 			return 0;
 		}
 
-		private Errno _OnGetFileSystemStatistics (string path, ref Statvfs buf)
+		private Errno _OnGetFileSystemStatistics (string path, out Statvfs buf)
 		{
 			try {
-				return OnGetFileSystemStatistics (path, ref buf);
+				return OnGetFileSystemStatistics (path, out buf);
 			}
 			catch {
+				buf = new Statvfs ();
 				return Errno.EIO;
 			}
 		}
 
-		protected virtual Errno OnGetFileSystemStatistics (string path, ref Statvfs buf)
+		protected virtual Errno OnGetFileSystemStatistics (string path, out Statvfs buf)
 		{
+			buf = new Statvfs ();
 			return Errno.ENOSYS;
 		}
 
@@ -1025,18 +1066,20 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnGetFileDescriptorAttributes (string path, ref Stat buf, OpenedFileInfo info)
+		private Errno _OnGetFileDescriptorAttributes (string path, out Stat buf, OpenedFileInfo info)
 		{
 			try {
-				return OnGetFileDescriptorAttributes (path, ref buf, info);
+				return OnGetFileDescriptorAttributes (path, out buf, info);
 			}
 			catch {
+				buf = new Stat ();
 				return Errno.EIO;
 			}
 		}
 
-		protected virtual Errno OnGetFileDescriptorAttributes (string path, ref Stat buf, OpenedFileInfo info)
+		protected virtual Errno OnGetFileDescriptorAttributes (string path, out Stat buf, OpenedFileInfo info)
 		{
+			buf = new Stat ();
 			return Errno.ENOSYS;
 		}
 	}

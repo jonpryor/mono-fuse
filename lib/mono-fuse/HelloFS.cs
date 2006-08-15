@@ -81,8 +81,9 @@ namespace Mono.Fuse.Samples {
 			if (path != hello_path && path != data_path)
 				return Errno.ENOENT;
 			// if ((fi.flags & 3) != OpenFlags.O_RDONLY)
-			Console.WriteLine ("OnOpen Flags={0}", fi.Flags);
-			if (((OpenFlags)((int) fi.Flags & 3)) != OpenFlags.O_RDONLY)
+			Console.WriteLine ("OnOpen Flags={0}", fi.OpenFlags);
+			// if (((OpenFlags)((int) fi.Flags & 3)) != OpenFlags.O_RDONLY)
+			if (!fi.OpenReadOnly)
 				return Errno.EACCES;
 			return 0;
 		}

@@ -45,7 +45,6 @@ typedef int (*CreateDirectoryCb) (const char* path, unsigned int mode);
 typedef int (*CreateFileNodeCb) (const char* path, unsigned int perms, guint64 dev);
 typedef int (*CreateHardlinkCb) (const char* oldpath, const char* newpath);
 typedef int (*CreateSymbolicLinkCb) (const char* oldpath, const char* newpath);
-typedef void (*DestroyCb) (void* privateData);
 typedef int (*FlushCb) (const char* path, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*GetExtendedAttributesCb) (const char* path, const char* name, unsigned char* value, guint64 size);
 typedef int (*GetFileAttributesCb) (const char* path, struct Mono_Posix_Stat* stat);
@@ -93,11 +92,11 @@ struct Mono_Fuse_FileSystemOperationContext {
 };
 
 struct Mono_Fuse_OpenedFileInfo {
-	int     Flags;
-	int     WritePage;
-	int     DirectIO;
-	int     KeepCache;
-	guint64 FileHandle;
+	int     flags;
+	int     write_page;
+	int     direct_io;
+	int     keep_cache;
+	guint64 file_handle;
 };
 
 struct Mono_Fuse_Operations {
@@ -130,7 +129,6 @@ struct Mono_Fuse_Operations {
 	CloseDirectoryCb              releasedir;
 	SynchronizeDirectoryCb        fsyncdir;
 	InitCb                        init;
-	DestroyCb                     destroy;
 	AccessCb                      access;
 	CreateCb                      create;
 	TruncateFileDescriptorCb      ftruncate;
@@ -141,14 +139,14 @@ struct Mono_Fuse_Operations {
 /*
  * Functions
  */
-void mfh_destroy (void* fusep);
+void mfh_fuse_destroy (void* fusep);
 void mfh_fuse_exit (void* fusep);
+int mfh_fuse_get_context (struct Mono_Fuse_FileSystemOperationContext* context);
 int mfh_fuse_loop (void* fusep);
 int mfh_fuse_loop_mt (void* fusep);
+int mfh_fuse_mount (const char* path, struct Mono_Fuse_Args* args);
 void* mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, void* ops);
-int mfh_get_fuse_context (struct Mono_Fuse_FileSystemOperationContext* context);
-int mfh_mount (const char* path, struct Mono_Fuse_Args* args);
-int mfh_unmount (const char* path);
+int mfh_fuse_unmount (const char* path);
 
 G_END_DECLS
 
