@@ -12,18 +12,21 @@ Mono.Fuse.dll: FileSystem.cs
 ../map.c ../map.h: Mono.Fuse.dll make-map.exe
 	mono --debug make-map.exe Mono.Fuse.dll ../map
 
-HelloFS.exe: HelloFS.cs
-	gmcs -debug+ -out:$@ -r:Mono.Posix.dll -r:./Mono.Fuse.dll $^
+HelloFS.exe: HelloFS.cs Mono.Fuse.dll
+	gmcs -debug+ -out:$@ -r:Mono.Posix.dll -r:./Mono.Fuse.dll $<
 
-MakeMap.Test.dll: MakeMap.Test.cs
-	mcs -debug+ -out:$@ -t:library -r:Mono.Posix.dll $^
+MakeMap.Test.dll: MakeMap.Test.cs make-map.exe
+	mcs -debug+ -out:$@ -t:library -r:Mono.Posix.dll $<
 
 test.c test.h: MakeMap.Test.dll make-map.exe
 	mono --debug make-map.exe MakeMap.Test.dll test
 
+libtest.so: test.c
+	gcc -shared -o $@ $^ -I.. `pkg-config --libs --cflags glib-2.0`
+
 check:
 	for f in test.c test.h test.cs test.xml ; do \
-		diff -rup $$f $$f.ref ; \
+		diff -rup $$f.ref $$f ; \
 	done
 
 check-update:

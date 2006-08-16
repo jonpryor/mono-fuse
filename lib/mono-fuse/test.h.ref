@@ -13,12 +13,25 @@
 G_BEGIN_DECLS
 
 /*
- * Enumerations
+ * Assembly Public Macros
  */
 #ifndef DefineMe
 #define DefineMe 42
 #endif /* ndef DefineMe=42 */
-#include <IncludeMe.h>
+
+/*
+ * Assembly Public Includes
+ */
+#include <stdlib.h>
+
+/*
+ * Assembly Public Declarations
+ */
+struct foo {int foo;};
+
+/*
+ * Enumerations
+ */
 
 /*
  * Structure Declarations
@@ -27,6 +40,7 @@ G_BEGIN_DECLS
 struct MakeMap_Test_Baz;
 struct MakeMap_Test_Foo;
 struct MakeMap_Test_Qux;
+
 /*
  * Delegate Declarations
  */
@@ -39,6 +53,7 @@ typedef void (*DelRefArrayBaz) (int i, struct MakeMap_Test_Baz*** b);
 typedef void (*DelRefArrayFoo) (int i, struct MakeMap_Test_Foo** f);
 typedef void (*DelRefBaz) (int i, struct MakeMap_Test_Baz** b);
 typedef void (*DelRefFoo) (int i, struct MakeMap_Test_Foo* f);
+
 /*
  * Structures
  */
@@ -59,7 +74,8 @@ struct MakeMap_Test_Foo {
 };
 
 int
-MakeMap_Test_FromFoo (struct MakeMap_Test_Foo* from, struct foo *to);int
+MakeMap_Test_FromFoo (struct MakeMap_Test_Foo* from, struct foo *to);
+int
 MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo* to);
 
 
@@ -67,11 +83,6 @@ struct MakeMap_Test_Qux {
 	int                      i;
 	struct MakeMap_Test_Baz* b;
 };
-
-int
-MakeMap_Test_FromQux (struct MakeMap_Test_Qux* from, struct qux *to);int
-MakeMap_Test_ToQux (struct qux *from, struct MakeMap_Test_Qux* to);
-
 
 
 /*

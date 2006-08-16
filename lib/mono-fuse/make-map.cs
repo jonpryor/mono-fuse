@@ -37,6 +37,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using Mono.Unix.Native;
 
@@ -383,19 +384,46 @@ class HeaderFileGenerator : FileGenerator {
 		sh.WriteLine ("#include <glib/gtypes.h>\n");
 		sh.WriteLine ("G_BEGIN_DECLS\n");
 
-		sh.WriteLine ("/*\n * Enumerations\n */");
 		// Kill warning about unused method
 		DumpTypeInfo (null);
 	}
 
 	public override void WriteAssemblyAttributes (Assembly assembly)
 	{
+		MapHeaderAttribute[] mhattr = MapUtils.GetCustomAttributes <MapHeaderAttribute> (assembly);
+		if (mhattr != null) {
+			WriteDefines (sh, mhattr);
+			WriteIncludes (sh, mhattr);
+			WriteDeclarations (sh, mhattr);
+		}
+
 		HeaderAttribute hattr = MapUtils.GetCustomAttribute <HeaderAttribute> (assembly);
 		if (hattr != null) {
+			sh.WriteLine ("/*\n * Assembly Header\n */");
 			WriteDefines (sh, hattr);
 			WriteIncludes (sh, hattr);
 		}
-		sh.WriteLine ();
+
+		sh.WriteLine ("/*\n * Enumerations\n */");
+	}
+
+	static void WriteDefines (TextWriter writer, MapHeaderAttribute[] mhattr)
+	{
+		writer.WriteLine ("/*\n * Assembly Public Macros\n */");
+		Array.Sort (mhattr, delegate (MapHeaderAttribute h1, MapHeaderAttribute h2) {
+				return MapUtils.OrdinalStringComparer.Compare (h1.PublicMacro, h2.PublicMacro);
+		});
+		foreach (MapHeaderAttribute a in mhattr) {
+			string def = a.PublicMacro;
+			if (def == null || def.Length == 0)
+				continue;
+			string[] val = def.Split ('=');
+			writer.WriteLine ("#ifndef {0}", val [0]);
+			writer.WriteLine ("#define {0}{1}", val [0], 
+					val.Length > 1 ? " " + val [1] : "");
+			writer.WriteLine ("#endif /* ndef {0} */", def);
+			writer.WriteLine ();
+		}
 	}
 
 	static void WriteDefines (TextWriter writer, HeaderAttribute hattr)
@@ -410,6 +438,35 @@ class HeaderFileGenerator : FileGenerator {
 					val.Length > 1 ? " " + val [1] : "");
 			writer.WriteLine ("#endif /* ndef {0} */", def);
 		}
+	}
+
+	static void WriteIncludes (TextWriter writer, MapHeaderAttribute[] mhattr)
+	{
+		writer.WriteLine ("/*\n * Assembly Public Includes\n */");
+		Array.Sort (mhattr, delegate (MapHeaderAttribute h1, MapHeaderAttribute h2) {
+				return MapUtils.OrdinalStringComparer.Compare (h1.PublicIncludeFile, h2.PublicIncludeFile);
+		});
+		Regex ire = new Regex (@"^(?<AutoHeader>ah:)?(?<Include>(""|<)(?<IncludeFile>.*)(""|>))$");
+		foreach (MapHeaderAttribute a in mhattr) {
+			string inc = a.PublicIncludeFile;
+			if (inc == null || inc.Length == 0)
+				continue;
+			Match m = ire.Match (inc);
+			if (!m.Groups ["Include"].Success) {
+				Console.WriteLine ("warning: invalid PublicIncludeFile: {0}", inc);
+				continue;
+			}
+			if (m.Success && m.Groups ["AutoHeader"].Success) {
+				string i = m.Groups ["IncludeFile"].Value;
+				string def = "HAVE_" + i.ToUpper ().Replace ("/", "_").Replace (".", "_");
+				writer.WriteLine ("#ifdef {0}", def);
+				writer.WriteLine ("#include {0}", m.Groups ["Include"]);
+				writer.WriteLine ("#endif /* ndef {0} */", def);
+			}
+			else
+				writer.WriteLine ("#include {0}", m.Groups ["Include"]);
+		}
+		writer.WriteLine ();
 	}
 
 	static void WriteIncludes (TextWriter writer, HeaderAttribute hattr)
@@ -427,6 +484,22 @@ class HeaderFileGenerator : FileGenerator {
 			} else 
 				writer.WriteLine ("#include <{0}>", inc);
 		}
+		writer.WriteLine ();
+	}
+
+	static void WriteDeclarations (TextWriter writer, MapHeaderAttribute[] attrs)
+	{
+		writer.WriteLine ("/*\n * Assembly Public Declarations\n */");
+		Array.Sort (attrs, delegate (MapHeaderAttribute h1, MapHeaderAttribute h2) {
+				return MapUtils.OrdinalStringComparer.Compare (h1.PublicDeclaration, h2.PublicDeclaration);
+		});
+		foreach (MapHeaderAttribute a in attrs) {
+			string decl = a.PublicDeclaration;
+			if (decl == null || decl.Length == 0)
+				continue;
+			writer.WriteLine (a.PublicDeclaration);
+		}
+		writer.WriteLine ();
 	}
 
 	public override void WriteType (Type t, string ns, string fn)
@@ -567,17 +640,20 @@ class HeaderFileGenerator : FileGenerator {
 	public override void CloseFile (string file_prefix)
 	{
 		IEnumerable<string> structures = Sort (structs.Keys);
+		sh.WriteLine ();
 		sh.WriteLine ("/*\n * Structure Declarations\n */\n");
 		foreach (string s in structures) {
 			sh.WriteLine ("struct {0};", MapUtils.GetManagedType (structs [s]));
 		}
 
+		sh.WriteLine ();
 		sh.WriteLine ("/*\n * Delegate Declarations\n */\n");
 		foreach (string s in Sort (delegates.Keys)) {
 			sh.WriteLine ("typedef {0};",
 					MapUtils.GetFunctionDeclaration ("(*" + s + ")", delegates [s]));
 		}
 
+		sh.WriteLine ();
 		sh.WriteLine ("/*\n * Structures\n */\n");
 		foreach (string s in structures) {
 			WriteStructDeclarations (s);
@@ -635,7 +711,7 @@ class HeaderFileGenerator : FileGenerator {
 		if (map != null && map.NativeType != null && map.NativeType.Length != 0) {
 			sh.WriteLine ();
 			sh.WriteLine (
-					"int\n{0}_From{1} ({3}{4} from, {2} *to);" + 
+					"int\n{0}_From{1} ({3}{4} from, {2} *to);\n" + 
 					"int\n{0}_To{1} ({2} *from, {3}{4} to);\n",
 					MapUtils.GetNamespace (t), t.Name, map.NativeType, 
 					MapUtils.GetNativeType (t), t.IsValueType ? "*" : "");

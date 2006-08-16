@@ -3,13 +3,15 @@ using System;
 using System.Runtime.InteropServices;
 using Mono.Unix.Native;
 
-[assembly:Header (Includes="IncludeMe.h", Defines="DefineMe=42")]
+[assembly:MapHeader (PublicIncludeFile="<stdlib.h>")]
+[assembly:MapHeader (PublicMacro="DefineMe=42")]
+[assembly:MapHeader (PublicDeclaration="struct foo {int foo;};")]
 
 namespace MakeMap.Test {
 	[Map ("struct foo")]
 	struct Foo {
 		public int foo;
-	};
+	}
 
 	delegate void DelFoo (int i, Foo f);
 	delegate void DelRefFoo (int i, ref Foo f);
@@ -32,7 +34,6 @@ namespace MakeMap.Test {
 		public DelRefArrayBaz b8;
 	}
 
-	[Map ("struct qux")]
 	[StructLayout (LayoutKind.Sequential)]
 	class Qux {
 		public int i;

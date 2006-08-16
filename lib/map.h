@@ -13,12 +13,27 @@
 G_BEGIN_DECLS
 
 /*
- * Enumerations
+ * Assembly Public Macros
+ */
+/*
+ * Assembly Public Includes
+ */
+
+/*
+ * Assembly Public Declarations
+ */
+
+/*
+ * Assembly Header
  */
 #ifndef FUSE_USE_VERSION
 #define FUSE_USE_VERSION 25
 #endif /* ndef FUSE_USE_VERSION=25 */
 #include <fuse.h>
+
+/*
+ * Enumerations
+ */
 
 /*
  * Structure Declarations
@@ -31,6 +46,7 @@ struct Mono_Fuse_Operations;
 struct Mono_Posix_Stat;
 struct Mono_Posix_Statvfs;
 struct Mono_Posix_Utimbuf;
+
 /*
  * Delegate Declarations
  */
@@ -68,6 +84,7 @@ typedef int (*SynchronizeFileDescriptorCb) (const char* path, int onlyUserData, 
 typedef int (*TruncateCb) (const char* path, gint64 length);
 typedef int (*TruncateFileDescriptorCb) (const char* path, gint64 length, struct Mono_Fuse_OpenedFileInfo* info);
 typedef int (*WriteCb) (const char* path, unsigned char* buf, guint64 size, gint64 offset, struct Mono_Fuse_OpenedFileInfo* info, int* bytesRead);
+
 /*
  * Structures
  */
@@ -79,7 +96,8 @@ struct Mono_Fuse_Args {
 };
 
 int
-Mono_Fuse_FromArgs (struct Mono_Fuse_Args* from, struct fuse_args *to);int
+Mono_Fuse_FromArgs (struct Mono_Fuse_Args* from, struct fuse_args *to);
+int
 Mono_Fuse_ToArgs (struct fuse_args *from, struct Mono_Fuse_Args* to);
 
 

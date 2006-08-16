@@ -9,10 +9,6 @@
 #include <string.h>
 #include <mono/posix/limits.h>
 
-#ifndef DefineMe
-#define DefineMe 42
-#endif /* ndef DefineMe=42 */
-#include <IncludeMe.h>
 
 #include "test.h"
 
@@ -37,34 +33,6 @@ MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo *to)
 	memset (to, 0, sizeof(*to));
 
 	to->foo = from->foo;
-
-	return 0;
-}
-
-
-int
-MakeMap_Test_FromQux (struct MakeMap_Test_Qux *from, struct qux *to)
-{
-	mph_return_val_if_overflow (int, from->i, -1);
-
-	memset (to, 0, sizeof(*to));
-
-	to->i = from->i;
-	to->b = from->b;
-
-	return 0;
-}
-
-
-int
-MakeMap_Test_ToQux (struct qux *from, struct MakeMap_Test_Qux *to)
-{
-	mph_return_val_if_overflow (int, from->i, -1);
-
-	memset (to, 0, sizeof(*to));
-
-	to->i = from->i;
-	to->b = from->b;
 
 	return 0;
 }
