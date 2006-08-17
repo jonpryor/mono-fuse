@@ -865,6 +865,7 @@ class SourceFileGenerator : FileGenerator {
 		foreach (string def in defines) {
 			WriteMacroDefinition (writer, def);
 		}
+		writer.WriteLine ();
 	}
 
 	static void WriteIncludes (TextWriter writer, MapHeaderAttribute[] attrs)
