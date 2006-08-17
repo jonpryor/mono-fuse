@@ -363,6 +363,40 @@ abstract class FileGenerator {
 				return o1.CompareTo (o2);
 		});
 	}
+
+	protected static void WriteMacroDefinition (TextWriter writer, string macro)
+	{
+		if (macro == null || macro.Length == 0)
+			return;
+		string[] val = macro.Split ('=');
+		writer.WriteLine ("#ifndef {0}", val [0]);
+		writer.WriteLine ("#define {0}{1}", val [0], 
+				val.Length > 1 ? " " + val [1] : "");
+		writer.WriteLine ("#endif /* ndef {0} */", val [0]);
+		writer.WriteLine ();
+	}
+
+	private static Regex includeRegex = new Regex (@"^(?<AutoHeader>ah:)?(?<Include>(""|<)(?<IncludeFile>.*)(""|>))$");
+
+	protected static void WriteIncludeDeclaration (TextWriter writer, string inc)
+	{
+		if (inc == null || inc.Length == 0)
+			return;
+		Match m = includeRegex.Match (inc);
+		if (!m.Groups ["Include"].Success) {
+			Console.WriteLine ("warning: invalid PublicIncludeFile: {0}", inc);
+			return;
+		}
+		if (m.Success && m.Groups ["AutoHeader"].Success) {
+			string i = m.Groups ["IncludeFile"].Value;
+			string def = "HAVE_" + i.ToUpper ().Replace ("/", "_").Replace (".", "_");
+			writer.WriteLine ("#ifdef {0}", def);
+			writer.WriteLine ("#include {0}", m.Groups ["Include"]);
+			writer.WriteLine ("#endif /* ndef {0} */", def);
+		}
+		else
+			writer.WriteLine ("#include {0}", m.Groups ["Include"]);
+	}
 }
 
 class HeaderFileGenerator : FileGenerator {
@@ -415,14 +449,7 @@ class HeaderFileGenerator : FileGenerator {
 		});
 		foreach (MapHeaderAttribute a in mhattr) {
 			string def = a.PublicMacro;
-			if (def == null || def.Length == 0)
-				continue;
-			string[] val = def.Split ('=');
-			writer.WriteLine ("#ifndef {0}", val [0]);
-			writer.WriteLine ("#define {0}{1}", val [0], 
-					val.Length > 1 ? " " + val [1] : "");
-			writer.WriteLine ("#endif /* ndef {0} */", def);
-			writer.WriteLine ();
+			WriteMacroDefinition (writer, def);
 		}
 	}
 
@@ -430,13 +457,7 @@ class HeaderFileGenerator : FileGenerator {
 	{
 		string [] defines = hattr.Defines.Split (',');
 		foreach (string def in defines) {
-			if (def.Length == 0)
-				continue;
-			string[] val = def.Split ('=');
-			writer.WriteLine ("#ifndef {0}", val [0]);
-			writer.WriteLine ("#define {0}{1}", val [0], 
-					val.Length > 1 ? " " + val [1] : "");
-			writer.WriteLine ("#endif /* ndef {0} */", def);
+			WriteMacroDefinition (writer, def);
 		}
 	}
 
@@ -446,25 +467,9 @@ class HeaderFileGenerator : FileGenerator {
 		Array.Sort (mhattr, delegate (MapHeaderAttribute h1, MapHeaderAttribute h2) {
 				return MapUtils.OrdinalStringComparer.Compare (h1.PublicIncludeFile, h2.PublicIncludeFile);
 		});
-		Regex ire = new Regex (@"^(?<AutoHeader>ah:)?(?<Include>(""|<)(?<IncludeFile>.*)(""|>))$");
 		foreach (MapHeaderAttribute a in mhattr) {
 			string inc = a.PublicIncludeFile;
-			if (inc == null || inc.Length == 0)
-				continue;
-			Match m = ire.Match (inc);
-			if (!m.Groups ["Include"].Success) {
-				Console.WriteLine ("warning: invalid PublicIncludeFile: {0}", inc);
-				continue;
-			}
-			if (m.Success && m.Groups ["AutoHeader"].Success) {
-				string i = m.Groups ["IncludeFile"].Value;
-				string def = "HAVE_" + i.ToUpper ().Replace ("/", "_").Replace (".", "_");
-				writer.WriteLine ("#ifdef {0}", def);
-				writer.WriteLine ("#include {0}", m.Groups ["Include"]);
-				writer.WriteLine ("#endif /* ndef {0} */", def);
-			}
-			else
-				writer.WriteLine ("#include {0}", m.Groups ["Include"]);
+			WriteIncludeDeclaration (writer, inc);
 		}
 		writer.WriteLine ();
 	}
@@ -825,6 +830,12 @@ class SourceFileGenerator : FileGenerator {
 
 	public override void WriteAssemblyAttributes (Assembly assembly)
 	{
+		MapHeaderAttribute[] mhattr = MapUtils.GetCustomAttributes <MapHeaderAttribute> (assembly);
+		if (mhattr != null) {
+			WriteDefines (sc, mhattr);
+			WriteIncludes (sc, mhattr);
+		}
+
 		HeaderAttribute hattr = MapUtils.GetCustomAttribute <HeaderAttribute> (assembly);
 		if (hattr != null) {
 			WriteDefines (sc, hattr);
@@ -835,18 +846,39 @@ class SourceFileGenerator : FileGenerator {
 		sc.WriteLine ();
 	}
 
+	static void WriteDefines (TextWriter writer, MapHeaderAttribute[] attrs)
+	{
+		writer.WriteLine ("/*\n * Implementation Macros\n */");
+		Array.Sort (attrs, delegate (MapHeaderAttribute h1, MapHeaderAttribute h2) {
+				return MapUtils.OrdinalStringComparer.Compare (h1.ImplementationMacro, 
+					h2.ImplementationMacro);
+		});
+		foreach (MapHeaderAttribute a in attrs) {
+			string def = a.ImplementationMacro;
+			WriteMacroDefinition (writer, def);
+		}
+	}
+
 	static void WriteDefines (TextWriter writer, HeaderAttribute hattr)
 	{
 		string [] defines = hattr.Defines.Split (',');
 		foreach (string def in defines) {
-			if (def.Length == 0)
-				continue;
-			string[] val = def.Split ('=');
-			writer.WriteLine ("#ifndef {0}", val [0]);
-			writer.WriteLine ("#define {0}{1}", val [0], 
-					val.Length > 1 ? " " + val [1] : "");
-			writer.WriteLine ("#endif /* ndef {0} */", def);
+			WriteMacroDefinition (writer, def);
 		}
+	}
+
+	static void WriteIncludes (TextWriter writer, MapHeaderAttribute[] attrs)
+	{
+		writer.WriteLine ("/*\n * Implementation Headers\n */");
+		Array.Sort (attrs, delegate (MapHeaderAttribute h1, MapHeaderAttribute h2) {
+				return MapUtils.OrdinalStringComparer.Compare (
+					h1.ImplementationIncludeFile, h2.ImplementationIncludeFile);
+		});
+		foreach (MapHeaderAttribute a in attrs) {
+			string inc = a.ImplementationIncludeFile;
+			WriteIncludeDeclaration (writer, inc);
+		}
+		writer.WriteLine ();
 	}
 
 	static void WriteIncludes (TextWriter writer, HeaderAttribute hattr)

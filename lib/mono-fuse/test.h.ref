@@ -17,7 +17,7 @@ G_BEGIN_DECLS
  */
 #ifndef DefineMe
 #define DefineMe 42
-#endif /* ndef DefineMe=42 */
+#endif /* ndef DefineMe */
 
 /*
  * Assembly Public Includes

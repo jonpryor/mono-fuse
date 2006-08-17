@@ -9,6 +9,18 @@
 #include <string.h>
 #include <mono/posix/limits.h>
 
+/*
+ * Implementation Macros
+ */
+#ifndef FOO
+#define FOO "foo"
+#endif /* ndef FOO */
+
+/*
+ * Implementation Headers
+ */
+#include <stdio.h>
+
 
 #include "test.h"
 

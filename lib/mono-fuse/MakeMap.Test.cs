@@ -6,6 +6,8 @@ using Mono.Unix.Native;
 [assembly:MapHeader (PublicIncludeFile="<stdlib.h>")]
 [assembly:MapHeader (PublicMacro="DefineMe=42")]
 [assembly:MapHeader (PublicDeclaration="struct foo {int foo;};")]
+[assembly:MapHeader (ImplementationMacro="FOO=\"foo\"")]
+[assembly:MapHeader (ImplementationIncludeFile="<stdio.h>")]
 
 namespace MakeMap.Test {
 	[Map ("struct foo")]
