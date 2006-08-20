@@ -15,6 +15,10 @@ G_BEGIN_DECLS
 /*
  * Assembly Public Macros
  */
+#ifndef FUSE_USE_VERSION
+#define FUSE_USE_VERSION 25
+#endif /* ndef FUSE_USE_VERSION */
+
 /*
  * Assembly Public Includes
  */
@@ -22,14 +26,7 @@ G_BEGIN_DECLS
 /*
  * Assembly Public Declarations
  */
-
-/*
- * Assembly Header
- */
-#ifndef FUSE_USE_VERSION
-#define FUSE_USE_VERSION 25
-#endif /* ndef FUSE_USE_VERSION=25 */
-#include <fuse.h>
+struct fuse_args;
 
 /*
  * Enumerations

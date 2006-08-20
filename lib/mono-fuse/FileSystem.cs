@@ -7,10 +7,11 @@ using System.Text.RegularExpressions;
 using Mono.Unix;
 using Mono.Unix.Native;
 
-[assembly:Mono.Unix.Native.Header (Includes="fuse.h", Defines="FUSE_USE_VERSION=25")]
+[assembly: MapHeader (PublicMacro="FUSE_USE_VERSION=25")]
+[assembly: MapHeader (PublicDeclaration="struct fuse_args;")]
+[assembly: MapHeader (ImplementationIncludeFile="<fuse.h>")]
 
 namespace Mono.Fuse {
-
 
 	[StructLayout (LayoutKind.Sequential)]
 	public class FileSystemOperationContext {

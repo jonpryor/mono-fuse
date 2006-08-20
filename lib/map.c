@@ -9,10 +9,14 @@
 #include <string.h>
 #include <mono/posix/limits.h>
 
-#ifndef FUSE_USE_VERSION
-#define FUSE_USE_VERSION 25
-#endif /* ndef FUSE_USE_VERSION=25 */
+/*
+ * Implementation Macros
+ */
+/*
+ * Implementation Headers
+ */
 #include <fuse.h>
+
 
 #include "map.h"
 
