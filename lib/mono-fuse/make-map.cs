@@ -57,8 +57,17 @@ class MakeMap {
 			new ConvertDocFileGenerator (),
 		};
 
+		Configuration config = new Configuration ();
+		if (!config.Parse (args)) {
+			Configuration.ShowHelp ();
+			return 1;
+		}
+
+		MapUtils.config = config;
+
 		MakeMap composite = new MakeMap ();
 		foreach (FileGenerator g in generators) {
+			g.Configuration = config;
 			composite.FileCreators += new CreateFileHandler (g.CreateFile);
 			composite.AssemblyAttributesHandler += 
 				new AssemblyAttributesHandler (g.WriteAssemblyAttributes);
@@ -66,7 +75,7 @@ class MakeMap {
 			composite.FileClosers += new CloseFileHandler (g.CloseFile);
 		}
 
-		return composite.Run (args);
+		return composite.Run (config);
 	}
 
 	event CreateFileHandler FileCreators;
@@ -74,19 +83,11 @@ class MakeMap {
 	event TypeHandler TypeHandler;
 	event CloseFileHandler FileClosers;
 
-	int Run (string[] args)
+	int Run (Configuration config)
 	{
-		if (args.Length != 2){
-			Console.WriteLine ("Usage is: make-map assembly output");
-			return 1;
-		}
-		
-		string assembly_name = args[0];
-		string output = args[1];
+		FileCreators (config.AssemblyFileName, config.OutputPrefix);
 
-		FileCreators (assembly_name, output);
-
-		Assembly assembly = Assembly.LoadFrom (assembly_name);
+		Assembly assembly = Assembly.LoadFrom (config.AssemblyFileName);
 		AssemblyAttributesHandler (assembly);
 		
 		Type [] exported_types = assembly.GetTypes ();
@@ -102,7 +103,7 @@ class MakeMap {
 
 			TypeHandler (t, ns, fn);
 		}
-		FileClosers (output);
+		FileClosers (config.OutputPrefix);
 
 		return 0;
 	}
@@ -122,7 +123,145 @@ class MakeMap {
 	}
 }
 
+class Configuration {
+	List<string> libraries = new List<string>();
+	Dictionary<string, string> renameMembers = new Dictionary<string, string> ();
+	Dictionary<string, string> renameNamespaces = new Dictionary<string, string> ();
+	List<string> optionals = new List<string> ();
+	List<string> excludes = new List<string> ();
+	string assembly_name;
+	string output;
+
+	public Configuration ()
+	{
+	}
+
+	public List<string> NativeLibraries {
+		get {return libraries;}
+	}
+
+	public List<string> AutoconfMembers {
+		get {return optionals;}
+	}
+
+	public List<string> NativeExcludeSymbols {
+		get {return excludes;}
+	}
+
+	public IDictionary<string, string> MemberRenames {
+		get {return renameMembers;}
+	}
+
+
+	public IDictionary<string, string> NamespaceRenames {
+		get {return renameNamespaces;}
+	}
+
+	public string AssemblyFileName {
+		get {return assembly_name;}
+	}
+
+	public string OutputPrefix {
+		get {return output;}
+	}
+
+	const string NameValue = @"(?<Name>[\w-]+)(=(?<Value>.*))?";
+	const string Argument  = @"^--(?<Argument>[\w-]+)(=" + NameValue + ")?$";
+
+	public bool Parse (string[] args)
+	{
+		Regex argRE = new Regex (Argument);
+		Regex valRE = new Regex (NameValue);
+		Console.WriteLine ("Argument Regex=" + Argument);
+
+		for (int i = 0; i < args.Length; ++i) {
+			Console.WriteLine ("processing arg: " + args [i]);
+			Match m = argRE.Match (args [i]);
+			if (m.Success) {
+				string arg = m.Groups ["Argument"].Value;
+				Console.WriteLine ("processing option arg: " + arg);
+				if (arg == "help")
+					return false;
+				if (!m.Groups ["Name"].Success) {
+					if ((i+1) >= args.Length) {
+						Console.WriteLine ("error: missing value for argument {0}",
+								args [i]);
+						return false;
+					}
+					m = valRE.Match (args [++i]);
+					if (!m.Success) {
+						Console.WriteLine ("error: invalid value for argument {0}: {1}",
+								args [i-1], args[i]);
+						return false;
+					}
+				}
+				switch (arg) {
+					case "rename-member":
+						if (!m.Groups ["Value"].Success) {
+							Console.WriteLine ("error: missing rename value");
+							return false;
+						}
+						renameMembers [m.Groups ["Name"].Value] = m.Groups ["Value"].Value;
+						break;
+					case "autoconf-member":
+						optionals.Add (m.Groups ["Name"].Value);
+						break;
+					case "library":
+						libraries.Add (m.Groups ["Name"].Value);
+						break;
+					case "exclude-native-symbol":
+						excludes.Add (m.Groups ["Name"].Value);
+						break;
+					case "rename-namespace":
+						if (!m.Groups ["Value"].Success) {
+							Console.WriteLine ("error: missing rename value");
+							return false;
+						}
+						string ns = m.Groups ["Value"].Value.Replace (".", "_");
+						renameNamespaces [m.Groups ["Name"].Value] = ns;
+						break;
+					default:
+						Console.WriteLine ("Invalid argument {0}", arg);
+						return false;
+				}
+			}
+			else if (assembly_name == null) {
+				Console.WriteLine ("saving assembly name");
+				assembly_name = args [i];
+			}
+			else {
+				Console.WriteLine ("saving output");
+				output = args [i];
+			}
+		}
+
+		if (assembly_name == null || output == null)
+			return false;
+
+		libraries.Sort ();
+		optionals.Sort ();
+		excludes.Sort ();
+
+		return true;
+	}
+
+	public static void ShowHelp ()
+	{
+		Console.WriteLine (
+				"Usage: create-native-map \n" +
+				"\t[--autoconf-member=MEMBER]* \n" +
+				"\t[--exclude-native-symbol=SYMBOL]*\n" +
+				"\t[--library=LIBRARY]+ \n" + 
+				"\t[--rename-member=FROM=TO]* \n" + 
+				"\t[--rename-namespace=FROM=TO]*\n" +
+				"\tASSEMBLY OUTPUT-PREFIX"
+		);
+	}
+}
+
 static class MapUtils {
+	internal static Configuration config;
+
 	public static T GetCustomAttribute <T> (MemberInfo element) where T : Attribute
 	{
 		return (T) Attribute.GetCustomAttribute (element, typeof(T), true);
@@ -207,11 +346,10 @@ static class MapUtils {
 
 	public static string GetNamespace (Type t)
 	{
-		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
-		if (map != null && map.ExportPrefix != null) {
-			return map.ExportPrefix;
-		}
 #if true
+		if (config.NamespaceRenames.ContainsKey (t.Namespace))
+			return config.NamespaceRenames [t.Namespace];
+#else
 		/* this is legacy behavior; Mono.Posix.dll should be fixed to use
 		 * MapAttribute.ExportPrefix so we don't need this hack anymore */
 		if (t.Namespace == "Mono.Unix.Native" || t.Namespace == "Mono.Unix")
@@ -315,6 +453,13 @@ static class MapUtils {
 }
 
 abstract class FileGenerator {
+	private Configuration config;
+
+	public Configuration Configuration {
+		get {return config;}
+		set {config = value;}
+	}
+
 	public abstract void CreateFile (string assembly_name, string file_prefix);
 
 	public virtual void WriteAssemblyAttributes (Assembly assembly)
@@ -572,7 +717,8 @@ class HeaderFileGenerator : FileGenerator {
 				continue;
 			}
 			// we shouldn't declare prototypes for POSIX, etc. functions.
-			if (dia.Value != "MonoFuseHelper" || IsOnExcludeList (dia.EntryPoint))
+			if (Configuration.NativeLibraries.BinarySearch (dia.Value) < 0 ||
+					IsOnExcludeList (dia.EntryPoint))
 				continue;
 			methods [dia.EntryPoint] = m;
 			RecordTypes (m);
@@ -605,14 +751,10 @@ class HeaderFileGenerator : FileGenerator {
 				new object[]{mhandle});
 	}
 
-	private static string[] ExcludeList = new string[]{
-		"Mono_Posix_Stdlib_snprintf",
-	};
-
 	private bool IsOnExcludeList (string method)
 	{
-		int idx = Array.BinarySearch (ExcludeList, method);
-		return (idx >= 0 && idx < ExcludeList.Length) ? true : false;
+		int idx = Configuration.NativeExcludeSymbols.BinarySearch (method);
+		return (idx < 0) ? false : true;
 	}
 
 	private void RecordTypes (MethodInfo method)
@@ -695,18 +837,19 @@ class HeaderFileGenerator : FileGenerator {
 		int max_type_len = 0, max_name_len = 0, max_native_len = 0;
 		Array.ForEach (fields, delegate (FieldInfo f) {
 				max_type_len    = Math.Max (max_type_len, GetType (f.FieldType).Length);
-				max_name_len    = Math.Max (max_name_len, f.Name.Length);
+				max_name_len    = Math.Max (max_name_len, GetNativeMemberName (f).Length);
 				string native_type = MapUtils.GetNativeType (f);
 				if (native_type != null)
 					max_native_len  = Math.Max (max_native_len, native_type.Length);
 		});
 		SortFieldsInOffsetOrder (t, fields);
 		foreach (FieldInfo field in fields) {
+			string fname = GetNativeMemberName (field);
 			sh.Write ("\t{0,-" + max_type_len + "} {1};", 
-					GetType (field.FieldType), field.Name);
+					GetType (field.FieldType), fname);
 			string native_type = MapUtils.GetNativeType (field);
 			if (native_type != null) {
-				sh.Write (new string (' ', max_name_len - field.Name.Length));
+				sh.Write (new string (' ', max_name_len - fname.Length));
 				sh.Write ("  /* {0,-" + max_native_len + "} */", native_type);
 			}
 			sh.WriteLine ();
@@ -722,6 +865,13 @@ class HeaderFileGenerator : FileGenerator {
 					MapUtils.GetNativeType (t), t.IsValueType ? "*" : "");
 		}
 		sh.WriteLine ();
+	}
+
+	private string GetNativeMemberName (FieldInfo field)
+	{
+		if (!Configuration.MemberRenames.ContainsKey (field.Name))
+			return field.Name;
+		return Configuration.MemberRenames [field.Name];
 	}
 
 	private static string GetType (Type t)
@@ -1067,17 +1217,15 @@ class SourceFileGenerator : FileGenerator {
 		return rf;
 	}
 
-	private static string GetAutoconfDefine (MapAttribute typeMap, FieldInfo field)
+	private string GetAutoconfDefine (MapAttribute typeMap, FieldInfo field)
 	{
-		// this requires .NET 2.0 :-(
-		// OptionalFieldAttribute opt = MapUtils.GetCustomAttribute <OptionalFieldAttribute> (field);
-		MapAttribute fieldMap = MapUtils.GetCustomAttribute <MapAttribute> (field);
-		if (fieldMap != null && fieldMap.Optional) {
-			return string.Format ("HAVE_{0}_{1}", 
-					typeMap.NativeType.ToUpperInvariant().Replace (" ", "_"),
-					field.Name.ToUpperInvariant ());
-		}
-		return null;
+		Console.WriteLine ("# Checking autoconf for " + field.Name);
+		if (Configuration.AutoconfMembers.BinarySearch (field.Name) < 0 &&
+				Configuration.AutoconfMembers.BinarySearch (field.DeclaringType.Name + "." + field.Name) < 0)
+			return null;
+		return string.Format ("HAVE_{0}_{1}", 
+				typeMap.NativeType.ToUpperInvariant().Replace (" ", "_"),
+				field.Name.ToUpperInvariant ());
 	}
 
 	public override void CloseFile (string file_prefix)

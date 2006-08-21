@@ -19,7 +19,13 @@ MakeMap.Test.dll: MakeMap.Test.cs make-map.exe
 	mcs -debug+ -out:$@ -t:library -r:Mono.Posix.dll $<
 
 test.c test.h: MakeMap.Test.dll make-map.exe
-	mono --debug make-map.exe MakeMap.Test.dll test
+	mono --debug make-map.exe \
+		--autoconf-member autoconf_me \
+		--exclude-native-symbol=exclude_native_symbol \
+		--library=MonoFuseHelper \
+		--rename-member=st_atime=st_atime_ \
+		--rename-namespace=NSFrom=NSTo \
+		MakeMap.Test.dll test
 
 libtest.so: test.c
 	gcc -shared -o $@ $^ -I.. `pkg-config --libs --cflags glib-2.0`

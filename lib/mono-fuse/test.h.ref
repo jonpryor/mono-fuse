@@ -40,6 +40,7 @@ struct foo {int foo;};
 struct MakeMap_Test_Baz;
 struct MakeMap_Test_Foo;
 struct MakeMap_Test_Qux;
+struct NSTo_Stat;
 
 /*
  * Delegate Declarations
@@ -70,7 +71,8 @@ struct MakeMap_Test_Baz {
 };
 
 struct MakeMap_Test_Foo {
-	int foo;
+	int    foo;
+	gint64 autoconf_me;
 };
 
 int
@@ -82,6 +84,10 @@ MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo* to);
 struct MakeMap_Test_Qux {
 	int                      i;
 	struct MakeMap_Test_Baz* b;
+};
+
+struct NSTo_Stat {
+	gint64 st_atime_;  /* time_t */
 };
 
 

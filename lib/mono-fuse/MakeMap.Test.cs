@@ -13,6 +13,10 @@ namespace MakeMap.Test {
 	[Map ("struct foo")]
 	struct Foo {
 		public int foo;
+
+		// this should be within a #ifdef HAVE_AUTOCONF_ME block, due to
+		// --autoconf-member.
+		public long autoconf_me;
 	}
 
 	delegate void DelFoo (int i, Foo f);
@@ -45,6 +49,19 @@ namespace MakeMap.Test {
 	class NativeMethods {
 		[DllImport ("MonoFuseHelper")]
 		private static extern void UseQux (DelFoo b, ref Qux q);
+
+		// This shouldn't appear in test.h, due to --exclude-native-symbol
+		[DllImport ("MonoFuseHelper")]
+		private static extern void exclude_native_symbol ();
+	}
+}
+
+// Testing namespace renaming; this should be NSTo within test.h
+namespace NSFrom {
+	[Map]
+	class Stat {
+		// this should be st_atime_ in test.h due to --rename-member.
+		[Map ("time_t")] public long st_atime;
 	}
 }
 

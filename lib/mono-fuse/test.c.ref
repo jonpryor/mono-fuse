@@ -28,10 +28,16 @@ int
 MakeMap_Test_FromFoo (struct MakeMap_Test_Foo *from, struct foo *to)
 {
 	mph_return_val_if_overflow (int, from->foo, -1);
+#ifdef HAVE_STRUCT_FOO_AUTOCONF_ME
+	mph_return_val_if_overflow (gint64, from->autoconf_me, -1);
+#endif /* ndef HAVE_STRUCT_FOO_AUTOCONF_ME */
 
 	memset (to, 0, sizeof(*to));
 
-	to->foo = from->foo;
+	to->foo         = from->foo;
+#ifdef HAVE_STRUCT_FOO_AUTOCONF_ME
+	to->autoconf_me = from->autoconf_me;
+#endif /* ndef HAVE_STRUCT_FOO_AUTOCONF_ME */
 
 	return 0;
 }
@@ -41,10 +47,16 @@ int
 MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo *to)
 {
 	mph_return_val_if_overflow (int, from->foo, -1);
+#ifdef HAVE_STRUCT_FOO_AUTOCONF_ME
+	mph_return_val_if_overflow (gint64, from->autoconf_me, -1);
+#endif /* ndef HAVE_STRUCT_FOO_AUTOCONF_ME */
 
 	memset (to, 0, sizeof(*to));
 
-	to->foo = from->foo;
+	to->foo         = from->foo;
+#ifdef HAVE_STRUCT_FOO_AUTOCONF_ME
+	to->autoconf_me = from->autoconf_me;
+#endif /* ndef HAVE_STRUCT_FOO_AUTOCONF_ME */
 
 	return 0;
 }
