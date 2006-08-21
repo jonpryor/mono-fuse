@@ -342,8 +342,10 @@ static class MapUtils {
 	public static string GetNamespace (Type t)
 	{
 		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
-		if (map != null && map.ExportPrefix != null)
-			return map.ExportPrefix;
+		if (map != null && map.NativeSymbolPrefix != null)
+			return map.NativeSymbolPrefix;
+		if (t.Namespace == null)
+			return "";
 		if (config.NamespaceRenames.ContainsKey (t.Namespace))
 			return config.NamespaceRenames [t.Namespace];
 #if true
@@ -352,7 +354,7 @@ static class MapUtils {
 		if (t.Namespace == "Mono.Unix.Native" || t.Namespace == "Mono.Unix")
 			return "Mono_Posix";
 #endif
-		return t.Namespace != null ? t.Namespace.Replace ('.', '_') : "";
+		return t.Namespace.Replace ('.', '_');
 	}
 
 	public static string GetManagedType (Type t)
@@ -539,6 +541,13 @@ abstract class FileGenerator {
 		else
 			writer.WriteLine ("#include {0}", m.Groups ["Include"]);
 	}
+
+	protected string GetNativeMemberName (FieldInfo field)
+	{
+		if (!Configuration.MemberRenames.ContainsKey (field.Name))
+			return field.Name;
+		return Configuration.MemberRenames [field.Name];
+	}
 }
 
 class HeaderFileGenerator : FileGenerator {
@@ -552,12 +561,12 @@ class HeaderFileGenerator : FileGenerator {
 	{
 		sh = File.CreateText (file_prefix + ".h");
 		file_prefix = file_prefix.Replace ("../", "");
-		this.assembly_file = assembly_name;
+		this.assembly_file = assembly_name = Path.GetFileName (assembly_name);
 		WriteHeader (sh, assembly_name);
 		assembly_name = assembly_name.Replace (".dll", "").Replace (".", "_");
 		sh.WriteLine ("#ifndef INC_" + assembly_name + "_" + file_prefix + "_H");
 		sh.WriteLine ("#define INC_" + assembly_name + "_" + file_prefix + "_H\n");
-		sh.WriteLine ("#include <glib/gtypes.h>\n");
+		sh.WriteLine ("#include <glib.h>\n");
 		sh.WriteLine ("G_BEGIN_DECLS\n");
 
 		// Kill warning about unused method
@@ -685,7 +694,7 @@ class HeaderFileGenerator : FileGenerator {
 			if (!fi.IsLiteral)
 				continue;
 			string e = n + "_" + fi.Name;
-			sh.WriteLine ("\t{0,-" + max_field_length + "} = 0x{1:x},", 
+			sh.WriteLine ("\t{0,-" + max_field_length + "}       = 0x{1:x},", 
 					e, fi.GetValue (inst));
 			sh.WriteLine ("\t#define {0,-" + max_field_length + "} {0}", e);
 		}
@@ -864,13 +873,6 @@ class HeaderFileGenerator : FileGenerator {
 		sh.WriteLine ();
 	}
 
-	private string GetNativeMemberName (FieldInfo field)
-	{
-		if (!Configuration.MemberRenames.ContainsKey (field.Name))
-			return field.Name;
-		return Configuration.MemberRenames [field.Name];
-	}
-
 	private static string GetType (Type t)
 	{
 		if (typeof(Delegate).IsAssignableFrom (t))
@@ -971,7 +973,6 @@ class SourceFileGenerator : FileGenerator {
 		this.file_prefix = file_prefix;
 		sc.WriteLine ("#include <stdlib.h>");
 		sc.WriteLine ("#include <string.h>");
-		sc.WriteLine ("#include <mono/posix/limits.h>");
 		sc.WriteLine ();
 	}
 
@@ -990,7 +991,86 @@ class SourceFileGenerator : FileGenerator {
 		}
 		sc.WriteLine ();
 		sc.WriteLine ("#include \"{0}.h\"", file_prefix);
-		sc.WriteLine ();
+
+		sc.WriteLine (@"
+#include <errno.h>    /* errno, EOVERFLOW */
+#include <glib.h>     /* g* types, g_assert_not_reached() */
+
+/* returns TRUE if @type is an unsigned type */
+#define _cnm_integral_type_is_unsigned(type) \
+    (sizeof(type) == sizeof(gint8)           \
+      ? (((type)-1) > G_MAXINT8)             \
+      : sizeof(type) == sizeof(gint16)       \
+        ? (((type)-1) > G_MAXINT16)          \
+        : sizeof(type) == sizeof(gint32)     \
+          ? (((type)-1) > G_MAXINT32)        \
+          : sizeof(type) == sizeof(gint64)   \
+            ? (((type)-1) > G_MAXINT64)      \
+            : (g_assert_not_reached (), 0))
+
+/* returns the minimum value of @type as a gint64 */
+#define _cnm_integral_type_min(type)          \
+    (_cnm_integral_type_is_unsigned (type)    \
+      ? 0                                     \
+      : sizeof(type) == sizeof(gint8)         \
+        ? G_MININT8                           \
+        : sizeof(type) == sizeof(gint16)      \
+          ? G_MININT16                        \
+          : sizeof(type) == sizeof(gint32)    \
+            ? G_MININT32                      \
+            : sizeof(type) == sizeof(gint64)  \
+              ? G_MININT64                    \
+              : (g_assert_not_reached (), 0))
+
+/* returns the maximum value of @type as a guint64 */
+#define _cnm_integral_type_max(type)            \
+    (_cnm_integral_type_is_unsigned (type)      \
+      ? sizeof(type) == sizeof(gint8)           \
+        ? G_MAXUINT8                            \
+        : sizeof(type) == sizeof(gint16)        \
+          ? G_MAXUINT16                         \
+          : sizeof(type) == sizeof(gint32)      \
+            ? G_MAXUINT32                       \
+            : sizeof(type) == sizeof(gint64)    \
+              ? G_MAXUINT64                     \
+              : (g_assert_not_reached (), 0)    \
+      : sizeof(type) == sizeof(gint8)           \
+          ? G_MAXINT8                           \
+          : sizeof(type) == sizeof(gint16)      \
+            ? G_MAXINT16                        \
+            : sizeof(type) == sizeof(gint32)    \
+              ? G_MAXINT32                      \
+              : sizeof(type) == sizeof(gint64)  \
+                ? G_MAXINT64                    \
+                : (g_assert_not_reached (), 0))
+
+#ifdef DEBUG
+#define _cnm_dump_(to_t,from)                                            \
+  printf (""# %s -> %s: min=%llx; max=%llx; value=%llx; lt=%i; l0=%i; gt=%i; e=%i\n"", \
+    #from, #to_t,                                                        \
+    (gint64) (_cnm_integral_type_min(to_t)),                             \
+    (gint64) (_cnm_integral_type_max (to_t)),                            \
+    (gint64) (from),                                                     \
+    (_cnm_integral_type_min (to_t) <= from),                             \
+    (from < 0),                                                          \
+    /* (_cnm_integral_type_max (to_t) >= from) */                        \
+    (from <= _cnm_integral_type_max (to_t)),                             \
+    ((_cnm_integral_type_min(to_t) >= from) &&                           \
+          ((from < 0) ? 1 : (from <= _cnm_integral_type_max(to_t))))     \
+  )
+#else
+#define _cnm_dump_(to_t, from) do {} while (0)
+#endif
+
+#define _cnm_return_val_if_overflow(to_t,from,val)  G_STMT_START {   \
+    if (!(_cnm_integral_type_min(to_t) <= from &&                    \
+          ((from < 0) || (from <= _cnm_integral_type_max(to_t))))) { \
+      _cnm_dump_(to_t, from);                                        \
+      errno = EOVERFLOW;                                             \
+      return (val);                                                  \
+    }                                                                \
+  } G_STMT_END
+");
 	}
 
 	static void WriteDefines (TextWriter writer, MapHeaderAttribute[] attrs)
@@ -1147,12 +1227,22 @@ class SourceFileGenerator : FileGenerator {
 				if (ft != null)
 					return ft.NativeType;
 				return MapUtils.GetNativeType (field.FieldType);
-		});
+			},
+			delegate (FieldInfo field) {
+				return GetNativeMemberName (field);
+			},
+			delegate (FieldInfo field) {
+				return field.Name;
+			}
+		);
 	}
 
 	private delegate string GetFromType (FieldInfo field);
+	private delegate string GetToFieldName (FieldInfo field);
+	private delegate string GetFromFieldName (FieldInfo field);
 
-	private void WriteManagedClassConversion (Type t, GetFromType gft)
+	private void WriteManagedClassConversion (Type t, GetFromType gft, 
+			GetFromFieldName gffn, GetToFieldName gtfn)
 	{
 		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
 		sc.WriteLine ("{");
@@ -1166,8 +1256,8 @@ class SourceFileGenerator : FileGenerator {
 			string d = GetAutoconfDefine (map, f);
 			if (d != null)
 				sc.WriteLine ("#ifdef " + d);
-			sc.WriteLine ("\tmph_return_val_if_overflow ({0}, from->{1}, -1);",
-					gft (f), f.Name);
+			sc.WriteLine ("\t_cnm_return_val_if_overflow ({0}, from->{1}, -1);",
+					gft (f), gffn (f));
 			if (d != null)
 				sc.WriteLine ("#endif /* ndef " + d + " */");
 		}
@@ -1176,7 +1266,8 @@ class SourceFileGenerator : FileGenerator {
 			string d = GetAutoconfDefine (map, f);
 			if (d != null)
 				sc.WriteLine ("#ifdef " + d);
-			sc.WriteLine ("\tto->{0,-" + max_len + "} = from->{0};", f.Name);
+			sc.WriteLine ("\tto->{0,-" + max_len + "} = from->{1};", 
+					gtfn (f), gffn (f));
 			if (d != null)
 				sc.WriteLine ("#endif /* ndef " + d + " */");
 		}
@@ -1195,7 +1286,14 @@ class SourceFileGenerator : FileGenerator {
 				MapUtils.GetNamespace (t), t.Name, map.NativeType);
 		WriteManagedClassConversion (t, delegate (FieldInfo field) {
 				return MapUtils.GetNativeType (field.FieldType);
-		});
+			},
+			delegate (FieldInfo field) {
+				return field.Name;
+			},
+			delegate (FieldInfo field) {
+				return GetNativeMemberName (field);
+			}
+		);
 	}
 
 	private static FieldInfo[] GetFieldsToCopy (Type t)

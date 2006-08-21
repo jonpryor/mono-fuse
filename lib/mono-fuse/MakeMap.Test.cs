@@ -9,7 +9,18 @@ using Mono.Unix.Native;
 [assembly:MapHeader (ImplementationMacro="FOO=\"foo\"")]
 [assembly:MapHeader (ImplementationIncludeFile="<stdio.h>")]
 
+// Make sure that a null namespace doesn't kill make-map
+class GlobalClass {}
+
 namespace MakeMap.Test {
+	[Map]
+	enum TestEnum {
+		Foo,
+		Bar,
+		Baz,
+		Qux,
+	}
+
 	[Map ("struct foo")]
 	struct Foo {
 		public int foo;

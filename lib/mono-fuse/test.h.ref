@@ -8,7 +8,7 @@
 #ifndef INC_MakeMap_Test_test_H
 #define INC_MakeMap_Test_test_H
 
-#include <glib/gtypes.h>
+#include <glib.h>
 
 G_BEGIN_DECLS
 
@@ -32,6 +32,19 @@ struct foo {int foo;};
 /*
  * Enumerations
  */
+enum MakeMap_Test_TestEnum {
+	MakeMap_Test_TestEnum_Bar           = 0x00000001,
+	#define MakeMap_Test_TestEnum_Bar     MakeMap_Test_TestEnum_Bar
+	MakeMap_Test_TestEnum_Baz           = 0x00000002,
+	#define MakeMap_Test_TestEnum_Baz     MakeMap_Test_TestEnum_Baz
+	MakeMap_Test_TestEnum_Foo           = 0x00000000,
+	#define MakeMap_Test_TestEnum_Foo     MakeMap_Test_TestEnum_Foo
+	MakeMap_Test_TestEnum_Qux           = 0x00000003,
+	#define MakeMap_Test_TestEnum_Qux     MakeMap_Test_TestEnum_Qux
+};
+int MakeMap_Test_FromTestEnum (int x, int *r);
+int MakeMap_Test_ToTestEnum (int x, int *r);
+
 
 /*
  * Structure Declarations
