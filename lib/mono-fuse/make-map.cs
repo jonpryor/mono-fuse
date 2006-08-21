@@ -346,10 +346,12 @@ static class MapUtils {
 
 	public static string GetNamespace (Type t)
 	{
-#if true
+		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
+		if (map != null && map.ExportPrefix != null)
+			return map.ExportPrefix;
 		if (config.NamespaceRenames.ContainsKey (t.Namespace))
 			return config.NamespaceRenames [t.Namespace];
-#else
+#if true
 		/* this is legacy behavior; Mono.Posix.dll should be fixed to use
 		 * MapAttribute.ExportPrefix so we don't need this hack anymore */
 		if (t.Namespace == "Mono.Unix.Native" || t.Namespace == "Mono.Unix")

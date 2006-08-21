@@ -10,7 +10,7 @@ Mono.Fuse.dll: FileSystem.cs
 	gmcs -debug+ -out:$@ -t:library -r:Mono.Posix.dll $^
 
 ../map.c ../map.h: Mono.Fuse.dll make-map.exe
-	mono --debug make-map.exe Mono.Fuse.dll ../map
+	mono --debug make-map.exe --library=MonoFuseHelper Mono.Fuse.dll ../map
 
 HelloFS.exe: HelloFS.cs Mono.Fuse.dll
 	gmcs -debug+ -out:$@ -r:Mono.Posix.dll -r:./Mono.Fuse.dll $<
