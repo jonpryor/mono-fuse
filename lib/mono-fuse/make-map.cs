@@ -172,14 +172,11 @@ class Configuration {
 	{
 		Regex argRE = new Regex (Argument);
 		Regex valRE = new Regex (NameValue);
-		Console.WriteLine ("Argument Regex=" + Argument);
 
 		for (int i = 0; i < args.Length; ++i) {
-			Console.WriteLine ("processing arg: " + args [i]);
 			Match m = argRE.Match (args [i]);
 			if (m.Success) {
 				string arg = m.Groups ["Argument"].Value;
-				Console.WriteLine ("processing option arg: " + arg);
 				if (arg == "help")
 					return false;
 				if (!m.Groups ["Name"].Success) {
@@ -221,16 +218,14 @@ class Configuration {
 						renameNamespaces [m.Groups ["Name"].Value] = ns;
 						break;
 					default:
-						Console.WriteLine ("Invalid argument {0}", arg);
+						Console.WriteLine ("error: invalid argument {0}", arg);
 						return false;
 				}
 			}
 			else if (assembly_name == null) {
-				Console.WriteLine ("saving assembly name");
 				assembly_name = args [i];
 			}
 			else {
-				Console.WriteLine ("saving output");
 				output = args [i];
 			}
 		}
@@ -1221,7 +1216,6 @@ class SourceFileGenerator : FileGenerator {
 
 	private string GetAutoconfDefine (MapAttribute typeMap, FieldInfo field)
 	{
-		Console.WriteLine ("# Checking autoconf for " + field.Name);
 		if (Configuration.AutoconfMembers.BinarySearch (field.Name) < 0 &&
 				Configuration.AutoconfMembers.BinarySearch (field.DeclaringType.Name + "." + field.Name) < 0)
 			return null;
