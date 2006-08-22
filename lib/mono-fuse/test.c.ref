@@ -112,6 +112,7 @@ MakeMap_Test_FromFoo (struct MakeMap_Test_Foo *from, struct foo *to)
 	memset (to, 0, sizeof(*to));
 
 	to->foo         = from->foo;
+	to->p           = from->p;
 #ifdef HAVE_STRUCT_FOO_AUTOCONF_ME
 	to->autoconf_me = from->autoconf_me;
 #endif /* ndef HAVE_STRUCT_FOO_AUTOCONF_ME */
@@ -131,9 +132,44 @@ MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo *to)
 	memset (to, 0, sizeof(*to));
 
 	to->foo         = from->foo;
+	to->p           = from->p;
 #ifdef HAVE_STRUCT_FOO_AUTOCONF_ME
 	to->autoconf_me = from->autoconf_me;
 #endif /* ndef HAVE_STRUCT_FOO_AUTOCONF_ME */
+
+	return 0;
+}
+
+
+int
+MakeMap_Test_FromFooHolder (struct MakeMap_Test_FooHolder *from, struct foo_holder *to)
+{
+
+	memset (to, 0, sizeof(*to));
+
+	if (MakeMap_Test_FromFoo (&from->foo, &to->foo) != 0) {
+		return -1;
+	}
+	if (MakeMap_Test_FromTestEnum (from->mode, &to->mode) != 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+
+int
+MakeMap_Test_ToFooHolder (struct foo_holder *from, struct MakeMap_Test_FooHolder *to)
+{
+
+	memset (to, 0, sizeof(*to));
+
+	if (MakeMap_Test_ToFoo (&from->foo, &to->foo) != 0) {
+		return -1;
+	}
+	if (MakeMap_Test_ToTestEnum (from->mode, &to->mode) != 0) {
+		return -1;
+	}
 
 	return 0;
 }

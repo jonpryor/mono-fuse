@@ -285,6 +285,11 @@ static class MapUtils {
 			t == typeof(long) || t == typeof(ulong);
 	}
 
+	public static bool IsBlittableType (Type t)
+	{
+		return IsIntegralType (t) || t == typeof(IntPtr) || t == typeof(UIntPtr);
+	}
+
 	public static string GetNativeType (Type t)
 	{
 		Type et = GetElementType (t);
@@ -1233,6 +1238,11 @@ class SourceFileGenerator : FileGenerator {
 			},
 			delegate (FieldInfo field) {
 				return field.Name;
+			},
+			delegate (FieldInfo field) {
+				return string.Format ("{0}_From{1}",
+					MapUtils.GetNamespace (field.FieldType),
+					field.FieldType.Name);
 			}
 		);
 	}
@@ -1240,9 +1250,10 @@ class SourceFileGenerator : FileGenerator {
 	private delegate string GetFromType (FieldInfo field);
 	private delegate string GetToFieldName (FieldInfo field);
 	private delegate string GetFromFieldName (FieldInfo field);
+	private delegate string GetFieldCopyMethod (FieldInfo field);
 
 	private void WriteManagedClassConversion (Type t, GetFromType gft, 
-			GetFromFieldName gffn, GetToFieldName gtfn)
+			GetFromFieldName gffn, GetToFieldName gtfn, GetFieldCopyMethod gfc)
 	{
 		MapAttribute map = MapUtils.GetCustomAttribute <MapAttribute> (t);
 		sc.WriteLine ("{");
@@ -1266,8 +1277,22 @@ class SourceFileGenerator : FileGenerator {
 			string d = GetAutoconfDefine (map, f);
 			if (d != null)
 				sc.WriteLine ("#ifdef " + d);
-			sc.WriteLine ("\tto->{0,-" + max_len + "} = from->{1};", 
-					gtfn (f), gffn (f));
+			if (MapUtils.IsBlittableType (f.FieldType)) {
+				sc.WriteLine ("\tto->{0,-" + max_len + "} = from->{1};", 
+						gtfn (f), gffn (f));
+			}
+			else if (f.FieldType.IsEnum) {
+				sc.WriteLine ("\tif ({0} (from->{1}, &to->{2}) != 0) {{", gfc (f),
+						gffn (f), gtfn (f));
+				sc.WriteLine ("\t\treturn -1;");
+				sc.WriteLine ("\t}");
+			}
+			else if (f.FieldType.IsValueType) {
+				sc.WriteLine ("\tif ({0} (&from->{1}, &to->{2}) != 0) {{", gfc (f),
+						gffn (f), gtfn (f));
+				sc.WriteLine ("\t\treturn -1;");
+				sc.WriteLine ("\t}");
+			}
 			if (d != null)
 				sc.WriteLine ("#endif /* ndef " + d + " */");
 		}
@@ -1292,6 +1317,11 @@ class SourceFileGenerator : FileGenerator {
 			},
 			delegate (FieldInfo field) {
 				return GetNativeMemberName (field);
+			},
+			delegate (FieldInfo field) {
+				return string.Format ("{0}_To{1}",
+					MapUtils.GetNamespace (field.FieldType),
+					field.FieldType.Name);
 			}
 		);
 	}

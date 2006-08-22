@@ -27,7 +27,8 @@ G_BEGIN_DECLS
 /*
  * Assembly Public Declarations
  */
-struct foo {int foo;};
+struct foo {int foo; void *p};
+struct foo_holder {struct foo foo; int mode;};
 
 /*
  * Enumerations
@@ -52,6 +53,7 @@ int MakeMap_Test_ToTestEnum (int x, int *r);
 
 struct MakeMap_Test_Baz;
 struct MakeMap_Test_Foo;
+struct MakeMap_Test_FooHolder;
 struct MakeMap_Test_Qux;
 struct NSTo_Stat;
 
@@ -85,6 +87,7 @@ struct MakeMap_Test_Baz {
 
 struct MakeMap_Test_Foo {
 	int    foo;
+	void*  p;
 	gint64 autoconf_me;
 };
 
@@ -92,6 +95,17 @@ int
 MakeMap_Test_FromFoo (struct MakeMap_Test_Foo* from, struct foo *to);
 int
 MakeMap_Test_ToFoo (struct foo *from, struct MakeMap_Test_Foo* to);
+
+
+struct MakeMap_Test_FooHolder {
+	struct MakeMap_Test_Foo foo;   /* struct foo */
+	int                     mode;
+};
+
+int
+MakeMap_Test_FromFooHolder (struct MakeMap_Test_FooHolder* from, struct foo_holder *to);
+int
+MakeMap_Test_ToFooHolder (struct foo_holder *from, struct MakeMap_Test_FooHolder* to);
 
 
 struct MakeMap_Test_Qux {

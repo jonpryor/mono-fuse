@@ -5,7 +5,8 @@ using Mono.Unix.Native;
 
 [assembly:MapHeader (PublicIncludeFile="<stdlib.h>")]
 [assembly:MapHeader (PublicMacro="DefineMe=42")]
-[assembly:MapHeader (PublicDeclaration="struct foo {int foo;};")]
+[assembly:MapHeader (PublicDeclaration="struct foo {int foo; void *p};")]
+[assembly:MapHeader (PublicDeclaration="struct foo_holder {struct foo foo; int mode;};")]
 [assembly:MapHeader (ImplementationMacro="FOO=\"foo\"")]
 [assembly:MapHeader (ImplementationIncludeFile="<stdio.h>")]
 
@@ -25,9 +26,17 @@ namespace MakeMap.Test {
 	struct Foo {
 		public int foo;
 
+		public IntPtr p;
+
 		// this should be within a #ifdef HAVE_AUTOCONF_ME block, due to
 		// --autoconf-member.
 		public long autoconf_me;
+	}
+
+	[Map ("struct foo_holder")]
+	struct FooHolder {
+		public Foo      foo;
+		public TestEnum mode;
 	}
 
 	delegate void DelFoo (int i, Foo f);
