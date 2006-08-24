@@ -1,5 +1,10 @@
 2006-08-24  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* lib/Makefile.am: Build the mono-fuse directory as well
+	* lib/mono-fuse/Makefile.am: Added; installs Mono.Fuse.dll.
+
+2006-08-24  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* NEWS: Added
 	* configure.in: Use AM_PROG_LIBTOOL, not AC_PROG_LIBTOOL, to satisfy
 	  autogen.sh's checking.

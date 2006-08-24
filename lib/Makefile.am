@@ -1,1 +1,1 @@
-SUBDIRS = pkgconfig
+SUBDIRS = mono-fuse pkgconfig
