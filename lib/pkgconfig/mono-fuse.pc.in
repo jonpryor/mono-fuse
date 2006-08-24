@@ -8,5 +8,5 @@ Libraries=${assemblies_dir}/Mono.Fuse.dll
 Name: Mono.Fuse
 Description: C# Binding for FUSE
 Version: @VERSION@
-Requires: glib-2.0 mono
-Libs: -r:Mono.Fuse.dll
+Requires: 
+Libs: -r:Mono.Fuse.dll -r:Mono.Posix.dll

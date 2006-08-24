@@ -1,0 +1,122 @@
+AC_INIT([mono-fuse], 0.1, [jonpryor@vt.edu])
+AC_CANONICAL_SYSTEM
+AC_PREREQ(2.53)
+AM_INIT_AUTOMAKE([1.9 tar-ustar])
+AM_MAINTAINER_MODE
+AM_CONFIG_HEADER(config.h)
+AC_PROG_CC
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+
+ASSEMBLY_VERSION=0.1.0.0
+
+AC_PATH_PROG(MONO, mono)
+AC_PATH_PROG(MCS, gmcs)
+
+if test "x$MONO" = "x" ; then
+  AC_PATH_PROG(MINT, mint)
+  if test "x$MINT" = "x" ; then
+	AC_MSG_ERROR([Can't find "mono" or "mint" in your PATH])
+  fi
+fi
+
+if test "x$MCS" = "x" ; then
+  AC_MSG_ERROR([Can't find "gmcs" in your PATH])
+fi
+AC_SUBST(PATH)
+AC_SUBST(LD_LIBRARY_PATH)
+
+dnl Find pkg-config
+AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+if test "x$PKG_CONFIG" = "xno"; then
+        AC_MSG_ERROR([You need to install pkg-config])
+fi
+
+FUSE_REQUIRED_VERSION=2.5.2
+MPH_REQUIRED_VERSION=1.1.16
+MONO_REQUIRED_VERSION=1.1.16
+PKG_CHECK_MODULES(UNMANAGED_DEPENDENCIES_MONO,mono >= $MONO_REQUIRED_VERSION, has_mono=true, has_mono=false)
+PKG_CHECK_MODULES(UNMANAGED_DEPENDENCIES_MINT,mint >= $MONO_REQUIRED_VERSION, has_mint=true, has_mint=false)
+
+PKG_CHECK_MODULES(FUSE, fuse >= $FUSE_REQUIRED_VERSION)
+PKG_CHECK_MODULES(MPH, mono-posix-helper >= $MPH_REQUIRED_VERSION)
+
+MPH_CFLAGS=`$PKG_CONFIG --cflags mono-posix-helper`
+FUSE_CFLAGS=`$PKG_CONFIG --cflags fuse`
+MPH_LIBS=`$PKG_CONFIG --libs mono-posix-helper`
+FUSE_LIBS=`$PKG_CONFIG --libs fuse`
+
+AC_SUBST(MPH_CFLAGS)
+AC_SUBST(MPH_LIBS)
+AC_SUBST(FUSE_CFLAGS)
+AC_SUBST(FUSE_LIBS)
+
+if test "x$has_mono" = "xtrue"; then
+    if test `uname -s` = "Darwin"; then
+	AC_PATH_PROG(RUNTIME, mono, no)
+	AC_PATH_PROG(CSC, gmcs, no)
+	LIB_PREFIX=
+	LIB_SUFFIX=.dylib
+    else
+	AC_PATH_PROG(RUNTIME, mono, no)
+	AC_PATH_PROG(CSC, gmcs, no)
+	LIB_PREFIX=.so
+	LIB_SUFFIX=
+    fi
+else
+    if test "x$has_mint" = "xtrue"; then
+	AC_PATH_PROG(RUNTIME, mint, no)
+	AC_PATH_PROG(CSC, gmcs, no)
+	LIB_PREFIX=.so
+	LIB_SUFFIX=
+    fi
+fi
+
+
+dnl hard dependencies
+MONODOC_REQUIRED_VERSION=1.0
+
+PKG_CHECK_MODULES(MONODOC, monodoc >= $MONODOC_REQUIRED_VERSION)
+AC_SUBST(MONODOC_LIBS)
+
+MONO_NUNIT_REQUIRED_VERSION=1.1.8
+AC_ARG_ENABLE(nunit,
+	AC_HELP_STRING([--enable-nunit],
+		[enable support for NUnit [default=no]]),
+		[PKG_CHECK_MODULES(MONO_NUNIT, mono-nunit >= $MONO_NUNIT_REQUIRED_VERSION, enable_nunit=yes, enable_nunit=no)],
+		enable_nunit=no)
+
+AM_CONDITIONAL(ENABLE_NUNIT, test x$enable_nunit = xyes)
+
+CSC_FLAGS=
+
+AC_SUBST(LIB_SUFFIX)
+AC_SUBST(LIB_PREFIX)
+AC_SUBST(ASSEMBLY_VERSION)
+AC_SUBST(CSC_FLAGS)
+
+
+MF_DIR='$(prefix)/lib/mono-fuse'
+
+AC_SUBST(MF_DIR)
+
+AC_OUTPUT([
+Makefile
+lib/Makefile
+lib/pkgconfig/Makefile
+lib/pkgconfig/mono-fuse.pc
+src/Makefile
+src/Mono.Fuse/Makefile
+src/MonoFuseHelper/Makefile
+example/Makefile
+example/HelloFS/Makefile
+])
+
+echo ""
+echo "Configuration summary"
+echo ""
+echo "   * Installation prefix = $prefix"
+echo "   * C# compiler = $CSC"
+echo "   * NUnit support: $enable_nunit"
+echo ""
+

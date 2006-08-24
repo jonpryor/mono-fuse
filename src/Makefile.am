@@ -1,0 +1,1 @@
+SUBDIRS = Mono.Fuse MonoFuseHelper

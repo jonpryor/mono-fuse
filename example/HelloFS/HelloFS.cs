@@ -97,9 +97,8 @@ namespace Mono.Fuse.Samples {
 				source = hello_str;
 			else if (path == data_path)
 				source = data_str;
-			else {
+			else
 				return Errno.ENOENT;
-			}
 
 			int size = buf.Length;
 
