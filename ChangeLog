@@ -1,5 +1,11 @@
 2006-08-24  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* NEWS: Added
+	* configure.in: Use AM_PROG_LIBTOOL, not AC_PROG_LIBTOOL, to satisfy
+	  autogen.sh's checking.
+
+2006-08-24  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* AUTHORS, COPYING, README: Added (for autoconf)
 	* autogen.sh, configure.in, Makefile.am, example/Makefile.am,
 	  example/HelloFS/Makefile.am, lib/Makefile.am, lib/pkgconfig/Makefile.am,
