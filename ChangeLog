@@ -1,5 +1,11 @@
 2006-08-24  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* Makefile.am: Build the `lib' directory.
+	* lib/mono-fuse/Makefile.am: Don't install anything;
+	  src/Mono.Fuse/Makefile.am already handles Mono.Fuse.dll installation.
+
+2006-08-24  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* configure.in: Don't forget to generate lib/mono-fuse/Makefile!
 
 2006-08-24  Jonathan Pryor  <jonpryor@vt.edu>
