@@ -103,6 +103,7 @@ AC_SUBST(MF_DIR)
 AC_OUTPUT([
 Makefile
 lib/Makefile
+lib/mono-fuse/Makefile
 lib/pkgconfig/Makefile
 lib/pkgconfig/mono-fuse.pc
 src/Makefile
