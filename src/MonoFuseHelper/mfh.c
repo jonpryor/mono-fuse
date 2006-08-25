@@ -394,8 +394,6 @@ mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 	char **paths = NULL;
 	int r;
 
-	printf ("mfh_readdir invoked!\n");
-
 	if (_to_file_info (info, &_info) != 0)
 		return -EINVAL;
 
@@ -568,8 +566,6 @@ mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, void* ops)
 	mops = (struct Mono_Fuse_Operations*) ops;
 
 	_to_fuse_operations (mops, &_ops);
-
-	printf ("mfh_fuse_new: readdir=%p\n", _ops.readdir);
 
 	if (Mono_Fuse_FromArgs (args, &_args) != 0)
 		return NULL;
