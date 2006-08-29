@@ -1,0 +1,17 @@
+This is a C# binding for FUSE.
+
+Short HOWTO:
+
+Within one terminal:
+	./configure
+	make
+	cd example/HelloFS
+	mkdir t
+	./hellofs t
+
+Within another terminal
+	cd example/HelloFS
+	ls t
+
+This should display files controlled by HelloFS.exe.
+
