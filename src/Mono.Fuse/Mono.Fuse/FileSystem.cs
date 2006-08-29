@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Mono.Unix;
 using Mono.Unix.Native;
-
-[assembly: MapHeader (PublicMacro="FUSE_USE_VERSION=25")]
-[assembly: MapHeader (PublicDeclaration="struct fuse_args;")]
-[assembly: MapHeader (ImplementationIncludeFile="<fuse.h>")]
 
 namespace Mono.Fuse {
 
@@ -206,7 +203,8 @@ namespace Mono.Fuse {
 
 		public FileSystem (string[] args)
 		{
-			Parse (args);
+			string[] unhandled = ParseFuseArguments (args);
+			MountPoint = unhandled [unhandled.Length - 1];
 		}
 
 		public IDictionary <string, string> Options {
@@ -339,12 +337,18 @@ namespace Mono.Fuse {
 		const string NameValueRegex = @"(?<Name>\w+)(\s*=\s*(?<Value>.*))?";
 		const string OptRegex = @"^-o\s*(" + NameValueRegex + ")?$";
 
-		private void Parse (string[] args)
+		public string[] ParseFuseArguments (string[] args)
 		{
+			List<string> unhandled = new List<string> ();
 			Regex o = new Regex (OptRegex);
 			Regex nv = new Regex (NameValueRegex);
+			bool interpret = true;
 
 			for (int i = 0; i < args.Length; ++i) {
+				if (!interpret) {
+					unhandled.Add (args [i]);
+					continue;
+				}
 				Match m = o.Match (args [i]);
 				if (m.Success) {
 					if (!m.Groups ["Name"].Success) {
@@ -358,10 +362,14 @@ namespace Mono.Fuse {
 				else if (args [i] == "-d") {
 					opts ["debug"] = "";
 				}
+				else if (args [i] == "--") {
+					interpret = false;
+				}
 				else {
-					mountPoint = args [i];
+					unhandled.Add (args [i]);
 				}
 			}
+			return unhandled.ToArray ();
 		}
 
 		private void Create ()
@@ -591,7 +599,8 @@ namespace Mono.Fuse {
 			try {
 				return OnGetFileAttributes (path, out stat);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				stat = new Stat ();
 				return Errno.EIO;
 			}
@@ -608,7 +617,8 @@ namespace Mono.Fuse {
 			try {
 				return OnReadSymbolicLink (path, buf, bufsize);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -623,7 +633,8 @@ namespace Mono.Fuse {
 			try {
 				return OnCreateFileNode (path, perms, dev);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -638,7 +649,8 @@ namespace Mono.Fuse {
 			try {
 				return OnCreateDirectory (path, mode);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -653,7 +665,8 @@ namespace Mono.Fuse {
 			try {
 				return OnRemoveFile (path);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -668,7 +681,8 @@ namespace Mono.Fuse {
 			try {
 				return OnRemoveDirectory (path);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -683,7 +697,8 @@ namespace Mono.Fuse {
 			try {
 				return OnCreateSymbolicLink (oldpath, newpath);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -698,7 +713,8 @@ namespace Mono.Fuse {
 			try {
 				return OnRenameFile (oldpath, newpath);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -713,7 +729,8 @@ namespace Mono.Fuse {
 			try {
 				return OnCreateHardLink (oldpath, newpath);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -728,7 +745,8 @@ namespace Mono.Fuse {
 			try {
 				return OnChangePermissions (path, mode);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -743,7 +761,8 @@ namespace Mono.Fuse {
 			try {
 				return OnChangeOwner (path, owner, group);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -758,7 +777,8 @@ namespace Mono.Fuse {
 			try {
 				return OnTruncateFile (path, length);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -773,7 +793,8 @@ namespace Mono.Fuse {
 			try {
 				return OnChangeTimes (path, ref buf);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -788,7 +809,8 @@ namespace Mono.Fuse {
 			try {
 				return OnOpen (path, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -803,7 +825,8 @@ namespace Mono.Fuse {
 			try {
 				return OnRead (path, buf, offset, info, out bytesWritten);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				bytesWritten = 0;
 				return Errno.EIO;
 			}
@@ -820,7 +843,8 @@ namespace Mono.Fuse {
 			try {
 				return OnWrite (path, buf, offset, info, out bytesRead);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				bytesRead = 0;
 				return Errno.EIO;
 			}
@@ -837,7 +861,8 @@ namespace Mono.Fuse {
 			try {
 				return OnGetFileSystemStatistics (path, out buf);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				buf = new Statvfs ();
 				return Errno.EIO;
 			}
@@ -854,7 +879,8 @@ namespace Mono.Fuse {
 			try {
 				return OnFlush (path, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -869,7 +895,8 @@ namespace Mono.Fuse {
 			try {
 				return OnRelease (path, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -884,7 +911,8 @@ namespace Mono.Fuse {
 			try {
 				return OnSynchronizeFileDescriptor (path, onlyUserData, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -899,7 +927,8 @@ namespace Mono.Fuse {
 			try {
 				return OnSetExtendedAttributes (path, name, value, flags);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -914,7 +943,8 @@ namespace Mono.Fuse {
 			try {
 				return OnGetExtendedAttributes (path, name, value, out bytesWritten);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				bytesWritten = 0;
 				return Errno.EIO;
 			}
@@ -931,7 +961,8 @@ namespace Mono.Fuse {
 			try {
 				return OnListExtendedAttributes (path, list, out bytesWritten);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				bytesWritten = 0;
 				return Errno.EIO;
 			}
@@ -948,7 +979,8 @@ namespace Mono.Fuse {
 			try {
 				return OnRemoveExtendedAttributes (path, name);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -963,7 +995,8 @@ namespace Mono.Fuse {
 			try {
 				return OnOpenDirectory (path, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -984,7 +1017,8 @@ namespace Mono.Fuse {
 				}
 				return r;
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -1000,7 +1034,8 @@ namespace Mono.Fuse {
 			try {
 				return OnCloseDirectory (path, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -1015,7 +1050,8 @@ namespace Mono.Fuse {
 			try {
 				return OnSynchronizeDirectory (path, onlyUserData, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -1035,7 +1071,8 @@ namespace Mono.Fuse {
 			try {
 				return OnAccess (path, mode);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -1050,7 +1087,8 @@ namespace Mono.Fuse {
 			try {
 				return OnCreate (path, mode, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -1065,7 +1103,8 @@ namespace Mono.Fuse {
 			try {
 				return OnTruncateFileDescriptor (path, length, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				return Errno.EIO;
 			}
 		}
@@ -1080,7 +1119,8 @@ namespace Mono.Fuse {
 			try {
 				return OnGetFileDescriptorAttributes (path, out buf, info);
 			}
-			catch {
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
 				buf = new Stat ();
 				return Errno.EIO;
 			}

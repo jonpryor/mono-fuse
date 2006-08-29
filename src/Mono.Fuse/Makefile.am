@@ -15,10 +15,14 @@ map_files = $(map_p).c $(map_p).h $(map_p).cs $(map_p).xml
 all: $(DLL) $(map_files)
 
 $(DLL) : $(build_sources)
-	$(CSC) $(CSC_FLAGS) -debug+ -out:$@ -target:library $(REFS) $(build_sources)
+	$(CSC) $(CSC_FLAGS) -d:TRACE -debug+ -out:$@ -target:library $(REFS) $(build_sources)
 
 $(map_files) : $(DLL)
-	create-native-map --library=MonoFuseHelper $(DLL) $(map_p)
+	create-native-map                     \
+		--public-macro:FUSE_USE_VERSION=25  \
+		--impl-header:"<fuse.h>"            \
+		--library=MonoFuseHelper            \
+		$(DLL) $(map_p)
 
 assemblydir = $(MF_DIR)
 assembly_DATA = $(DLL)

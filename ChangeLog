@@ -1,3 +1,25 @@
+2006-08-28  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* example/HelloFS/HelloFS.cs: Rename the ``data'' file to ``data.im'' (this
+	  is a text file with 100MB of data), and replace ``data'' with a file which
+	  computes its content at runtime (a time/space tradeoff).  The ``data.im''
+	  file isn't available by default; pass --data.im-in-memory to make it
+	  available (note that this file will be created in-memory the first time
+	  its content is accessed).  Add command-line argument parsing.  Use
+	  Trace.WriteLine instead of Console.WriteLine.
+	* lib/pkgconfig/mono-fuse.pc.in: Use @libdir@ instead of
+	  ${prefix}/@reloc_libdir@.  I'm not sure what @reloc_libdir@ is supposed to
+	  be, and it isn't currently expanded anyway.
+	* src/Mono.Fuse/Makefile.am: Add the -d:TRACE define.  Add --public-macro
+	  and --impl-header to the create-native-map call (create-native-map no
+	  longer supports MapHeaderAttribute).
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Remove use of
+	  Mono.Unix.Native.MapHeaderAttribute (use create-native-map arguments
+	  instead).  Add public argument parsing support (so that HelloFS can have
+	  its own command-line args in addition to the FUSE args).  Use Trace
+	  instead of Console for trace messages.  Add a `catch(Exception)' handler
+	  so we can trace exception messages (helps debugging).
+
 2006-08-25  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/MonoFuseHelper/mfh.c: Remove debug printf statements.

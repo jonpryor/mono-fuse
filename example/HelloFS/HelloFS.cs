@@ -1,5 +1,7 @@
 // Mono.Fuse example program
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using Mono.Fuse;
@@ -8,81 +10,78 @@ using Mono.Unix.Native;
 namespace Mono.Fuse.Samples {
 	class HelloFS : FileSystem {
 		static readonly byte[] hello_str = Encoding.UTF8.GetBytes ("Hello World!\n");
-		static readonly byte[] data_str;
-
 		const string hello_path = "/hello";
 		const string data_path  = "/data";
+		const string data_im_path  = "/data.im";
 
-		static HelloFS ()
-		{
-			data_str = new byte [100000000];
-			for (int i = 0; i < data_str.Length; ++i) {
-				if ((i % 27) == 0)
-					data_str [i] = (byte) '\n';
-				else
-					data_str [i] = (byte) ((i % 26) + 'a');
-			}
-		}
+		const int data_size = 100000000;
 
-		public HelloFS (string[] args) : base (args)
+		byte[] data_im_str;
+		bool have_data_im = false;
+
+		public HelloFS ()
 		{
-			Console.WriteLine ("(HelloFS creating)");
+			Trace.WriteLine ("(HelloFS creating)");
 		}
 
 		protected override Errno OnGetFileAttributes (string path, ref Stat stbuf)
 		{
-			Console.WriteLine ("(OnGetFileAttributes {0})", path);
-			Errno res = 0;
+			Trace.WriteLine ("(OnGetFileAttributes {0})", path);
 
 			stbuf = new Stat ();
-			if (path == "/") {
-				stbuf.st_mode = FilePermissions.S_IFDIR | 
-					NativeConvert.FromOctalPermissionString ("0755");
-				stbuf.st_nlink = 2;
+			switch (path) {
+				case "/":
+					stbuf.st_mode = FilePermissions.S_IFDIR | 
+						NativeConvert.FromOctalPermissionString ("0755");
+					stbuf.st_nlink = 2;
+					return 0;
+				case hello_path:
+				case data_path:
+				case data_im_path:
+					stbuf.st_mode = FilePermissions.S_IFREG |
+						NativeConvert.FromOctalPermissionString ("0444");
+					stbuf.st_nlink = 1;
+					int size = 0;
+					switch (path) {
+						case hello_path:   size = hello_str.Length; break;
+						case data_path:
+						case data_im_path: size = data_size; break;
+					}
+					stbuf.st_size = size;
+					return 0;
+				default:
+					return Errno.ENOENT;
 			}
-			else if (path == hello_path) {
-				stbuf.st_mode = FilePermissions.S_IFREG |
-					NativeConvert.FromOctalPermissionString ("0444");
-				stbuf.st_nlink = 1;
-				stbuf.st_size = hello_str.Length;
-			}
-			else if (path == data_path) {
-				stbuf.st_mode = FilePermissions.S_IFREG |
-					NativeConvert.FromOctalPermissionString ("0444");
-				stbuf.st_nlink = 1;
-				stbuf.st_size = data_str.Length;
-			}
-			else
-				res = Errno.ENOENT;
-			return res;
 		}
 
 		protected override Errno OnReadDirectory (string path, 
 				[Out] out string[] paths, OpenedFileInfo fi)
 		{
-			Console.WriteLine ("(OnReadDirectory {0})", path);
+			Trace.WriteLine ("(OnReadDirectory {0})", path);
 			paths = null;
 			if (path != "/")
 				return Errno.ENOENT;
 
-			paths = new string[]{
-				".",
-				"..",
-				"hello",
-				"data",
-			};
+			List<string> _paths = new List<string> ();
+			_paths.Add (".");
+			_paths.Add ("..");
+			_paths.Add ("hello");
+			_paths.Add ("data");
+			if (have_data_im) {
+				_paths.Add ("data.im");
+			}
+			paths = _paths.ToArray ();
 
 			return 0;
 		}
 
 		protected override Errno OnOpen (string path, OpenedFileInfo fi)
 		{
-			Console.WriteLine ("(OnOpen {0})", path);
-			if (path != hello_path && path != data_path)
+			Trace.WriteLine (string.Format ("(OnOpen {0} Flags={1})", path, fi.OpenFlags));
+			if (path != hello_path && path != data_path && path != data_im_path)
 				return Errno.ENOENT;
-			// if ((fi.flags & 3) != OpenFlags.O_RDONLY)
-			Console.WriteLine ("OnOpen Flags={0}", fi.OpenFlags);
-			// if (((OpenFlags)((int) fi.Flags & 3)) != OpenFlags.O_RDONLY)
+			if (path == data_im_path && !have_data_im)
+				return Errno.ENOENT;
 			if (!fi.OpenReadOnly)
 				return Errno.EACCES;
 			return 0;
@@ -90,36 +89,76 @@ namespace Mono.Fuse.Samples {
 
 		protected override Errno OnRead (string path, byte[] buf, long offset, OpenedFileInfo fi, out int bytesWritten)
 		{
-			Console.WriteLine ("(OnRead {0})", path);
+			Trace.WriteLine ("(OnRead {0})", path);
 			bytesWritten = 0;
-			byte[] source = null;
-			if (path == hello_path)
-				source = hello_str;
-			else if (path == data_path)
-				source = data_str;
-			else
-				return Errno.ENOENT;
-
 			int size = buf.Length;
-
-			if (offset < (long) source.Length) {
-				if (offset + (long) size > (long) source.Length)
-					size = (int) ((long) source.Length - offset);
-				Buffer.BlockCopy (source, (int) offset, buf, 0, size);
+			if (path == data_im_path && data_im_str == null)
+				FillData ();
+			if (path == hello_path || path == data_im_path) {
+				byte[] source = path == hello_path ? hello_str : data_im_str;
+				if (offset < (long) source.Length) {
+					if (offset + (long) size > (long) source.Length)
+						size = (int) ((long) source.Length - offset);
+					Buffer.BlockCopy (source, (int) offset, buf, 0, size);
+				}
+				else
+					size = 0;
+			}
+			else if (path == data_path) {
+				int max = System.Math.Min ((int) data_size, (int) (offset + buf.Length));
+				for (int i = 0, j = (int) offset; j < max; ++i, ++j) {
+					if ((j % 27) == 0)
+						buf [i] = (byte) '\n';
+					else
+						buf [i] = (byte) ((j % 26) + 'a');
+				}
 			}
 			else
-				size = 0;
+				return Errno.ENOENT;
 
 			bytesWritten = size;
 			return 0;
 		}
 
+		private bool ParseArguments (string[] args)
+		{
+			for (int i = 0; i < args.Length; ++i) {
+				switch (args [i]) {
+					case "--data.im-in-memory":
+						have_data_im = true;
+						break;
+					case "--help":
+						Console.WriteLine ("{0} [--data.im-in-memory] [-d] mountpoint",
+								Environment.GetCommandLineArgs () [0]);
+						return false;
+					default:
+						base.MountPoint = args [i];
+						break;
+				}
+			}
+			return true;
+		}
+
+		private void FillData ()
+		{
+			data_im_str = new byte [data_size];
+			for (int i = 0; i < data_im_str.Length; ++i) {
+				if ((i % 27) == 0)
+					data_im_str [i] = (byte) '\n';
+				else
+					data_im_str [i] = (byte) ((i % 26) + 'a');
+			}
+		}
+
 		public static void Main (string[] args)
 		{
-			using (FileSystem fs = new HelloFS (args)) {
+			using (HelloFS fs = new HelloFS ()) {
+				string[] unhandled = fs.ParseFuseArguments (args);
 				foreach (string key in fs.Options.Keys) {
 					Console.WriteLine ("Option: {0}={1}", key, fs.Options [key]);
 				}
+				if (!fs.ParseArguments (unhandled))
+					return;
 				// fs.MountAt ("path" /* , args? */);
 				fs.Start ();
 			}
