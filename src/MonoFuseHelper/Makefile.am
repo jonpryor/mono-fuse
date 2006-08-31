@@ -1,12 +1,12 @@
 lib_LTLIBRARIES = libMonoFuseHelper.la
 
-INCLUDES = $(MPH_CFLAGS) $(FUSE_CFLAGS) -I$(top_srcdir) -I$(top_builddir)/lib
+INCLUDES = $(GLIB_CFLAGS) $(FUSE_CFLAGS) -I$(top_srcdir) -I$(top_builddir)/lib
 
 MFH_SOURCE = \
 	mfh.c \
 	$(top_builddir)/lib/map.c
 
-MFH_LIBS = $(MPH_LIBS) $(FUSE_LIBS)
+MFH_LIBS = $(GLIB_LIBS) $(FUSE_LIBS)
 
 libMonoFuseHelper_la_SOURCES = $(MFH_SOURCE)
 libMonoFuseHelper_la_LIBADD  = $(MFH_LIBS)

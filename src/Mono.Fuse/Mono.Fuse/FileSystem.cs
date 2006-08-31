@@ -22,7 +22,7 @@ namespace Mono.Fuse {
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
 	public class OpenedFileInfo {
-		private OpenFlags flags;
+		internal OpenFlags flags;
 		private int   write_page;
 		private bool  direct_io;
 		private bool  keep_cache;
@@ -66,50 +66,50 @@ namespace Mono.Fuse {
 		}
 	}
 
-	delegate Errno GetFileAttributesCb (string path, out Stat stat);
-	delegate Errno ReadSymbolicLinkCb (string path, StringBuilder buf, ulong bufsize);
-	delegate Errno CreateFileNodeCb (string path, FilePermissions perms, ulong dev);
-	delegate Errno CreateDirectoryCb (string path, FilePermissions mode);
-	delegate Errno RemoveFileCb (string path);
-	delegate Errno RemoveDirectoryCb (string path);
-	delegate Errno CreateSymbolicLinkCb (string oldpath, string newpath);
-	delegate Errno RenameFileCb (string oldpath, string newpath);
-	delegate Errno CreateHardlinkCb (string oldpath, string newpath);
-	delegate Errno ChangePermissionsCb (string path, FilePermissions mode);
-	delegate Errno ChangeOwnerCb (string path, long owner, long group);
-	delegate Errno TruncateCb (string path, long length);
-	delegate Errno ChangeTimesCb (string path, ref Utimbuf buf);
-	delegate Errno OpenCb (string path, OpenedFileInfo info); 
-	delegate Errno ReadCb (string path, 
+	delegate int GetFileAttributesCb (string path, IntPtr stat);
+	delegate int ReadSymbolicLinkCb (string path, StringBuilder buf, ulong bufsize);
+	delegate int CreateFileNodeCb (string path, uint perms, ulong dev);
+	delegate int CreateDirectoryCb (string path, uint mode);
+	delegate int RemoveFileCb (string path);
+	delegate int RemoveDirectoryCb (string path);
+	delegate int CreateSymbolicLinkCb (string oldpath, string newpath);
+	delegate int RenameFileCb (string oldpath, string newpath);
+	delegate int CreateHardlinkCb (string oldpath, string newpath);
+	delegate int ChangePermissionsCb (string path, uint mode);
+	delegate int ChangeOwnerCb (string path, long owner, long group);
+	delegate int TruncateCb (string path, long length);
+	delegate int ChangeTimesCb (string path, IntPtr buf);
+	delegate int OpenCb (string path, OpenedFileInfo info); 
+	delegate int ReadCb (string path, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesRead);
-	delegate Errno WriteCb (string path, 
+	delegate int WriteCb (string path, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesRead);
-	delegate Errno GetFileSystemStatisticsCb (string path, out Statvfs buf);
-	delegate Errno FlushCb (string path, OpenedFileInfo info);
-	delegate Errno ReleaseCb (string path, OpenedFileInfo info);
-	delegate Errno SynchronizeFileDescriptorCb (string path, bool onlyUserData, OpenedFileInfo info);
-	delegate Errno SetExtendedAttributesCb (string path, string name, 
+	delegate int GetFileSystemStatisticsCb (string path, IntPtr buf);
+	delegate int FlushCb (string path, OpenedFileInfo info);
+	delegate int ReleaseCb (string path, OpenedFileInfo info);
+	delegate int SynchronizeFileDescriptorCb (string path, bool onlyUserData, OpenedFileInfo info);
+	delegate int SetExtendedAttributesCb (string path, string name, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
-			byte[] value, ulong size, XattrFlags flags);
-	delegate Errno GetExtendedAttributesCb (string path, string name, 
+			byte[] value, ulong size, int flags);
+	delegate int GetExtendedAttributesCb (string path, string name, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size, out int bytesWritten);
-	delegate Errno ListExtendedAttributesCb (string path, 
+	delegate int ListExtendedAttributesCb (string path, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] list, ulong size, out int bytesWritten);
-	delegate Errno RemoveExtendedAttributesCb (string path, string name);
-	delegate Errno OpenDirectoryCb (string path, OpenedFileInfo info);
+	delegate int RemoveExtendedAttributesCb (string path, string name);
+	delegate int OpenDirectoryCb (string path, OpenedFileInfo info);
 	public delegate bool FillDirectoryCb (IntPtr buf, string name, IntPtr stbuf, long offset);
-	delegate Errno ReadDirectoryCb (string path, out IntPtr paths, OpenedFileInfo info);
-	delegate Errno CloseDirectoryCb (string path, OpenedFileInfo info);
-	delegate Errno SynchronizeDirectoryCb (string path, bool onlyUserData, OpenedFileInfo info);
+	delegate int ReadDirectoryCb (string path, out IntPtr paths, OpenedFileInfo info);
+	delegate int CloseDirectoryCb (string path, OpenedFileInfo info);
+	delegate int SynchronizeDirectoryCb (string path, bool onlyUserData, OpenedFileInfo info);
 	delegate IntPtr InitCb ();
-	delegate Errno AccessCb (string path, AccessModes mode);
-	delegate Errno CreateCb (string path, FilePermissions mode, OpenedFileInfo info);
-	delegate Errno TruncateFileDescriptorCb (string path, long length, OpenedFileInfo info);
-	delegate Errno GetFileDescriptorAttributesCb (string path, out Stat buf, OpenedFileInfo info);
+	delegate int AccessCb (string path, int mode);
+	delegate int CreateCb (string path, uint mode, OpenedFileInfo info);
+	delegate int TruncateFileDescriptorCb (string path, long length, OpenedFileInfo info);
+	delegate int GetFileDescriptorAttributesCb (string path, IntPtr buf, OpenedFileInfo info);
 
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
@@ -594,16 +594,29 @@ namespace Mono.Fuse {
 			return context;
 		}
 
-		private Errno _OnGetFileAttributes (string path, out Stat stat)
+		private int _OnGetFileAttributes (string path, IntPtr stat)
 		{
+			Errno errno;
 			try {
-				return OnGetFileAttributes (path, out stat);
+				Stat buf;
+				NativeConvert.Copy (stat, out buf);
+				errno = OnGetFileAttributes (path, out buf);
+				if (errno == 0)
+					NativeConvert.Copy (ref buf, stat);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				stat = new Stat ();
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
+		}
+
+		private int ConvertErrno (Errno e)
+		{
+			int r;
+			if (NativeConvert.TryFromErrno (e, out r))
+				return -r;
+			return -1;
 		}
 
 		protected virtual Errno OnGetFileAttributes (string path, out Stat stat)
@@ -612,15 +625,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
+		private int _OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
 		{
+			Errno errno;
 			try {
-				return OnReadSymbolicLink (path, buf, bufsize);
+				errno = OnReadSymbolicLink (path, buf, bufsize);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
@@ -628,15 +643,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnCreateFileNode (string path, FilePermissions perms, ulong dev)
+		private int _OnCreateFileNode (string path, uint perms, ulong dev)
 		{
+			Errno errno;
 			try {
-				return OnCreateFileNode (path, perms, dev);
+				FilePermissions _perms = NativeConvert.ToFilePermissions (perms);
+				errno = OnCreateFileNode (path, _perms, dev);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnCreateFileNode (string path, FilePermissions perms, ulong dev)
@@ -644,15 +662,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnCreateDirectory (string path, FilePermissions mode)
+		private int _OnCreateDirectory (string path, uint mode)
 		{
+			Errno errno;
 			try {
-				return OnCreateDirectory (path, mode);
+				FilePermissions _mode = NativeConvert.ToFilePermissions (mode);
+				errno = OnCreateDirectory (path, _mode);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnCreateDirectory (string path, FilePermissions mode)
@@ -660,15 +681,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnRemoveFile (string path)
+		private int _OnRemoveFile (string path)
 		{
+			Errno errno;
 			try {
-				return OnRemoveFile (path);
+				errno = OnRemoveFile (path);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnRemoveFile (string path)
@@ -676,15 +699,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnRemoveDirectory (string path)
+		private int _OnRemoveDirectory (string path)
 		{
+			Errno errno;
 			try {
-				return OnRemoveDirectory (path);
+				errno = OnRemoveDirectory (path);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnRemoveDirectory (string path)
@@ -692,15 +717,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnCreateSymbolicLink (string oldpath, string newpath)
+		private int _OnCreateSymbolicLink (string oldpath, string newpath)
 		{
+			Errno errno;
 			try {
-				return OnCreateSymbolicLink (oldpath, newpath);
+				errno = OnCreateSymbolicLink (oldpath, newpath);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnCreateSymbolicLink (string oldpath, string newpath)
@@ -708,15 +735,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnRenameFile (string oldpath, string newpath)
+		private int _OnRenameFile (string oldpath, string newpath)
 		{
+			Errno errno;
 			try {
-				return OnRenameFile (oldpath, newpath);
+				errno = OnRenameFile (oldpath, newpath);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnRenameFile (string oldpath, string newpath)
@@ -724,15 +753,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnCreateHardLink (string oldpath, string newpath)
+		private int _OnCreateHardLink (string oldpath, string newpath)
 		{
+			Errno errno;
 			try {
-				return OnCreateHardLink (oldpath, newpath);
+				errno = OnCreateHardLink (oldpath, newpath);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnCreateHardLink (string oldpath, string newpath)
@@ -740,15 +771,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnChangePermissions (string path, FilePermissions mode)
+		private int _OnChangePermissions (string path, uint mode)
 		{
+			Errno errno;
 			try {
-				return OnChangePermissions (path, mode);
+				FilePermissions _mode = NativeConvert.ToFilePermissions (mode);
+				errno = OnChangePermissions (path, _mode);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnChangePermissions (string path, FilePermissions mode)
@@ -756,15 +790,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnChangeOwner (string path, long owner, long group)
+		private int _OnChangeOwner (string path, long owner, long group)
 		{
+			Errno errno;
 			try {
-				return OnChangeOwner (path, owner, group);
+				errno = OnChangeOwner (path, owner, group);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnChangeOwner (string path, long owner, long group)
@@ -772,15 +808,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnTruncateFile (string path, long length)
+		private int _OnTruncateFile (string path, long length)
 		{
+			Errno errno;
 			try {
-				return OnTruncateFile (path, length);
+				errno = OnTruncateFile (path, length);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnTruncateFile (string path, long length)
@@ -788,15 +826,21 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnChangeTimes (string path, ref Utimbuf buf)
+		private int _OnChangeTimes (string path, IntPtr buf)
 		{
+			Errno errno;
 			try {
-				return OnChangeTimes (path, ref buf);
+				Utimbuf b;
+				NativeConvert.Copy (buf, out b);
+				errno = OnChangeTimes (path, ref b);
+				if (errno == 0)
+					NativeConvert.Copy (ref b, buf);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnChangeTimes (string path, ref Utimbuf buf)
@@ -804,15 +848,23 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnOpen (string path, OpenedFileInfo info)
+		private int _OnOpen (string path, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnOpen (path, info);
+				ConvertOpenFlags (info);
+				errno = OnOpen (path, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
+		}
+
+		private static void ConvertOpenFlags (OpenedFileInfo info)
+		{
+			info.flags = NativeConvert.ToOpenFlags ((int) info.flags);
 		}
 
 		protected virtual Errno OnOpen (string path, OpenedFileInfo info)
@@ -820,16 +872,19 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
  
-		private Errno _OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesWritten)
+		private int _OnRead (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesWritten)
 		{
+			Errno errno;
 			try {
-				return OnRead (path, buf, offset, info, out bytesWritten);
+				ConvertOpenFlags (info);
+				errno = OnRead (path, buf, offset, info, out bytesWritten);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
 				bytesWritten = 0;
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnRead (string path, byte[] buf, long offset, OpenedFileInfo info, out int bytesWritten)
@@ -838,16 +893,19 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnWrite (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesRead)
+		private int _OnWrite (string path, byte[] buf, ulong size, long offset, OpenedFileInfo info, out int bytesRead)
 		{
+			Errno errno;
 			try {
-				return OnWrite (path, buf, offset, info, out bytesRead);
+				ConvertOpenFlags (info);
+				errno = OnWrite (path, buf, offset, info, out bytesRead);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
 				bytesRead = 0;
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnWrite (string path, byte[] buf, long offset, OpenedFileInfo info, out int bytesRead)
@@ -856,16 +914,21 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnGetFileSystemStatistics (string path, out Statvfs buf)
+		private int _OnGetFileSystemStatistics (string path, IntPtr buf)
 		{
+			Errno errno;
 			try {
-				return OnGetFileSystemStatistics (path, out buf);
+				Statvfs b;
+				NativeConvert.Copy (buf, out b);
+				errno = OnGetFileSystemStatistics (path, out b);
+				if (errno == 0)
+					NativeConvert.Copy (ref b, buf);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				buf = new Statvfs ();
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnGetFileSystemStatistics (string path, out Statvfs buf)
@@ -874,15 +937,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnFlush (string path, OpenedFileInfo info)
+		private int _OnFlush (string path, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnFlush (path, info);
+				ConvertOpenFlags (info);
+				errno = OnFlush (path, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnFlush (string path, OpenedFileInfo info)
@@ -890,15 +956,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnRelease (string path, OpenedFileInfo info)
+		private int _OnRelease (string path, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnRelease (path, info);
+				ConvertOpenFlags (info);
+				errno = OnRelease (path, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnRelease (string path, OpenedFileInfo info)
@@ -906,15 +975,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnSynchronizeFileDescriptor (string path, bool onlyUserData, OpenedFileInfo info)
+		private int _OnSynchronizeFileDescriptor (string path, bool onlyUserData, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnSynchronizeFileDescriptor (path, onlyUserData, info);
+				ConvertOpenFlags (info);
+				errno = OnSynchronizeFileDescriptor (path, onlyUserData, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnSynchronizeFileDescriptor (string path, bool onlyUserData, OpenedFileInfo info)
@@ -922,15 +994,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnSetExtendedAttributes (string path, string name, byte[] value, ulong size, XattrFlags flags)
+		private int _OnSetExtendedAttributes (string path, string name, byte[] value, ulong size, int flags)
 		{
+			Errno errno;
 			try {
-				return OnSetExtendedAttributes (path, name, value, flags);
+				XattrFlags f = NativeConvert.ToXattrFlags (flags);
+				errno = OnSetExtendedAttributes (path, name, value, f);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnSetExtendedAttributes (string path, string name, byte[] value, XattrFlags flags)
@@ -938,16 +1013,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnGetExtendedAttributes (string path, string name, byte[] value, ulong size, out int bytesWritten)
+		private int _OnGetExtendedAttributes (string path, string name, byte[] value, ulong size, out int bytesWritten)
 		{
+			Errno errno;
 			try {
-				return OnGetExtendedAttributes (path, name, value, out bytesWritten);
+				errno = OnGetExtendedAttributes (path, name, value, out bytesWritten);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
 				bytesWritten = 0;
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnGetExtendedAttributes (string path, string name, byte[] value, out int bytesWritten)
@@ -956,16 +1033,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnListExtendedAttributes (string path, byte[] list, ulong size,  out int bytesWritten)
+		private int _OnListExtendedAttributes (string path, byte[] list, ulong size,  out int bytesWritten)
 		{
+			Errno errno;
 			try {
-				return OnListExtendedAttributes (path, list, out bytesWritten);
+				errno = OnListExtendedAttributes (path, list, out bytesWritten);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
 				bytesWritten = 0;
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnListExtendedAttributes (string path, byte[] list, out int bytesWritten)
@@ -974,15 +1053,17 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnRemoveExtendedAttributes (string path, string name)
+		private int _OnRemoveExtendedAttributes (string path, string name)
 		{
+			Errno errno;
 			try {
-				return OnRemoveExtendedAttributes (path, name);
+				errno = OnRemoveExtendedAttributes (path, name);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnRemoveExtendedAttributes (string path, string name)
@@ -990,15 +1071,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnOpenDirectory (string path, OpenedFileInfo info)
+		private int _OnOpenDirectory (string path, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnOpenDirectory (path, info);
+				ConvertOpenFlags (info);
+				errno = OnOpenDirectory (path, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnOpenDirectory (string path, OpenedFileInfo info)
@@ -1006,21 +1090,23 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnReadDirectory (string path, out IntPtr paths, OpenedFileInfo info)
+		private int _OnReadDirectory (string path, out IntPtr paths, OpenedFileInfo info)
 		{
 			paths = IntPtr.Zero;
+			Errno errno;
 			try {
+				ConvertOpenFlags (info);
 				string[] _paths;
-				Errno r = OnReadDirectory (path, out _paths, info);
+				errno = OnReadDirectory (path, out _paths, info);
 				if (_paths != null) {
 					paths = AllocArgv (_paths);
 				}
-				return r;
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnReadDirectory (string path, [Out] out string[] paths, OpenedFileInfo info)
@@ -1029,15 +1115,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnCloseDirectory (string path, OpenedFileInfo info)
+		private int _OnCloseDirectory (string path, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnCloseDirectory (path, info);
+				ConvertOpenFlags (info);
+				errno = OnCloseDirectory (path, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnCloseDirectory (string path, OpenedFileInfo info)
@@ -1045,15 +1134,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnSynchronizeDirectory (string path, bool onlyUserData, OpenedFileInfo info)
+		private int _OnSynchronizeDirectory (string path, bool onlyUserData, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnSynchronizeDirectory (path, onlyUserData, info);
+				ConvertOpenFlags (info);
+				errno = OnSynchronizeDirectory (path, onlyUserData, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnSynchronizeDirectory (string path, bool onlyUserData, OpenedFileInfo info)
@@ -1066,15 +1158,18 @@ namespace Mono.Fuse {
 			return opsp;
 		}
 
-		private Errno _OnAccess (string path, AccessModes mode)
+		private int _OnAccess (string path, int mode)
 		{
+			Errno errno;
 			try {
-				return OnAccess (path, mode);
+				AccessModes _mode = NativeConvert.ToAccessModes (mode);
+				errno = OnAccess (path, _mode);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnAccess (string path, AccessModes mode)
@@ -1082,15 +1177,19 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnCreate (string path, FilePermissions mode, OpenedFileInfo info)
+		private int _OnCreate (string path, uint mode, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnCreate (path, mode, info);
+				ConvertOpenFlags (info);
+				FilePermissions _mode = NativeConvert.ToFilePermissions (mode);
+				errno = OnCreate (path, _mode, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnCreate (string path, FilePermissions mode, OpenedFileInfo info)
@@ -1098,15 +1197,18 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnTruncateFileDescriptor (string path, long length, OpenedFileInfo info)
+		private int _OnTruncateFileDescriptor (string path, long length, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnTruncateFileDescriptor (path, length, info);
+				ConvertOpenFlags (info);
+				errno = OnTruncateFileDescriptor (path, length, info);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnTruncateFileDescriptor (string path, long length, OpenedFileInfo info)
@@ -1114,16 +1216,22 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private Errno _OnGetFileDescriptorAttributes (string path, out Stat buf, OpenedFileInfo info)
+		private int _OnGetFileDescriptorAttributes (string path, IntPtr buf, OpenedFileInfo info)
 		{
+			Errno errno;
 			try {
-				return OnGetFileDescriptorAttributes (path, out buf, info);
+				ConvertOpenFlags (info);
+				Stat b;
+				NativeConvert.Copy (buf, out b);
+				errno = OnGetFileDescriptorAttributes (path, out b, info);
+				if (errno == 0)
+					NativeConvert.Copy (ref b, buf);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
-				buf = new Stat ();
-				return Errno.EIO;
+				errno = Errno.EIO;
 			}
+			return ConvertErrno (errno);
 		}
 
 		protected virtual Errno OnGetFileDescriptorAttributes (string path, out Stat buf, OpenedFileInfo info)
