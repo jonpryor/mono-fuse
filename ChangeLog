@@ -1,5 +1,16 @@
 2006-08-31  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* src/Mono.Fuse/Makefile.am: Remove dependency on external
+	  create-native-map.exe and a public Mono.Unix.Native.MapAttribute (as the
+	  latter will no longer be public).  Add `update-map-source' target which
+	  uses pkg-config to copy the "reference" MapAttribute.cs & 
+	  create-native-map.exe programs from their installed locations.
+	* src/Mono.Fuse/create-native-map.exe, src/Mono.Fuse/MapAttribute.cs: Added;
+	  cached versions of create-native-map.exe & MapAttribute.cs as provided by
+	  pkg-config and the create-native-map.pc file.
+
+2006-08-31  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* configure.in: Remove use of mono-posix-helper.pc, and use glib-2.0
 	  instead.
 	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Change the delegates so that they

@@ -1,5 +1,6 @@
 
 FILES = \
+	MapAttribute.cs \
 	Mono.Fuse/FileSystem.cs
 
 build_sources = $(addprefix $(srcdir)/, $(FILES))
@@ -18,7 +19,7 @@ $(DLL) : $(build_sources)
 	$(CSC) $(CSC_FLAGS) -d:TRACE -debug+ -out:$@ -target:library $(REFS) $(build_sources)
 
 $(map_files) : $(DLL)
-	create-native-map                     \
+	mono $(srcdir)/create-native-map.exe  \
 		--public-macro:FUSE_USE_VERSION=25  \
 		--impl-header:"<fuse.h>"            \
 		--library=MonoFuseHelper            \
@@ -26,6 +27,10 @@ $(map_files) : $(DLL)
 
 assemblydir = $(MF_DIR)
 assembly_DATA = $(DLL)
+
+update-map-source:
+	cp `pkg-config --variable=Programs create-native-map` .
+	cp `pkg-config --variable=Sources create-native-map` .
 
 CLEANFILES = $(DLL) $(DLL).mdb $(map_files)
 
