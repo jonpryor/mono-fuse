@@ -1,5 +1,23 @@
 2006-08-31  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* configure.in: Remove use of mono-posix-helper.pc, and use glib-2.0
+	  instead.
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Change the delegates so that they
+	  use only native types, not managed types.  Change all of the _On*
+	  methods to do the native->managed conversion for parameters and the return
+	  value (depends upon addition of Mono.Unix.Native.NativConvert.Copy()
+	  methods to perform structure conversion).  Make OpenedFileInfo.flags
+	  internal, so that FileSystem can convert the value when necessary, 
+	  as MonoFuseHelper can't do the enum convert.
+	* src/MonoFuseHelper/Makefile.am: Remove use of MPH, and add GLIB flags.
+	* src/MonoFuseHelper/mfh.c: Remove use of MonoPosixHelper functions (as
+	  Mono.Fuse.FileSystem does the type conversions now).  Don't copy-out
+	  OpenedFileInfo.flags, as this enum must be converted in managed, and I
+	  don't see much point in having another conversion on exit when I can just
+	  skip the copy-out (thus preserving the original value).
+
+2006-08-31  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* example/HelloFS/HelloFS.cs: Make creation of data_im_str thread-safe, so
 	  that it's only created once and reading threads don't see an intermediate
 	  state.
