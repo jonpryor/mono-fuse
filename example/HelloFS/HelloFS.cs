@@ -18,6 +18,7 @@ namespace Mono.Fuse.Samples {
 
 		byte[] data_im_str;
 		bool have_data_im = false;
+		object data_im_str_lock = new object ();
 
 		public HelloFS ()
 		{
@@ -92,7 +93,7 @@ namespace Mono.Fuse.Samples {
 			Trace.WriteLine ("(OnRead {0})", path);
 			bytesWritten = 0;
 			int size = buf.Length;
-			if (path == data_im_path && data_im_str == null)
+			if (path == data_im_path)
 				FillData ();
 			if (path == hello_path || path == data_im_path) {
 				byte[] source = path == hello_path ? hello_str : data_im_str;
@@ -141,12 +142,16 @@ namespace Mono.Fuse.Samples {
 
 		private void FillData ()
 		{
-			data_im_str = new byte [data_size];
-			for (int i = 0; i < data_im_str.Length; ++i) {
-				if ((i % 27) == 0)
-					data_im_str [i] = (byte) '\n';
-				else
-					data_im_str [i] = (byte) ((i % 26) + 'a');
+			lock (data_im_str_lock) {
+				if (data_im_str != null)
+					return;
+				data_im_str = new byte [data_size];
+				for (int i = 0; i < data_im_str.Length; ++i) {
+					if ((i % 27) == 0)
+						data_im_str [i] = (byte) '\n';
+					else
+						data_im_str [i] = (byte) ((i % 26) + 'a');
+				}
 			}
 		}
 
