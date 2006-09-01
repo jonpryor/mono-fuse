@@ -46,7 +46,7 @@ available which is a 100MB (base 10) file with the same contents as
 contents on demand:
 
 	cd example/HelloFS
-	./hello --data.im-in-memory t
+	./hellofs --data.im-in-memory t
 
 The 100MB byte[] is allocated the first time the contents of 
 `data.im' are read.
@@ -55,7 +55,7 @@ The 100MB byte[] is allocated the first time the contents of
 generate-on-demand and cached behaviors:
 
 	cd example/HelloFS
-	./hello --data.im-in-memory t
+	./hellofs --data.im-in-memory t
 
 	# On-demand copy
 	time cp t/data f.txt
