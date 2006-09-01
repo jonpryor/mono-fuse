@@ -17,6 +17,15 @@ Within another terminal
 
 This should display files controlled by HelloFS.exe.
 
+To unmount the filesystem, you need to use the `fusermount' program:
+	cd example/HelloFS
+	fusermount -u t
+
+KILLING THE FUSE PROGRAM IS NOT ENOUGH.  The program will die, but 
+FUSE and the kernel will still think that the directory is mounted.
+Result: you can't remount the directory, and trying to do anything
+with it will result in IO errors.
+
 For full trace output, set the MONO_TRACE_LISTENER environment 
 variable and add the -odebug command-line argument:
 

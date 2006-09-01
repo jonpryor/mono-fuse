@@ -1,5 +1,9 @@
 2006-09-01  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* README: Add note about using fusermount to unmount FUSE filesystems.
+
+2006-09-01  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* configure.in: Set required Mono version is 1.1.13 (maybe could be 
 	  lowered?  No idea); add check for presence of Mono_Posix_ToStat in
 	  MonoPosixHelper -- if found, then we should have the new
