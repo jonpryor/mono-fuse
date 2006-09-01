@@ -1,5 +1,26 @@
 2006-09-01  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* configure.in: Set required Mono version is 1.1.13 (maybe could be 
+	  lowered?  No idea); add check for presence of Mono_Posix_ToStat in
+	  MonoPosixHelper -- if found, then we should have the new
+	  Mono.Unix.Native.NativeConvert.Copy methods, otherwise we need to roll our
+	  own equivalents.  This allows portability to "down-level" mono versions.
+	* src/Mono.Fuse/create-native-map.exe: Update; this version doesn't skip
+	  prototypes for structs within a different assembly, it generates struct
+	  declarations for all structs referenced (needed to get struct decls for
+	  Stat, Statvfs, etc.)
+	* src/Mono.Fuse/Makefile.am: Add --rename-member arguments to
+	  create-native-map call so Stat can be used properly.
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Only use NativeConvert.Copy methods
+	  if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS is defined, otherwise use the
+	  MonoFuseHelper internal methods.
+	* src/MonoFuseHelper/Makefile.am: Add mph.c to the build.
+	* src/MonoFuseHelper/mph.c: Added; structure copy functions from
+	  MonoPosixHelper for copying Stat, Statvfs, & Utimbuf between managed &
+	  native code.
+
+2006-09-01  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* README: Add comments about hellofs command-line arguments, capturing trace
 	  messages, and FUSE performance timing.
 	* example/HelloFS/hellofs.in: Modify setting of LD_LIBRARY_PATH so that it

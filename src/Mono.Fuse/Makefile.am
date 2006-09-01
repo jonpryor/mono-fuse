@@ -23,6 +23,9 @@ $(map_files) : $(DLL)
 		--public-macro:FUSE_USE_VERSION=25  \
 		--impl-header:"<fuse.h>"            \
 		--library=MonoFuseHelper            \
+		--rename-member:st_atime=st_atime_  \
+		--rename-member:st_mtime=st_mtime_  \
+		--rename-member:st_ctime=st_ctime_  \
 		$(DLL) $(map_p)
 
 assemblydir = $(MF_DIR)

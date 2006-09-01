@@ -594,15 +594,94 @@ namespace Mono.Fuse {
 			return context;
 		}
 
+#if !HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_FromStat (ref Stat source, IntPtr dest);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_ToStat (IntPtr source, out Stat dest);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_FromStatvfs (ref Statvfs source, IntPtr dest);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_ToStatvfs (IntPtr source, out Statvfs dest);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_FromUtimbuf (ref Utimbuf source, IntPtr dest);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_ToUtimbuf (IntPtr source, out Utimbuf dest);
+#endif
+
+		private static void CopyStat (IntPtr source, out Stat dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
+			NativeConvert.Copy (source, out dest);
+#else
+			Mono_Fuse_ToStat (source, out dest);
+			dest.st_mode = NativeConvert.ToFilePermissions ((uint) dest.st_mode);
+#endif
+		}
+
+		private static void CopyStat (ref Stat source, IntPtr dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
+			NativeConvert.Copy (ref source, dest);
+#else
+			source.st_mode = (FilePermissions) 
+				NativeConvert.FromFilePermissions (source.st_mode);
+			Mono_Fuse_FromStat (ref source, dest);
+#endif
+		}
+
+		private static void CopyStatvfs (IntPtr source, out Statvfs dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
+			NativeConvert.Copy (source, out dest);
+#else
+			Mono_Fuse_ToStatvfs (source, out dest);
+			dest.f_flag = NativeConvert.ToMountFlags ((ulong) dest.f_flag);
+#endif
+		}
+
+		private static void CopyStatvfs (ref Statvfs source, IntPtr dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
+			NativeConvert.Copy (ref source, dest);
+#else
+			source.f_flag = (MountFlags) NativeConvert.FromMountFlags (source.f_flag);
+			Mono_Fuse_FromStatvfs (ref source, dest);
+#endif
+		}
+
+		private static void CopyUtimbuf (IntPtr source, out Utimbuf dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
+			NativeConvert.Copy (source, out dest);
+#else
+			Mono_Fuse_ToUtimbuf (source, out dest);
+#endif
+		}
+
+		private static void CopyUtimbuf (ref Utimbuf source, IntPtr dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
+			NativeConvert.Copy (ref source, dest);
+#else
+			Mono_Fuse_FromUtimbuf (ref source, dest);
+#endif
+		}
+
 		private int _OnGetFileAttributes (string path, IntPtr stat)
 		{
 			Errno errno;
 			try {
 				Stat buf;
-				NativeConvert.Copy (stat, out buf);
+				CopyStat (stat, out buf);
 				errno = OnGetFileAttributes (path, out buf);
 				if (errno == 0)
-					NativeConvert.Copy (ref buf, stat);
+					CopyStat (ref buf, stat);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -831,10 +910,10 @@ namespace Mono.Fuse {
 			Errno errno;
 			try {
 				Utimbuf b;
-				NativeConvert.Copy (buf, out b);
+				CopyUtimbuf (buf, out b);
 				errno = OnChangeTimes (path, ref b);
 				if (errno == 0)
-					NativeConvert.Copy (ref b, buf);
+					CopyUtimbuf (ref b, buf);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -919,10 +998,10 @@ namespace Mono.Fuse {
 			Errno errno;
 			try {
 				Statvfs b;
-				NativeConvert.Copy (buf, out b);
+				CopyStatvfs (buf, out b);
 				errno = OnGetFileSystemStatistics (path, out b);
 				if (errno == 0)
-					NativeConvert.Copy (ref b, buf);
+					CopyStatvfs (ref b, buf);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1222,10 +1301,10 @@ namespace Mono.Fuse {
 			try {
 				ConvertOpenFlags (info);
 				Stat b;
-				NativeConvert.Copy (buf, out b);
+				CopyStat (buf, out b);
 				errno = OnGetFileDescriptorAttributes (path, out b, info);
 				if (errno == 0)
-					NativeConvert.Copy (ref b, buf);
+					CopyStat (ref b, buf);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
