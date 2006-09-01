@@ -1,3 +1,13 @@
+2006-09-01  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* README: Add comments about hellofs command-line arguments, capturing trace
+	  messages, and FUSE performance timing.
+	* example/HelloFS/hellofs.in: Modify setting of LD_LIBRARY_PATH so that it
+	  retains the existing $LD_LIBRARY_PATH value.  Remove -odebug parameter.
+	  If you want "full" trace output, set MONO_TRACE_LISTENER for the managed
+	  trace output, and add -odebug for FUSE trace output, e.g.
+	    MONO_TRACE_LISTENER=Console.Out:### ./hellofs -odebug mount-point
+
 2006-08-31  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/Mono.Fuse/Makefile.am: Remove dependency on external

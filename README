@@ -3,6 +3,7 @@ This is a C# binding for FUSE.
 Short HOWTO:
 
 Within one terminal:
+	sudo /sbin/modprobe fuse  # need FUSE kernel module to use.
 	./configure
 	make
 	cd example/HelloFS
@@ -12,6 +13,67 @@ Within one terminal:
 Within another terminal
 	cd example/HelloFS
 	ls t
+	cat t/hello
 
 This should display files controlled by HelloFS.exe.
 
+For full trace output, set the MONO_TRACE_LISTENER environment 
+variable and add the -odebug command-line argument:
+
+	cd example/HelloFS
+	MONO_TRACE_LISTENER=Console.Out### ./hellofs -odebug t
+
+MONO_TRACE_LISTENER controls the Mono.Fuse trace output, while 
+-odebug controls the libfuse-generated trace output.
+
+`hellofs' also takes its own command-line aruments.  By default, 
+it exports two files, `data' and `hello'.  `hello' contains the 
+string "Hello World!", while `data' is a 100 MB (base 10) file that 
+generates its content on-demand.
+
+If you pass the --data.im-in-memory flag, a `data.im' file will be 
+available which is a 100MB (base 10) file with the same contents as 
+`data', but it is backed by a 100MB byte[] instead of generating its 
+contents on demand:
+
+	cd example/HelloFS
+	./hello --data.im-in-memory t
+
+The 100MB byte[] is allocated the first time the contents of 
+`data.im' are read.
+
+`data.im' is useful to see the difference in performance between
+generate-on-demand and cached behaviors:
+
+	cd example/HelloFS
+	./hello --data.im-in-memory t
+
+	# On-demand copy
+	time cp t/data f.txt
+		real    0m8.469s
+		user    0m0.020s
+		sys     0m1.128s
+	
+	# In-memory copy
+	# Note that the first `data.im' access is longer
+	# because it needed to allocate the array.
+	# Subsequent calls are shorter:
+	time \cp -f t/data.im f.txt
+		real    0m12.393s
+		user    0m0.004s
+		sys     0m1.172s
+	time \cp -f t/data.im f.txt
+		real    0m5.233s
+		user    0m0.016s
+		sys     0m1.136s
+	
+	# And for comparison, cp without FUSE:
+	time cp f.txt f2.txt
+		real    0m10.252s
+		user    0m0.016s
+		sys     0m1.000s
+
+And yes, on my machine it's faster to go through FUSE than to go 
+through the filesystem (though usually the filesystem outperforms 
+the on-demand generation).  My machine is probably misconfigured. :-/
+Your mileage will vary.
