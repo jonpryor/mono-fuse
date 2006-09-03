@@ -1,3 +1,9 @@
+2006-09-03  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* COPYING: Specify license as MIT/X11.
+	* example/HelloFS/HelloFS.cs, src/Mono.Fuse/FileSystem.cs,
+	  src/MonoFuseHelper/mfh.c, src/MonoFuseHelper/mph.c: Add license.
+
 2006-09-01  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* README: Add note about using fusermount to unmount FUSE filesystems.
