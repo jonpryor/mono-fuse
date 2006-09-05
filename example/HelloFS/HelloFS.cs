@@ -56,9 +56,9 @@ namespace Mono.Fuse.Samples {
 			Trace.WriteLine ("(HelloFS creating)");
 		}
 
-		protected override Errno OnGetFileAttributes (string path, ref Stat stbuf)
+		protected override Errno OnGetPathStatus (string path, ref Stat stbuf)
 		{
-			Trace.WriteLine ("(OnGetFileAttributes {0})", path);
+			Trace.WriteLine ("(OnGetPathStatus {0})", path);
 
 			stbuf = new Stat ();
 			switch (path) {
@@ -86,8 +86,8 @@ namespace Mono.Fuse.Samples {
 			}
 		}
 
-		protected override Errno OnReadDirectory (string path, 
-				[Out] out string[] paths, OpenedFileInfo fi)
+		protected override Errno OnReadDirectory (string path, OpenedPathInfo fi,
+				[Out] out string[] paths)
 		{
 			Trace.WriteLine ("(OnReadDirectory {0})", path);
 			paths = null;
@@ -107,7 +107,7 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		protected override Errno OnOpen (string path, OpenedFileInfo fi)
+		protected override Errno OnOpenHandle (string path, OpenedPathInfo fi)
 		{
 			Trace.WriteLine (string.Format ("(OnOpen {0} Flags={1})", path, fi.OpenFlags));
 			if (path != hello_path && path != data_path && path != data_im_path)
@@ -119,7 +119,7 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		protected override Errno OnRead (string path, byte[] buf, long offset, OpenedFileInfo fi, out int bytesWritten)
+		protected override Errno OnReadHandle (string path, OpenedPathInfo fi, byte[] buf, long offset, out int bytesWritten)
 		{
 			Trace.WriteLine ("(OnRead {0})", path);
 			bytesWritten = 0;

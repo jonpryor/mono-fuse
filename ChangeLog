@@ -1,3 +1,39 @@
+2006-09-05  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Mass API renaming for consistency.
+	  - s/OpenedFileInfo/OpenedPathInfo/g (for consistency with method naming
+	    convention, below, as it's used with both files & directories).
+	  - Remove FileSystemOperationContext.PrivateData (it's used internally).
+	  - Rename properties: s/EnableDebugOutput/EnableFuseDebugOutput/.
+	  - Add MultiThreaded property (default true), remove StartMultithreaded()
+	    method.  Start() checks the MultiThreaded property and calls the
+	    appropriate FUSE method for (non-) multithreaded use.
+	  - Make OpenedPathInfo parameter 2nd parameter instead of the (variable) 
+	    last parameter (so that `out' parameters can consistently be the last 
+	    parameter and paramater placement is consistent).
+	  - Change method names for consistency, ease understanding, and help the 
+	    impending documentation effort to include one of the following words:
+	    - Directory: Method deals with directories and not files.
+	      - OnCreateDirectory(), OnRemoveDirectory(), OnOpenDirectory(),
+	        OnReadDirectory(), OnCloseDirectory(), OnSynchronizeDirectory().
+	    - File: Method deals with files and not directories.
+	      - OnCreateSpecialFile(), OnRemoveFile(), OnTruncateFile().
+	    - FileSystem: Method deals with the file system as a whole.
+	      - OnGetFileSystemStatus().
+	    - Link: Method deals with actual links (symbolic & hard links)
+	      - OnCreateHardLink(), OnCreateSymbolicLink(), OnReadSymbolicLink().
+	    - Handle: Method deals with a "handle" to an opened file.
+	      - OnCreateHandle(), OnOpenHandle(), OnReadHandle(), OnWriteHandle(),
+	        OnFlushHandle(), OnReleaseHandle(), OnSynchronizeHandle(),
+	        OnTruncateHandle(), OnGetHandleStatus().
+	    - Path: Method works on files and directories.
+	      - OnAccessPath(), OnGetPathStatus(), OnRenamePath(), 
+	        OnChangePathPermissions(), OnChangePathOwner(), OnChangePathTimes(),
+	        OnGetPathExtendedAttributes(), OnListPathExtendedAttributes(),
+	        OnSetPathExtendedAttributes(), OnRemovePathExtendedAttribute().
+	* src/MonoFuseHelper/mfh.c: Deal with s/OpenedFileInfo/OpenedPathInfo/g.
+	* example/HelloFS/HelloFS.cs: Deal with FileSystem method name changes.
+
 2006-09-03  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* COPYING: Specify license as MIT/X11.

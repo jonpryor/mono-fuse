@@ -122,7 +122,7 @@ mfh_utime (const char *path, struct utimbuf *buf)
 }
 
 static int
-_to_file_info (struct fuse_file_info *from, struct Mono_Fuse_OpenedFileInfo *to)
+_to_file_info (struct fuse_file_info *from, struct Mono_Fuse_OpenedPathInfo *to)
 {
 	memset (to, 0, sizeof (*to));
 
@@ -136,7 +136,7 @@ _to_file_info (struct fuse_file_info *from, struct Mono_Fuse_OpenedFileInfo *to)
 }
 
 static int
-_from_file_info (struct Mono_Fuse_OpenedFileInfo *from, struct fuse_file_info *to)
+_from_file_info (struct Mono_Fuse_OpenedPathInfo *from, struct fuse_file_info *to)
 {
 	memset (to, 0, sizeof (*to));
 
@@ -152,7 +152,7 @@ _from_file_info (struct Mono_Fuse_OpenedFileInfo *from, struct fuse_file_info *t
 static int
 mfh_open (const char *path, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -170,7 +170,7 @@ static int
 mfh_read (const char *path, char *buf, size_t size, off_t offset, 
 		struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r, bytesRead = 0;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -191,7 +191,7 @@ static int
 mfh_write (const char *path, const char *buf, size_t size, off_t offset,
 		struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r, bytesWritten = 0;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -217,7 +217,7 @@ mfh_statfs (const char *path, struct statvfs *buf)
 static int
 mfh_flush (const char *path, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -234,7 +234,7 @@ mfh_flush (const char *path, struct fuse_file_info *info)
 static int
 mfh_release (const char *path, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -251,7 +251,7 @@ mfh_release (const char *path, struct fuse_file_info *info)
 static int
 mfh_fsync (const char *path, int onlyUserData, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -302,7 +302,7 @@ mfh_removexattr (const char *path, const char *name)
 static int
 mfh_opendir (const char *path, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -332,7 +332,7 @@ static int
 mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	char **paths = NULL;
 	int r;
 
@@ -359,7 +359,7 @@ mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 static int
 mfh_releasedir (const char *path, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -376,7 +376,7 @@ mfh_releasedir (const char *path, struct fuse_file_info *info)
 static int
 mfh_fsyncdir (const char *path, int onlyUserData, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -399,7 +399,7 @@ mfh_access (const char *path, int flags)
 static int
 mfh_create (const char *path, mode_t mode, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -416,7 +416,7 @@ mfh_create (const char *path, mode_t mode, struct fuse_file_info *info)
 static int
 mfh_ftruncate (const char *path, off_t len, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -433,7 +433,7 @@ mfh_ftruncate (const char *path, off_t len, struct fuse_file_info *info)
 static int
 mfh_fgetattr (const char *path, struct stat *stat, struct fuse_file_info *info)
 {
-	struct Mono_Fuse_OpenedFileInfo _info;
+	struct Mono_Fuse_OpenedPathInfo _info;
 	int r;
 
 	if (_to_file_info (info, &_info) != 0)
@@ -527,7 +527,6 @@ mfh_fuse_get_context (struct Mono_Fuse_FileSystemOperationContext* context)
 	context->UserId       = from->uid;
 	context->GroupId      = from->gid;
 	context->ProcessId    = from->pid;
-	context->PrivateData  = from->private_data;
 
 	return 0;
 }
