@@ -1,1 +1,1 @@
-SUBDIRS = HelloFS
+SUBDIRS = HelloFS RedirectFS

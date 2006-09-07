@@ -89,14 +89,14 @@ namespace Mono.Fuse {
 			set {keep_cache = value;}
 		}
 
-		public long FileHandle {
-			get {return (long) file_handle;}
-			set {file_handle = (ulong) value;}
+		public IntPtr Handle {
+			get {return (IntPtr) (long) file_handle;}
+			set {file_handle = (ulong) (long) value;}
 		}
 	}
 
 	delegate int GetPathStatusCb (string path, IntPtr stat);
-	delegate int ReadSymbolicLinkCb (string path, StringBuilder buf, ulong bufsize);
+	delegate int ReadSymbolicLinkCb (string path, IntPtr buf, ulong bufsize);
 	delegate int CreateSpecialFileCb (string path, uint perms, ulong dev);
 	delegate int CreateDirectoryCb (string path, uint mode);
 	delegate int RemoveFileCb (string path);
@@ -108,17 +108,17 @@ namespace Mono.Fuse {
 	delegate int ChangePathOwnerCb (string path, long owner, long group);
 	delegate int TruncateFileb (string path, long length);
 	delegate int ChangePathTimesCb (string path, IntPtr buf);
-	delegate int OpenHandleCb (string path, OpenedPathInfo info); 
+	delegate int OpenHandleCb (string path, IntPtr info); 
 	delegate int ReadHandleCb (string path, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
-			byte[] buf, ulong size, long offset, OpenedPathInfo info, out int bytesRead);
+			byte[] buf, ulong size, long offset, IntPtr info, out int bytesRead);
 	delegate int WriteHandleCb (string path, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
-			byte[] buf, ulong size, long offset, OpenedPathInfo info, out int bytesRead);
+			byte[] buf, ulong size, long offset, IntPtr info, out int bytesRead);
 	delegate int GetFileSystemStatusCb (string path, IntPtr buf);
-	delegate int FlushHandleCb (string path, OpenedPathInfo info);
-	delegate int ReleaseHandleCb (string path, OpenedPathInfo info);
-	delegate int SynchronizeHandleCb (string path, bool onlyUserData, OpenedPathInfo info);
+	delegate int FlushHandleCb (string path, IntPtr info);
+	delegate int ReleaseHandleCb (string path, IntPtr info);
+	delegate int SynchronizeHandleCb (string path, bool onlyUserData, IntPtr info);
 	delegate int SetPathExtendedAttributesCb (string path, string name, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size, int flags);
@@ -129,15 +129,15 @@ namespace Mono.Fuse {
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] list, ulong size, out int bytesWritten);
 	delegate int RemovePathExtendedAttributeCb (string path, string name);
-	delegate int OpenDirectoryCb (string path, OpenedPathInfo info);
-	delegate int ReadDirectoryCb (string path, out IntPtr paths, OpenedPathInfo info);
-	delegate int CloseDirectoryCb (string path, OpenedPathInfo info);
-	delegate int SynchronizeDirectoryCb (string path, bool onlyUserData, OpenedPathInfo info);
+	delegate int OpenDirectoryCb (string path, IntPtr info);
+	delegate int ReadDirectoryCb (string path, out IntPtr paths, IntPtr info);
+	delegate int CloseDirectoryCb (string path, IntPtr info);
+	delegate int SynchronizeDirectoryCb (string path, bool onlyUserData, IntPtr info);
 	delegate IntPtr InitCb ();
 	delegate int AccessPathCb (string path, int mode);
-	delegate int CreateHandleCb (string path, uint mode, OpenedPathInfo info);
-	delegate int TruncateHandleCb (string path, long length, OpenedPathInfo info);
-	delegate int GetHandleStatusCb (string path, IntPtr buf, OpenedPathInfo info);
+	delegate int CreateHandleCb (string path, uint mode, IntPtr info);
+	delegate int TruncateHandleCb (string path, long length, IntPtr info);
+	delegate int GetHandleStatusCb (string path, IntPtr buf, IntPtr info);
 
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
@@ -399,6 +399,10 @@ namespace Mono.Fuse {
 				else if (args [i] == "-s") {
 					multithreaded = false;
 				}
+				else if (args [i] == "-f") {
+					// foreground operation; ignore 
+					// (we can only do foreground operation anyway)
+				}
 				else if (args [i] == "--") {
 					interpret = false;
 				}
@@ -421,19 +425,20 @@ namespace Mono.Fuse {
 				args.argv = AllocArgv (_args);
 				args.allocated = 1;
 				fd = mfh_fuse_mount (mountPoint, args);
-				if (fd == -1)
-					throw new Exception ("Unable to mount " + mountPoint + ".");
+				if (fd == -1) {
+					throw new NotSupportedException (
+							string.Format ("Unable to mount directory `{0}'; " +
+								"try running `/sbin/modprobe fuse' as the root user", mountPoint));
+				}
 				unmount = true;
-				Console.WriteLine ("# Getting Operations...");
 				this.ops = GetOperations ();
-				Console.WriteLine ("# Converting Operations...");
 				this.opsp = UnixMarshal.AllocHeap (Marshal.SizeOf (ops));
 				Marshal.StructureToPtr (ops, opsp, false);
-				Console.WriteLine ("# Creating fuse object...");
 				fusep = mfh_fuse_new (fd, args, opsp);
 				if (fusep == IntPtr.Zero) {
 					this.ops = null;
-					throw new Exception ("Unable to create FUSE object.");
+					throw new NotSupportedException ("Unable to create FUSE object: " + 
+							"is the fuse kernel module installed?");
 				}
 				unmount = false;
 			}
@@ -633,6 +638,12 @@ namespace Mono.Fuse {
 			return context;
 		}
 
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_FromOpenedPathInfo (OpenedPathInfo source, IntPtr dest);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_ToOpenedPathInfo (IntPtr source, [Out] OpenedPathInfo dest);
+
 #if !HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
 		[DllImport (LIB, SetLastError=true)]
 		private static extern int Mono_Fuse_FromStat (ref Stat source, IntPtr dest);
@@ -712,6 +723,18 @@ namespace Mono.Fuse {
 #endif
 		}
 
+		private static void CopyOpenedPathInfo (IntPtr source, OpenedPathInfo dest)
+		{
+			Mono_Fuse_ToOpenedPathInfo (source, dest);
+			dest.flags = NativeConvert.ToOpenFlags ((int) dest.flags);
+		}
+
+		private static void CopyOpenedPathInfo (OpenedPathInfo source, IntPtr dest)
+		{
+			source.flags = (OpenFlags) NativeConvert.FromOpenFlags (source.flags);
+			Mono_Fuse_FromOpenedPathInfo (source, dest);
+		}
+
 		private int _OnGetPathStatus (string path, IntPtr stat)
 		{
 			Errno errno;
@@ -743,11 +766,28 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
+		private int _OnReadSymbolicLink (string path, IntPtr buf, ulong bufsize)
 		{
 			Errno errno;
 			try {
-				errno = OnReadSymbolicLink (path, buf, bufsize);
+				if (bufsize <= 1)
+					return ConvertErrno (Errno.EINVAL);
+				string target;
+				errno = OnReadSymbolicLink (path, out target);
+				if (errno == 0 && target != null) {
+					byte[] b = encoding.GetBytes (target);
+					if ((bufsize-1) < (ulong) b.Length) {
+						errno = Errno.EINVAL;
+					}
+					else {
+						Marshal.Copy (b, 0, buf, b.Length);
+						Marshal.WriteByte (buf, b.Length, (byte) 0);
+					}
+				}
+				else if (errno == 0 && target == null) {
+					Trace.WriteLine ("OnReadSymbolicLink: error: 0 return value but target is `null'");
+					errno = Errno.EIO;
+				}
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -756,8 +796,11 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnReadSymbolicLink (string path, StringBuilder buf, ulong bufsize)
+		static Encoding encoding = new UTF8Encoding (false, true);
+
+		protected virtual Errno OnReadSymbolicLink (string path, out string target)
 		{
+			target = null;
 			return Errno.ENOSYS;
 		}
 
@@ -966,12 +1009,15 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnOpenHandle (string path, OpenedPathInfo info)
+		private int _OnOpenHandle (string path, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnOpenHandle (path, info);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -980,22 +1026,20 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		private static void ConvertOpenFlags (OpenedPathInfo info)
-		{
-			info.flags = NativeConvert.ToOpenFlags ((int) info.flags);
-		}
-
 		protected virtual Errno OnOpenHandle (string path, OpenedPathInfo info)
 		{
 			return Errno.ENOSYS;
 		}
  
-		private int _OnReadHandle (string path, byte[] buf, ulong size, long offset, OpenedPathInfo info, out int bytesWritten)
+		private int _OnReadHandle (string path, byte[] buf, ulong size, long offset, IntPtr fi, out int bytesWritten)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnReadHandle (path, info, buf, offset, out bytesWritten);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1011,12 +1055,15 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnWriteHandle (string path, byte[] buf, ulong size, long offset, OpenedPathInfo info, out int bytesRead)
+		private int _OnWriteHandle (string path, byte[] buf, ulong size, long offset, IntPtr fi, out int bytesRead)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnWriteHandle (path, info, buf, offset, out bytesRead);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1055,12 +1102,14 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnFlushHandle (string path, OpenedPathInfo info)
+		private int _OnFlushHandle (string path, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnFlushHandle (path, info);
+				CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1074,11 +1123,12 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnReleaseHandle (string path, OpenedPathInfo info)
+		private int _OnReleaseHandle (string path, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnReleaseHandle (path, info);
 			}
 			catch (Exception e) {
@@ -1093,12 +1143,15 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnSynchronizeHandle (string path, bool onlyUserData, OpenedPathInfo info)
+		private int _OnSynchronizeHandle (string path, bool onlyUserData, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnSynchronizeHandle (path, info, onlyUserData);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1189,12 +1242,15 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnOpenDirectory (string path, OpenedPathInfo info)
+		private int _OnOpenDirectory (string path, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnOpenDirectory (path, info);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1208,17 +1264,20 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnReadDirectory (string path, out IntPtr paths, OpenedPathInfo info)
+		private int _OnReadDirectory (string path, out IntPtr paths, IntPtr fi)
 		{
 			paths = IntPtr.Zero;
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				string[] _paths;
 				errno = OnReadDirectory (path, info, out _paths);
-				if (_paths != null) {
+				if (errno == 0 && _paths != null) {
 					paths = AllocArgv (_paths);
 				}
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1233,12 +1292,15 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnCloseDirectory (string path, OpenedPathInfo info)
+		private int _OnCloseDirectory (string path, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnCloseDirectory (path, info);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1252,12 +1314,15 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnSynchronizeDirectory (string path, bool onlyUserData, OpenedPathInfo info)
+		private int _OnSynchronizeDirectory (string path, bool onlyUserData, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnSynchronizeDirectory (path, info, onlyUserData);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1295,13 +1360,16 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnCreateHandle (string path, uint mode, OpenedPathInfo info)
+		private int _OnCreateHandle (string path, uint mode, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				FilePermissions _mode = NativeConvert.ToFilePermissions (mode);
 				errno = OnCreateHandle (path, info, _mode);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1315,12 +1383,15 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnTruncateHandle (string path, long length, OpenedPathInfo info)
+		private int _OnTruncateHandle (string path, long length, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				errno = OnTruncateHandle (path, info, length);
+				if (errno == 0)
+					CopyOpenedPathInfo (info, fi);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1334,16 +1405,19 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnGetHandleStatus (string path, IntPtr buf, OpenedPathInfo info)
+		private int _OnGetHandleStatus (string path, IntPtr buf, IntPtr fi)
 		{
 			Errno errno;
 			try {
-				ConvertOpenFlags (info);
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
 				Stat b;
 				CopyStat (buf, out b);
 				errno = OnGetHandleStatus (path, info, out b);
-				if (errno == 0)
+				if (errno == 0) {
 					CopyStat (ref b, buf);
+					CopyOpenedPathInfo (info, fi);
+				}
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());

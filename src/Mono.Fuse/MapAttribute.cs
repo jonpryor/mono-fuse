@@ -37,7 +37,6 @@ using System;
 		AttributeTargets.Struct)]
 internal class MapAttribute : Attribute {
 	private string nativeType;
-	private string symbolPrefix;
 
 	public MapAttribute ()
 	{
@@ -50,11 +49,6 @@ internal class MapAttribute : Attribute {
 
 	public string NativeType {
 		get {return nativeType;}
-	}
-
-	public string NativeSymbolPrefix {
-		get {return symbolPrefix;}
-		set {symbolPrefix = value;}
 	}
 }
 

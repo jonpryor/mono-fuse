@@ -1,0 +1,8 @@
+#!/bin/sh
+
+libdir="@TOP_BUILDDIR@/lib"
+builddir="@BUILDDIR@"
+
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$libdir" \
+	mono --debug "$builddir/RedirectFS-FH.exe" "$@"
+

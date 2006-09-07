@@ -118,6 +118,7 @@ src/Mono.Fuse/Makefile
 src/MonoFuseHelper/Makefile
 example/Makefile
 example/HelloFS/Makefile
+example/RedirectFS/Makefile
 ])
 
 echo ""

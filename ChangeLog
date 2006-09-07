@@ -1,3 +1,54 @@
+2006-09-07  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* configure.in: Generate Makefile for new directory example/RedirectFS.
+	* src/Mono.Fuse/MapAttribute.cs: Update to latest mono-tools version.
+	* src/Mono.Fuse/create-native-map.exe: Update to latest mono-tools version
+	  (removes support for MapAttribute.NativeSymbolPrefix, as this is no longer
+	  useful since MonoPosixHelper doesn't have a public API).
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 
+	  - Rename OpenedPathInfo.FileHandle to OpenedPathInfo.Handle (as the 
+	    handle can be used by both files & directories).  
+	  - Change ReadSymbolicLinkCb/OnReadSymbolicLink() as Mono can't pass a 
+	    StringBuilder from native to managed code (it's a managed->native 
+	    construct), so use a workable alternative.  The new
+	    ``OnReadSymbolicLink(string path, out string target)'' prototype is also
+	    simpler for subclasses.
+	  - Native code can't pass an OpenedPathInfo into managed code via the
+	    delegates, as the delegates need to modify OpenedPathInfo.Handle and
+	    have this change propogate back to native code.  Ideally, this would be 
+	    fixed by making the delegates have an "[In, Out] OpenedPathInfo info"
+	    parameter (instead of the current "IntPtr" + manual marshal approach),
+	    but this causes Mono to die -- bugzilla 79298.  This is now fixed, but
+	    only in HEAD, so we need the ugly workaround for 1.1.13.x support.
+	  - Add support for parsing the `-f' FUSE argument (use foreground
+	    operation; ignored, as we can only support foreground operation).
+	  - Don't throw Exception if MountPoint can't be mounted or mfh_fuse_new
+	    fails, throw a NotSupportedException.  (Perhaps I should use a 
+	    different type?)
+	  - Remove some Console.WriteLine()s.
+	* src/MonoFuseHelper/Makefile.am: $(buildlibdir)/libMonoFuseHelper.so should
+	  be updated when its sources are updated.
+	* src/MonoFuseHelper/mfh.c: 
+	  - Add Mono_Fuse_FromOpenedPathInfo and Mono_Fuse_ToOpenedPathInfo (for 
+	    struct fuse_file_info conversion), so it can be invoked by Mono.Fuse.dll.  
+	  - Remove support for fuse_file_info->OpenedPathInfo conversion from 
+	    MonoFuseHelper, this must now be done in managed code (see #79298).
+	  - mfh_readdir: Check return value of `filler' method to check for errors.
+	* example/Makefile.am: Add new directory RedirectFS.
+	* example/RedirectFS/Makefile.am: Added; build RedirectFS programs.
+	* example/RedirectFS/RedirectFS.cs: Added; FS which forwards ("redirects") 
+	  all FileSystem operations to the underlying filesystem.
+	* example/RedirectFS/redirectfs.in: Added; runs RedirectFS.exe.
+	  Syntax: redirectfs BASEDIR MOUNT-POINT
+	  e.g. ./redirects /tmp t
+	* example/RedirectFS/RedirectFS-FH.cs: Added; FS which forwards ("redirects") 
+	  all FileSystem operations to the underlying filesystem.
+	  This uses OpenedPathInfo.Handle to track file & directory handles instead
+	  of re-opening files & directories all the time (compare to RedirectFS.cs).
+	* example/RedirectFS/redirectfs-fh.in: Added; runs RedirectFS-FH.exe.
+	  Syntax: redirectfs-fh BASEDIR MOUNT-POINT
+	  e.g. ./redirects-fh /tmp t
+
 2006-09-05  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Mass API renaming for consistency.
