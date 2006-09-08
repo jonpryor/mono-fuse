@@ -213,6 +213,9 @@ namespace Mono.Fuse {
 		[DllImport (LIB, SetLastError=true)]
 		private static extern void mfh_fuse_exit (IntPtr fusep);
 
+		[DllImport (LIB, SetLastError=false)]
+		private static extern void mfh_show_fuse_help (string appname);
+
 		private string mountPoint;
 		private int fd = -1;
 		private IntPtr fusep = IntPtr.Zero;
@@ -411,6 +414,11 @@ namespace Mono.Fuse {
 				}
 			}
 			return unhandled.ToArray ();
+		}
+
+		public static void ShowFuseHelp (string appname)
+		{
+			mfh_show_fuse_help (appname);
 		}
 
 		private void Create ()

@@ -307,24 +307,38 @@ namespace Mono.Fuse.Samples {
 		{
 			for (int i = 0; i < args.Length; ++i) {
 				switch (args [i]) {
+					case "-h":
 					case "--help":
-						Console.WriteLine ("{0} basedir mountpoint",
-								Environment.GetCommandLineArgs () [0]);
+						ShowHelp ();
 						return false;
 					default:
-						if (basedir == null)
-							basedir = args [i];
-						else
+						if (base.MountPoint == null)
 							base.MountPoint = args [i];
+						else
+							basedir = args [i];
 						break;
 				}
 			}
-			if (basedir == null || base.MountPoint == null) {
-				Console.WriteLine ("{0} basedir mountpoint",
-						Environment.GetCommandLineArgs () [0]);
-				return false;
+			if (base.MountPoint == null) {
+				return Error ("missing mountpoint");
+			}
+			if (basedir == null) {
+				return Error ("missing basedir");
 			}
 			return true;
+		}
+
+		private static void ShowHelp ()
+		{
+			FileSystem.ShowFuseHelp ("redirectfs");
+			Console.Error.WriteLine ("redirectfs options:");
+			Console.Error.WriteLine ("    basedir                Directory to mirror");
+		}
+
+		private static bool Error (string message)
+		{
+			Console.Error.WriteLine ("redirectfs: error: {0}", message);
+			return false;
 		}
 
 		public static void Main (string[] args)

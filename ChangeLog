@@ -1,5 +1,16 @@
 2006-09-07  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* example/HelloFS/HelloFS.cs: Update help text to show FUSE options.
+	* example/RedirectFS/RedirectFS.cs, example/RedirectFS/RedirectFS-FH.cs: 
+	  Update help text to show FUSE options.  Alter command line arguments to be
+	  "program mountpoint basedir" (instead of "program basedir mountpoint") so
+	  that it matches the FUSE-generated help text.
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Add ShowFuseHelp static method to
+	  display FUSE help options to stderr.
+	* src/MonoFuseHelper/mfh.c: Add mfh_show_fuse_help() helper.
+
+2006-09-07  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* configure.in: Generate Makefile for new directory example/RedirectFS.
 	* src/Mono.Fuse/MapAttribute.cs: Update to latest mono-tools version.
 	* src/Mono.Fuse/create-native-map.exe: Update to latest mono-tools version

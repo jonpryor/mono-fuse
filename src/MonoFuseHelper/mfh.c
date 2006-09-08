@@ -424,6 +424,35 @@ mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, void* ops)
 }
 
 void
+mfh_show_fuse_help (const char *appname)
+{
+	char *help[3];
+	help [0] = (char*) appname;
+	help [1] = "-h";
+	help [2] = NULL;
+
+	char *mountpoint;
+	int mt, foreground;
+	struct fuse_args args;
+	struct fuse_operations ops;
+	struct fuse *f;
+	int r;
+
+	memset (&ops, 0, sizeof(ops));
+	memset (&args, 0, sizeof(args));
+
+	args.argc = 2;
+	args.argv = help;
+	args.allocated = 0;
+
+	r = fuse_parse_cmdline (&args, &mountpoint, &mt, &foreground);
+	r = fuse_mount ("mountpoint", &args);
+	f = fuse_new (-1, &args, &ops, sizeof(ops));
+
+	fuse_opt_free_args (&args);
+}
+
+void
 mfh_fuse_destroy (void* fusep)
 {
 	fuse_destroy (fusep);

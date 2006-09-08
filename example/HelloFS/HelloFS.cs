@@ -159,9 +159,11 @@ namespace Mono.Fuse.Samples {
 					case "--data.im-in-memory":
 						have_data_im = true;
 						break;
+					case "-h":
 					case "--help":
-						Console.WriteLine ("{0} [--data.im-in-memory] [-d] mountpoint",
-								Environment.GetCommandLineArgs () [0]);
+						FileSystem.ShowFuseHelp ("hellofs");
+						Console.Error.WriteLine ("hellofs options:");
+						Console.Error.WriteLine ("    --data.im-in-memory    Add data.im file");
 						return false;
 					default:
 						base.MountPoint = args [i];
