@@ -102,18 +102,20 @@ namespace Mono.Fuse.Samples {
 		}
 
 		protected override Errno OnReadDirectory (string path, OpenedPathInfo fi,
-				[Out] out string[] paths)
+				out IEnumerable<string> paths)
 		{
 			IntPtr dp = (IntPtr) fi.Handle;
 
-			Dirent de;
-			List<string> entries = new List<string> ();
-			while ((de = Syscall.readdir (dp)) != null) {
-				entries.Add (de.d_name);
-			}
+			paths = ReadDirectory (dp);
 
-			paths = entries.ToArray ();
 			return 0;
+		}
+
+		private IEnumerable<string> ReadDirectory (IntPtr dp)
+		{
+			Dirent de;
+			while ((de = Syscall.readdir (dp)) != null)
+				yield return de.d_name;
 		}
 
 		protected override Errno OnCloseDirectory (string path, OpenedPathInfo info)

@@ -1,3 +1,24 @@
+2006-09-08  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 
+	  - Redo OnReadDirectory() implementation to use a IEnumerator instead of a
+	    string[].  The previous approach required reading in the entire
+	    directory all at once, which would slow things down for large
+	    directories.  The new approach allows FUSE to invoke _OnReadDirectory()
+	    multiple times to read from the same enumerator, allowing directory
+	    entries to be returned in "chunks" instead of all at once.
+	    Plus, it's damn cool to use a C# iterator to implement 
+	    OnReadDirectory() (see HelloFS.cs & RedirectFS-FH.cs).
+	  - Remove check for OnCreateHandle()/OnOpenHandle() & OnReleaseHandle()
+	    consistency -- this broke the build (HelloFS has OnOpenHandle() but not
+	    OnReleaseHandle(), and it doesn't need OnReleaseHandle() either).
+	* src/MonoFuseHelper/mfh.c: Help implement new OnReadDirectory() interface;
+	  add mfh_invoke_filler() helper method.
+	* example/HelloFS/HelloFS.cs, example/RedirectFS/RedirectFS.cs,
+	* example/RedirectFS/RedirectFS-FH.cs: Implement updated OnReadDirectory() 
+	  interface.  (Using iterators for OnReadDirectory is cool; especially
+	  check out the new RedirectFS-FH.cs implementation.)
+
 2006-09-07  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 

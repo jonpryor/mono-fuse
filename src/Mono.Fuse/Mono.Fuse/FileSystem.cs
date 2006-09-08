@@ -130,7 +130,8 @@ namespace Mono.Fuse {
 			byte[] list, ulong size, out int bytesWritten);
 	delegate int RemovePathExtendedAttributeCb (string path, string name);
 	delegate int OpenDirectoryCb (string path, IntPtr info);
-	delegate int ReadDirectoryCb (string path, out IntPtr paths, IntPtr info);
+	delegate int ReadDirectoryCb (string path, IntPtr buf, IntPtr filler, 
+			long offset, IntPtr info, IntPtr stbuf);
 	delegate int CloseDirectoryCb (string path, IntPtr info);
 	delegate int SynchronizeDirectoryCb (string path, bool onlyUserData, IntPtr info);
 	delegate IntPtr InitCb ();
@@ -212,6 +213,10 @@ namespace Mono.Fuse {
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern void mfh_fuse_exit (IntPtr fusep);
+
+		[DllImport (LIB, SetLastError=false)]
+		private static extern int mfh_invoke_filler (IntPtr filler, IntPtr buf,
+				string path, IntPtr stbuf, long offset);
 
 		[DllImport (LIB, SetLastError=false)]
 		private static extern void mfh_show_fuse_help (string appname);
@@ -602,10 +607,7 @@ namespace Mono.Fuse {
 			// some methods need to be overridden in sets for sane operation
 			if (ops.opendir != null && ops.releasedir == null)
 				throw new InvalidOperationException (
-						"OnCloseDirectory() must be overridden if OnOpenDirectory() is overridden.");
-			if ((ops.open != null || ops.create != null) && ops.release == null)
-				throw new InvalidOperationException (
-						"OnReleaseHandle() must be overridden if OnCreateHandle() or OnOpenHandle() is overridden.");
+						"OnReleaseDirectory() must be overridden if OnOpenDirectory() is overridden.");
 		}
 
 		public void Dispose ()
@@ -1287,20 +1289,44 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnReadDirectory (string path, out IntPtr paths, IntPtr fi)
+		private object directoryLock = new object ();
+
+		private Dictionary<string, IEnumerator<string>> directoryReaders = 
+			new Dictionary <string, IEnumerator<string>> ();
+
+		private Random directoryKeys = new Random ();
+
+		private int _OnReadDirectory (string path, IntPtr buf, IntPtr filler, 
+				long offset, IntPtr fi, IntPtr stbuf)
 		{
-			paths = IntPtr.Zero;
-			Errno errno;
+			Errno errno = 0;
 			try {
-				OpenedPathInfo info = new OpenedPathInfo ();
-				CopyOpenedPathInfo (fi, info);
-				string[] _paths;
-				errno = OnReadDirectory (path, info, out _paths);
-				if (errno == 0 && _paths != null) {
-					paths = AllocArgv (_paths);
+				if (offset == 0)
+					GetDirectoryEnumerator (path, fi, out offset, out errno);
+				if (errno != 0)
+					return ConvertErrno (errno);
+
+				IEnumerator<string> entries = null;
+				lock (directoryLock) {
+					string key = offset.ToString ();
+					if (directoryReaders.ContainsKey (key))
+						entries = directoryReaders [key];
 				}
-				if (errno == 0)
-					CopyOpenedPathInfo (info, fi);
+
+				// FUSE will invoke _OnReadDirectory at least twice, but if there were
+				// very few entries then the enumerator will get cleaned up during the
+				// first call, so this is (1) expected, and (2) ignorable.
+				if (entries == null) {
+					return 0;
+				}
+
+				bool cleanup = FillEntries (filler, buf, stbuf, offset, entries);
+
+				if (cleanup) {
+					lock (directoryLock) {
+						directoryReaders.Remove (offset.ToString ());
+					}
+				}
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1309,7 +1335,57 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnReadDirectory (string path, OpenedPathInfo info, [Out] out string[] paths)
+		private void GetDirectoryEnumerator (string path, IntPtr fi, out long offset, out Errno errno)
+		{
+			OpenedPathInfo info = new OpenedPathInfo ();
+			CopyOpenedPathInfo (fi, info);
+
+			offset = -1;
+
+			IEnumerable<string> paths;
+			errno = OnReadDirectory (path, info, out paths);
+			if (errno != 0)
+				return;
+			if (paths == null) {
+				Trace.WriteLine ("OnReadDirectory: errno = 0 but paths is null!");
+				errno = Errno.EIO;
+				return;
+			}
+			IEnumerator<string> e = paths.GetEnumerator ();
+			if (e == null) {
+				Trace.WriteLine ("OnReadDirectory: errno = 0 but enumerator is null!");
+				errno = Errno.EIO;
+				return;
+			}
+			int key;
+			lock (directoryLock) {
+				do {
+					key = directoryKeys.Next (1, int.MaxValue);
+				} while (directoryReaders.ContainsKey (key.ToString()));
+				directoryReaders [key.ToString()] = e;
+			}
+
+			CopyOpenedPathInfo (info, fi);
+
+			offset = key;
+			errno  = 0;
+		}
+
+		private bool FillEntries (IntPtr filler, IntPtr buf, IntPtr stbuf, 
+				long offset, IEnumerator<string> entries)
+		{
+			while (entries.MoveNext ()) {
+				string path = entries.Current;
+				int r = mfh_invoke_filler (filler, buf, path, IntPtr.Zero, offset);
+				if (r != 0) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		protected virtual Errno OnReadDirectory (string path, OpenedPathInfo info, 
+				out IEnumerable<string> paths)
 		{
 			paths = null;
 			return Errno.ENOSYS;

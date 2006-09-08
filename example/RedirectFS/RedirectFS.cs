@@ -84,7 +84,7 @@ namespace Mono.Fuse.Samples {
 		}
 
 		protected override Errno OnReadDirectory (string path, OpenedPathInfo fi,
-				[Out] out string[] paths)
+				out IEnumerable<string> paths)
 		{
 			IntPtr dp = Syscall.opendir (basedir+path);
 			if (dp == IntPtr.Zero) {
@@ -99,7 +99,7 @@ namespace Mono.Fuse.Samples {
 			}
 			Syscall.closedir (dp);
 
-			paths = entries.ToArray ();
+			paths = entries;
 			return 0;
 		}
 

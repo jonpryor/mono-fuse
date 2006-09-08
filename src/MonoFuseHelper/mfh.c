@@ -269,41 +269,25 @@ mfh_opendir (const char *path, struct fuse_file_info *info)
 	return r;
 }
 
-static void
-_free_argv (char **argv)
-{
-	char **s = argv;
-	if (argv == NULL)
-		return;
-
-	while (*argv)
-		free (*argv++);
-	free (s);
-}
-
 static int
 mfh_readdir (const char *path, void* buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *info)
 {
-	char **paths = NULL;
 	int r;
+	struct stat stbuf;
 
-	r = _mfh_get_private_data ()->readdir (path, (void**) &paths, info);
-
-	if (r == 0 && paths) {
-		int i;
-		for (i = 0; paths [i]; ++i)
-			if (filler (buf, paths [i], NULL, 0)) {
-				fprintf (stderr, "MonoFuseHelper: unable to add directory entry %s\n",
-						paths [i]);
-				break;
-			}
-	}
-
-	if (paths)
-		_free_argv (paths);
+	r = _mfh_get_private_data ()->readdir (path, buf, filler, offset, info, &stbuf);
 
 	return r;
+}
+
+int
+mfh_invoke_filler (void *_filler, void *buf, const char *path, void *_stbuf, gint64 offset)
+{
+	struct stat     *stbuf = _stbuf;
+	fuse_fill_dir_t filler = _filler;
+
+	return filler (buf, path, stbuf, (off_t) offset);
 }
 
 static int
