@@ -432,6 +432,7 @@ namespace Mono.Fuse {
 				args.argc = _args.Length;
 				args.argv = AllocArgv (_args);
 				args.allocated = 1;
+				this.ops = GetOperations ();
 				fd = mfh_fuse_mount (mountPoint, args);
 				if (fd == -1) {
 					throw new NotSupportedException (
@@ -439,7 +440,6 @@ namespace Mono.Fuse {
 								"try running `/sbin/modprobe fuse' as the root user", mountPoint));
 				}
 				unmount = true;
-				this.ops = GetOperations ();
 				this.opsp = UnixMarshal.AllocHeap (Marshal.SizeOf (ops));
 				Marshal.StructureToPtr (ops, opsp, false);
 				fusep = mfh_fuse_new (fd, args, opsp);
@@ -584,15 +584,30 @@ namespace Mono.Fuse {
 			foreach (string method in operations.Keys) {
 				MethodInfo m = this.GetType().GetMethod (method, 
 						BindingFlags.NonPublic | BindingFlags.Instance);
-				if (m.DeclaringType == typeof(FileSystem))
+				MethodInfo bm = m.GetBaseDefinition ();
+				if (m.DeclaringType == typeof(FileSystem) ||
+						bm == null || bm.DeclaringType != typeof(FileSystem))
 					continue;
 				CopyOperation op = operations [method];
 				op (ops, this);
 			}
 
+			ValidateOperations (ops);
+
  			return ops;
  		}
  
+		private static void ValidateOperations (Operations ops)
+		{
+			// some methods need to be overridden in sets for sane operation
+			if (ops.opendir != null && ops.releasedir == null)
+				throw new InvalidOperationException (
+						"OnCloseDirectory() must be overridden if OnOpenDirectory() is overridden.");
+			if ((ops.open != null || ops.create != null) && ops.release == null)
+				throw new InvalidOperationException (
+						"OnReleaseHandle() must be overridden if OnCreateHandle() or OnOpenHandle() is overridden.");
+		}
+
 		public void Dispose ()
 		{
 			Dispose (true);

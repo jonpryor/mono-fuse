@@ -1,5 +1,15 @@
 2006-09-07  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 
+	  - Add initial validation for method overriding -- some methods come in 
+	    sets.  For example, if OnOpenDirectory is overridden, OnCloseDirectory() 
+	    should be as well (to ensure that any handles are closed if desired).  
+	    Perform such sanity checking.  
+	  - Correct GetOperations() so that the methods it finds via Reflection 
+	    actually override the methods it thinks are being overridden.
+
+2006-09-07  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* example/HelloFS/HelloFS.cs: Update help text to show FUSE options.
 	* example/RedirectFS/RedirectFS.cs, example/RedirectFS/RedirectFS-FH.cs: 
 	  Update help text to show FUSE options.  Alter command line arguments to be
