@@ -87,7 +87,7 @@ namespace Mono.Fuse.Samples {
 		}
 
 		protected override Errno OnReadDirectory (string path, OpenedPathInfo fi,
-				out IEnumerable<string> paths)
+				out IEnumerable<FileSystemEntry> paths)
 		{
 			Trace.WriteLine ("(OnReadDirectory {0})", path);
 			paths = null;
@@ -98,7 +98,7 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		private IEnumerable<string> GetEntries ()
+		private IEnumerable<FileSystemEntry> GetEntries ()
 		{
 			yield return ".";
 			yield return "..";

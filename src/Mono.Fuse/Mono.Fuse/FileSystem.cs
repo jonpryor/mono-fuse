@@ -43,9 +43,42 @@ namespace Mono.Fuse {
 	[StructLayout (LayoutKind.Sequential)]
 	public class FileSystemOperationContext {
 		private IntPtr fuse;
-		[Map ("uid_t")] public long UserId;
-		[Map ("gid_t")] public long GroupId;
-		[Map ("pid_t")] public long ProcessId;
+		[Map ("uid_t")] private long userId;
+		[Map ("gid_t")] private long groupId;
+		[Map ("pid_t")] private int  processId;
+
+		public long UserId {
+			get {return userId;}
+		}
+
+		public long GroupId {
+			get {return groupId;}
+		}
+
+		public int ProcessId {
+			get {return processId;}
+		}
+	}
+
+	public class FileSystemEntry {
+		private string path;
+
+		public string Path {
+			get {return path;}
+		}
+
+		// This is used only if st_ino is non-zero.
+		public Stat Stat;
+
+		public FileSystemEntry (string path)
+		{
+			this.path = path;
+		}
+
+		public static implicit operator FileSystemEntry (string path)
+		{
+			return new FileSystemEntry (path);
+		}
 	}
 
 	[Map]
@@ -1291,8 +1324,8 @@ namespace Mono.Fuse {
 
 		private object directoryLock = new object ();
 
-		private Dictionary<string, IEnumerator<string>> directoryReaders = 
-			new Dictionary <string, IEnumerator<string>> ();
+		private Dictionary<string, IEnumerator<FileSystemEntry>> directoryReaders = 
+			new Dictionary <string, IEnumerator<FileSystemEntry>> ();
 
 		private Random directoryKeys = new Random ();
 
@@ -1306,7 +1339,7 @@ namespace Mono.Fuse {
 				if (errno != 0)
 					return ConvertErrno (errno);
 
-				IEnumerator<string> entries = null;
+				IEnumerator<FileSystemEntry> entries = null;
 				lock (directoryLock) {
 					string key = offset.ToString ();
 					if (directoryReaders.ContainsKey (key))
@@ -1342,7 +1375,7 @@ namespace Mono.Fuse {
 
 			offset = -1;
 
-			IEnumerable<string> paths;
+			IEnumerable<FileSystemEntry> paths;
 			errno = OnReadDirectory (path, info, out paths);
 			if (errno != 0)
 				return;
@@ -1351,7 +1384,7 @@ namespace Mono.Fuse {
 				errno = Errno.EIO;
 				return;
 			}
-			IEnumerator<string> e = paths.GetEnumerator ();
+			IEnumerator<FileSystemEntry> e = paths.GetEnumerator ();
 			if (e == null) {
 				Trace.WriteLine ("OnReadDirectory: errno = 0 but enumerator is null!");
 				errno = Errno.EIO;
@@ -1372,11 +1405,16 @@ namespace Mono.Fuse {
 		}
 
 		private bool FillEntries (IntPtr filler, IntPtr buf, IntPtr stbuf, 
-				long offset, IEnumerator<string> entries)
+				long offset, IEnumerator<FileSystemEntry> entries)
 		{
 			while (entries.MoveNext ()) {
-				string path = entries.Current;
-				int r = mfh_invoke_filler (filler, buf, path, IntPtr.Zero, offset);
+				FileSystemEntry entry = entries.Current;
+				IntPtr _stbuf = IntPtr.Zero;
+				if (entry.Stat.st_ino != 0) {
+					CopyStat (ref entry.Stat, stbuf);
+					_stbuf = stbuf;
+				}
+				int r = mfh_invoke_filler (filler, buf, entry.Path, _stbuf, offset);
 				if (r != 0) {
 					return false;
 				}
@@ -1385,7 +1423,7 @@ namespace Mono.Fuse {
 		}
 
 		protected virtual Errno OnReadDirectory (string path, OpenedPathInfo info, 
-				out IEnumerable<string> paths)
+				out IEnumerable<FileSystemEntry> paths)
 		{
 			paths = null;
 			return Errno.ENOSYS;

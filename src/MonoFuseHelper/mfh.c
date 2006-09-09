@@ -452,9 +452,9 @@ mfh_fuse_get_context (struct Mono_Fuse_FileSystemOperationContext* context)
 	}
 
 	context->fuse         = from->fuse;
-	context->UserId       = from->uid;
-	context->GroupId      = from->gid;
-	context->ProcessId    = from->pid;
+	context->userId       = from->uid;
+	context->groupId      = from->gid;
+	context->processId    = from->pid;
 
 	return 0;
 }

@@ -1,3 +1,27 @@
+2006-09-09  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/Mono.Fuse/Mono.Fuse.FileSystem.cs: 
+	  - Add new public type FileSystemEntry, which provides both a Path string
+	    and a Mono.Unix.Native.Stat instance that can be passed to FUSE.  The
+	    Stat instance will _only_ be used if Stat.st_ino is non-zero.
+	  - Change FileSystemOperationContext to use read-only properties instead of
+	    fields, as this information can't be changed.  Change ProcessId to `int'
+	    instead of `long', for consistency with Mono.Posix.
+	  - Change FileSystem.OnReadDirectory() to use IEnumerable<FileSystemEntry>
+	    instead of IEnumerable<string>.  This allows sub-classes to (optionally) 
+	    provide Stat information to FUSE.  (Currently FUSE will only use the 
+	    st_ino & st_mode fields of the Stat, though I imagine this may be 
+	    expanded in the future.)
+	* src/MonoFuseHelper/mfh.c: Use current field names in
+	  FileSystemOperationContext.
+	* example/HelloFS/HelloFS.cs:
+	  s/IEnumerable<string>/IEnumerable<FileSystemEntry>/g (migrate to latest
+	  Mono.Fuse.FileSystem.OnReadDirectory() prototype).
+	* example/RedirectFS/RedirectFS.cs, example/RedirectFS/RedirectFS-FH.cs: 
+	  s/IEnumerable<string>/IEnumerable<FileSystemEntry>/g (migrate to latest
+	  Mono.Fuse.FileSystem.OnReadDirectory() prototype); Fill in
+	  FileSystemEntry.Stat for use by FUSE.
+
 2006-09-08  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 
