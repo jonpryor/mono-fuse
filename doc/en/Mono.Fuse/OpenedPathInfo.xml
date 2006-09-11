@@ -1,0 +1,71 @@
+<Type Name="OpenedPathInfo" FullName="Mono.Fuse.OpenedPathInfo">
+  <TypeSignature Language="C#" Value="public class OpenedPathInfo" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Fuse</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public OpenedPathInfo ();" />
+      <MemberType>Constructor</MemberType>
+      <Parameters />
+      <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OpenFlags">
+      <MemberSignature Language="C#" Value="public Mono.Unix.Native.OpenFlags OpenFlags { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.OpenFlags</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OpenReadOnly">
+      <MemberSignature Language="C#" Value="public bool OpenReadOnly { get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OpenWriteOnly">
+      <MemberSignature Language="C#" Value="public bool OpenWriteOnly { get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OpenReadWrite">
+      <MemberSignature Language="C#" Value="public bool OpenReadWrite { get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="WritePage">
+      <MemberSignature Language="C#" Value="public int WritePage { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="DirectIO">
+      <MemberSignature Language="C#" Value="public bool DirectIO { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="KeepCache">
+      <MemberSignature Language="C#" Value="public bool KeepCache { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="Handle">
+      <MemberSignature Language="C#" Value="public IntPtr Handle { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.IntPtr</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+  </Members>
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+</Type>

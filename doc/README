@@ -1,0 +1,24 @@
+Compiling and installing the Mono.Fuse Documentation
+
+Compile and install monodoc:
+
+	cd monodoc/
+	./autogen.sh --prefix=/usr/local
+	make
+	make install
+
+Compile the documentation for Mono.Fuse:
+
+	cd mono-fuse/doc
+	make assemble
+	cp mono-fuse.* `pkg-config monodoc --variable=sourcesdir`
+
+If things are fine, you should now have the following files in the monodoc
+sources directory:
+
+	mono-fuse.source
+	mono-fuse.tree
+	mono-fuse.zip
+
+Start monodoc, by typing `monodoc'.
+

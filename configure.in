@@ -91,7 +91,7 @@ AC_CHECK_LIB(MonoPosixHelper, Mono_Posix_ToStat, HAVE_MONO_UNIX_NATIVE_COPY_FUNC
 CSC_FLAGS=
 MFH_CFLAGS=
 
-if test "x$HAVE_MONO_POSIX_TOSTAT" = "x1" ; then
+if test "x$HAVE_MONO_UNIX_NATIVE_COPY_FUNCS" = "x1" ; then
 	CSC_FLAGS="$CSC_FLAGS -d:HAVE_MONO_UNIX_NATIVE_COPY_FUNCS"
 	MFH_CFLAGS="-DHAVE_MONO_UNIX_NATIVE_COPY_FUNCS"
 fi
@@ -102,13 +102,24 @@ AC_SUBST(ASSEMBLY_VERSION)
 AC_SUBST(CSC_FLAGS)
 AC_SUBST(MFH_CFLAGS)
 
-
 MF_DIR='$(prefix)/lib/mono-fuse'
-
 AC_SUBST(MF_DIR)
+
+AC_PATH_PROG(MDASSEMBLER, mdassembler, no)
+AC_PATH_PROG(MONODOCER, monodocer, no)
+if test "x$MONODOCER" = "xno" -o "x$MDASSEMBLER" = "xno"; then
+  enable_monodoc=no
+else
+  enable_monodoc=yes
+fi
+AC_SUBST(MDASSEMBLER)
+AC_SUBST(MONODOCER)
+
+AM_CONDITIONAL(ENABLE_MONODOC, test "x$enable_monodoc" = "xyes")
 
 AC_OUTPUT([
 Makefile
+doc/Makefile
 lib/Makefile
 lib/mono-fuse/Makefile
 lib/pkgconfig/Makefile

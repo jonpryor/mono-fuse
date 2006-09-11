@@ -1,0 +1,22 @@
+<Overview>
+  <Assemblies>
+    <Assembly Name="Mono.Fuse" Version="0.0.0.0">
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=True)</AttributeName>
+        </Attribute>
+      </Attributes>
+    </Assembly>
+  </Assemblies>
+  <Remarks>To be added.</Remarks>
+  <Copyright>To be added.</Copyright>
+  <Types>
+    <Namespace Name="Mono.Fuse">
+      <Type Name="FileSystemOperationContext" />
+      <Type Name="FileSystemEntry" />
+      <Type Name="OpenedPathInfo" />
+      <Type Name="FileSystem" />
+    </Namespace>
+  </Types>
+  <Title>Mono.Fuse</Title>
+</Overview>

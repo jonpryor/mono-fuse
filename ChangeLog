@@ -1,5 +1,20 @@
 2006-09-11  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* configure.in: Fix test for HAVE_MONO_UNIX_NATIVE_COPY_FUNCS; Add check for
+	  `mdassembler' and `monodocer' (from monodoc module); create doc/Makefile.
+	* Makefile.am: Add `doc' directory to the build.
+	* doc/Makefile.am: Added; build the Monodoc documentation.
+	* doc/README: Added; short overview for adding docs to monodoc.
+	* doc/mono-fuse.source: Added; monodoc source file (where in the tree the
+	  Mono.Fuse sources should be placed).
+	* doc/en/index.xml, doc/en/Mono.Fuse.xml, doc/en/Mono.Fuse/FileSystem.xml,
+	  doc/en/Mono.Fuse/FileSystemEntry.xml, 
+	  doc/en/Mono.Fuse/FileSystemOperationContext.xml, 
+	  doc/en/Mono.Fuse/OpenedPathInfo.xml: Added; API documentation stubs.
+	* src/MonoFuseHelper/Makefile.am: Remove automake warning message.
+
+2006-09-11  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* example/HelloFS/HelloFS.cs: Add extended attribute support for the 
 	  `hello' file.
 

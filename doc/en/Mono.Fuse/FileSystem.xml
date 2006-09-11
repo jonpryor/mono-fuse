@@ -1,0 +1,438 @@
+<Type Name="FileSystem" FullName="Mono.Fuse.FileSystem">
+  <TypeSignature Language="C#" Value="public class FileSystem : System.IDisposable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Fuse</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public FileSystem (string mountPoint);" />
+      <MemberType>Constructor</MemberType>
+      <Parameters><Parameter Name="mountPoint" Type="System.String" /></Parameters>
+      <Docs><param name="mountPoint">To be added.</param><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public FileSystem ();" />
+      <MemberType>Constructor</MemberType>
+      <Parameters />
+      <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public FileSystem (string[] args);" />
+      <MemberType>Constructor</MemberType>
+      <Parameters><Parameter Name="args" Type="System.String[]" /></Parameters>
+      <Docs><param name="args">To be added.</param><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="ParseFuseArguments">
+      <MemberSignature Language="C#" Value="public string[] ParseFuseArguments (string[] args);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>System.String[]</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="args" Type="System.String[]" /></Parameters>
+      <Docs><param name="args">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="ShowFuseHelp">
+      <MemberSignature Language="C#" Value="public static void ShowFuseHelp (string appname);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="appname" Type="System.String" /></Parameters>
+      <Docs><param name="appname">To be added.</param><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="Dispose">
+      <MemberSignature Language="C#" Value="public void Dispose ();" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+      <Parameters />
+      <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="Dispose">
+      <MemberSignature Language="C#" Value="protected virtual void Dispose (bool disposing);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="disposing" Type="System.Boolean" /></Parameters>
+      <Docs><param name="disposing">To be added.</param><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="Start">
+      <MemberSignature Language="C#" Value="public void Start ();" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+      <Parameters />
+      <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="Exit">
+      <MemberSignature Language="C#" Value="public void Exit ();" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+      <Parameters />
+      <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="GetOperationContext">
+      <MemberSignature Language="C#" Value="protected static Mono.Fuse.FileSystemOperationContext GetOperationContext ();" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Fuse.FileSystemOperationContext</ReturnType></ReturnValue>
+      <Parameters />
+      <Docs><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnGetPathStatus">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetPathStatus (string path, out Mono.Unix.Native.Stat stat);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="stat" Type="Mono.Unix.Native.Stat&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="stat">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnReadSymbolicLink">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReadSymbolicLink (string path, out string target);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="target" Type="System.String&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="target">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnCreateSpecialFile">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateSpecialFile (string path, Mono.Unix.Native.FilePermissions perms, ulong dev);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="perms" Type="Mono.Unix.Native.FilePermissions" /><Parameter Name="dev" Type="System.UInt64" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="perms">To be added.</param><param name="dev">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnCreateDirectory">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateDirectory (string path, Mono.Unix.Native.FilePermissions mode);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="mode" Type="Mono.Unix.Native.FilePermissions" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="mode">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnRemoveFile">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRemoveFile (string path);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /></Parameters>
+      <Docs><param name="path">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnRemoveDirectory">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRemoveDirectory (string path);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /></Parameters>
+      <Docs><param name="path">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnCreateSymbolicLink">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateSymbolicLink (string oldpath, string newpath);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="oldpath" Type="System.String" /><Parameter Name="newpath" Type="System.String" /></Parameters>
+      <Docs><param name="oldpath">To be added.</param><param name="newpath">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnRenamePath">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRenamePath (string oldpath, string newpath);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="oldpath" Type="System.String" /><Parameter Name="newpath" Type="System.String" /></Parameters>
+      <Docs><param name="oldpath">To be added.</param><param name="newpath">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnCreateHardLink">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateHardLink (string oldpath, string newpath);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="oldpath" Type="System.String" /><Parameter Name="newpath" Type="System.String" /></Parameters>
+      <Docs><param name="oldpath">To be added.</param><param name="newpath">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnChangePathPermissions">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnChangePathPermissions (string path, Mono.Unix.Native.FilePermissions mode);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="mode" Type="Mono.Unix.Native.FilePermissions" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="mode">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnChangePathOwner">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnChangePathOwner (string path, long owner, long group);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="owner" Type="System.Int64" /><Parameter Name="group" Type="System.Int64" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="owner">To be added.</param><param name="group">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnTruncateFile">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnTruncateFile (string path, long length);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="length" Type="System.Int64" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="length">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnChangePathTimes">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnChangePathTimes (string path, ref Mono.Unix.Native.Utimbuf buf);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="buf" Type="Mono.Unix.Native.Utimbuf&amp;" RefType="ref" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="buf">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnOpenHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnOpenHandle (string path, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnReadHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReadHandle (string path, Mono.Fuse.OpenedPathInfo info, byte[] buf, long offset, out int bytesWritten);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="buf" Type="System.Byte[]" /><Parameter Name="offset" Type="System.Int64" /><Parameter Name="bytesWritten" Type="System.Int32&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="buf">To be added.</param><param name="offset">To be added.</param><param name="bytesWritten">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnWriteHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnWriteHandle (string path, Mono.Fuse.OpenedPathInfo info, byte[] buf, long offset, out int bytesRead);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="buf" Type="System.Byte[]" /><Parameter Name="offset" Type="System.Int64" /><Parameter Name="bytesRead" Type="System.Int32&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="buf">To be added.</param><param name="offset">To be added.</param><param name="bytesRead">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnGetFileSystemStatus">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetFileSystemStatus (string path, out Mono.Unix.Native.Statvfs buf);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="buf" Type="Mono.Unix.Native.Statvfs&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="buf">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnFlushHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnFlushHandle (string path, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnReleaseHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReleaseHandle (string path, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnSynchronizeHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnSynchronizeHandle (string path, Mono.Fuse.OpenedPathInfo info, bool onlyUserData);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="onlyUserData" Type="System.Boolean" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="onlyUserData">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnSetPathExtendedAttribute">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnSetPathExtendedAttribute (string path, string name, byte[] value, Mono.Unix.Native.XattrFlags flags);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="name" Type="System.String" /><Parameter Name="value" Type="System.Byte[]" /><Parameter Name="flags" Type="Mono.Unix.Native.XattrFlags" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="name">To be added.</param><param name="value">To be added.</param><param name="flags">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnGetPathExtendedAttribute">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetPathExtendedAttribute (string path, string name, byte[] value, out int bytesWritten);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="name" Type="System.String" /><Parameter Name="value" Type="System.Byte[]" /><Parameter Name="bytesWritten" Type="System.Int32&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="name">To be added.</param><param name="value">To be added.</param><param name="bytesWritten">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnListPathExtendedAttributes">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnListPathExtendedAttributes (string path, out string[] names);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="names" Type="System.String[]&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="names">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnRemovePathExtendedAttribute">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRemovePathExtendedAttribute (string path, string name);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="name" Type="System.String" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="name">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnOpenDirectory">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnOpenDirectory (string path, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnReadDirectory">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReadDirectory (string path, Mono.Fuse.OpenedPathInfo info, out System.Collections.Generic.IEnumerable`1[[Mono.Fuse.FileSystemEntry, Mono.Fuse, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]] paths);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="paths" Type="System.Collections.Generic.IEnumerable`1[[Mono.Fuse.FileSystemEntry, Mono.Fuse, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="paths">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnCloseDirectory">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCloseDirectory (string path, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnSynchronizeDirectory">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnSynchronizeDirectory (string path, Mono.Fuse.OpenedPathInfo info, bool onlyUserData);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="onlyUserData" Type="System.Boolean" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="onlyUserData">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnAccessPath">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnAccessPath (string path, Mono.Unix.Native.AccessModes mode);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="mode" Type="Mono.Unix.Native.AccessModes" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="mode">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnCreateHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateHandle (string path, Mono.Fuse.OpenedPathInfo info, Mono.Unix.Native.FilePermissions mode);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="mode" Type="Mono.Unix.Native.FilePermissions" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="mode">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnTruncateHandle">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnTruncateHandle (string path, Mono.Fuse.OpenedPathInfo info, long length);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="length" Type="System.Int64" /></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="length">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="OnGetHandleStatus">
+      <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetHandleStatus (string path, Mono.Fuse.OpenedPathInfo info, out Mono.Unix.Native.Stat buf);" />
+      <MemberType>Method</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Errno</ReturnType></ReturnValue>
+      <Parameters><Parameter Name="path" Type="System.String" /><Parameter Name="info" Type="Mono.Fuse.OpenedPathInfo" /><Parameter Name="buf" Type="Mono.Unix.Native.Stat&amp;" RefType="out"><Attributes><Attribute><AttributeName>System.Runtime.InteropServices.Out</AttributeName></Attribute></Attributes></Parameter></Parameters>
+      <Docs><param name="path">To be added.</param><param name="info">To be added.</param><param name="buf">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="FuseOptions">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IDictionary`2[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]] FuseOptions { get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Collections.Generic.IDictionary`2[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="EnableFuseDebugOutput">
+      <MemberSignature Language="C#" Value="public bool EnableFuseDebugOutput { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="AllowAccessToOthers">
+      <MemberSignature Language="C#" Value="public bool AllowAccessToOthers { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="AllowAccessToRoot">
+      <MemberSignature Language="C#" Value="public bool AllowAccessToRoot { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="AllowMountOverNonEmptyDirectory">
+      <MemberSignature Language="C#" Value="public bool AllowMountOverNonEmptyDirectory { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="EnableKernelPermissionChecking">
+      <MemberSignature Language="C#" Value="public bool EnableKernelPermissionChecking { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="FileSystemName">
+      <MemberSignature Language="C#" Value="public string FileSystemName { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.String</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="EnableLargeReadRequests">
+      <MemberSignature Language="C#" Value="public bool EnableLargeReadRequests { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="MaxReadSize">
+      <MemberSignature Language="C#" Value="public int MaxReadSize { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="ImmediateRemoval">
+      <MemberSignature Language="C#" Value="public bool ImmediateRemoval { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="SetsInodes">
+      <MemberSignature Language="C#" Value="public bool SetsInodes { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="ReaddirSetsInode">
+      <MemberSignature Language="C#" Value="public bool ReaddirSetsInode { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="DirectIO">
+      <MemberSignature Language="C#" Value="public bool DirectIO { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="Umask">
+      <MemberSignature Language="C#" Value="public string Umask { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.String</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="UserId">
+      <MemberSignature Language="C#" Value="public long UserId { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Int64</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="GroupId">
+      <MemberSignature Language="C#" Value="public long GroupId { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Int64</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="EntryTimeout">
+      <MemberSignature Language="C#" Value="public int EntryTimeout { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="DeletedNameTimeout">
+      <MemberSignature Language="C#" Value="public int DeletedNameTimeout { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="AttributeTimeout">
+      <MemberSignature Language="C#" Value="public int AttributeTimeout { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="MountPoint">
+      <MemberSignature Language="C#" Value="public string MountPoint { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.String</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+    <Member MemberName="MultiThreaded">
+      <MemberSignature Language="C#" Value="public bool MultiThreaded { set; get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
+      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+    </Member>
+  </Members>
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+</Type>
