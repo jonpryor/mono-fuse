@@ -50,10 +50,12 @@ namespace Mono.Fuse.Samples {
 		byte[] data_im_str;
 		bool have_data_im = false;
 		object data_im_str_lock = new object ();
+		Dictionary<string, byte[]> hello_attrs = new Dictionary<string, byte[]>();
 
 		public HelloFS ()
 		{
 			Trace.WriteLine ("(HelloFS creating)");
+			hello_attrs ["foo"] = Encoding.UTF8.GetBytes ("bar");
 		}
 
 		protected override Errno OnGetPathStatus (string path, ref Stat stbuf)
@@ -150,6 +152,63 @@ namespace Mono.Fuse.Samples {
 				return Errno.ENOENT;
 
 			bytesWritten = size;
+			return 0;
+		}
+
+		protected override Errno OnGetPathExtendedAttribute (string path, string name, byte[] value, out int bytesWritten)
+		{
+			bytesWritten = 0;
+			if (path != hello_path) {
+				return 0;
+			}
+			byte[] _value;
+			lock (hello_attrs) {
+				if (!hello_attrs.ContainsKey (name))
+					return 0;
+				_value = hello_attrs [name];
+			}
+			if (value.Length < _value.Length) {
+				return Errno.ERANGE;
+			}
+			Array.Copy (_value, value, _value.Length);
+			bytesWritten = _value.Length;
+			return 0;
+		}
+
+		protected override Errno OnSetPathExtendedAttribute (string path, string name, byte[] value, XattrFlags flags)
+		{
+			if (path != hello_path) {
+				return Errno.ENOSPC;
+			}
+			lock (hello_attrs) {
+				hello_attrs [name] = value;
+			}
+			return 0;
+		}
+
+		protected override Errno OnRemovePathExtendedAttribute (string path, string name)
+		{
+			if (path != hello_path)
+				return Errno.ENODATA;
+			lock (hello_attrs) {
+				if (!hello_attrs.ContainsKey (name))
+					return Errno.ENODATA;
+				hello_attrs.Remove (name);
+			}
+			return 0;
+		}
+
+		protected override Errno OnListPathExtendedAttributes (string path, out string[] names)
+		{
+			if (path != hello_path) {
+				names = new string[]{};
+				return 0;
+			}
+			List<string> _names = new List<string> ();
+			lock (hello_attrs) {
+				_names.AddRange (hello_attrs.Keys);
+			}
+			names = _names.ToArray ();
 			return 0;
 		}
 

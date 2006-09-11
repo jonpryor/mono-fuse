@@ -1,5 +1,10 @@
 2006-09-11  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* example/HelloFS/HelloFS.cs: Add extended attribute support for the 
+	  `hello' file.
+
+2006-09-11  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 
 	  - Property renaming: s/Options/FuseOptions/g.
 	  - Method renaming:
