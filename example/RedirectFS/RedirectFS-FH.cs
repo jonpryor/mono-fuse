@@ -327,7 +327,7 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		protected override Errno OnSetPathExtendedAttributes (string path, string name, byte[] value, XattrFlags flags)
+		protected override Errno OnSetPathExtendedAttribute (string path, string name, byte[] value, XattrFlags flags)
 		{
 			int r = Syscall.lsetxattr (basedir+path, name, value, (ulong) value.Length, flags);
 			if (r == -1)
@@ -335,7 +335,7 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		protected override Errno OnGetPathExtendedAttributes (string path, string name, byte[] value, out int bytesWritten)
+		protected override Errno OnGetPathExtendedAttribute (string path, string name, byte[] value, out int bytesWritten)
 		{
 			int r = bytesWritten = (int) Syscall.lgetxattr (basedir+path, name, value, (ulong) value.Length);
 			if (r == -1)
@@ -343,9 +343,9 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		protected override Errno OnListPathExtendedAttributes (string path, byte[] value, out int bytesWritten)
+		protected override Errno OnListPathExtendedAttributes (string path, out string[] names)
 		{
-			int r = bytesWritten = (int) Syscall.llistxattr (basedir+path, value, (ulong) value.Length);
+			int r = (int) Syscall.llistxattr (basedir+path, out names);
 			if (r == -1)
 				return Stdlib.GetLastError ();
 			return 0;

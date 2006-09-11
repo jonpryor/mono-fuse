@@ -1,3 +1,20 @@
+2006-09-11  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 
+	  - Property renaming: s/Options/FuseOptions/g.
+	  - Method renaming:
+	    s/OnSetPathExtendedAttributes/OnSetPathExtendedAttribute/g;
+	    s/OnGetPathExtendedAttributes/OnGetPathExtendedAttribute/g;
+	  - Method argument changing:
+	    s/OnListPathExtendedAttributes(string, byte[], out int)/
+	      OnListPathExtendedAttributes(string, out string[])/
+	* example/HelloFS/HelloFS.cs: s/\.Options/.FuseOptions/g.
+	* example/HelloFS/Makefile.am: Add `-debug+' to compile line for
+	  HelloFS.exe; add Mono.Fuse.dll.mdb for line numbers in stack traces.
+	* example/RedirectFS/RedirectFS.cs, example/RedirectFS/RedirectFS-FH.cs:
+	  Update to latest OnSetPathExtendedAttribute(),
+	  OnGetPathExtendedAttribute(), OnListPathExtendedAttributes() methods.
+
 2006-09-09  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/Mono.Fuse/Mono.Fuse.FileSystem.cs: 

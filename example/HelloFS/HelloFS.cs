@@ -193,8 +193,8 @@ namespace Mono.Fuse.Samples {
 		{
 			using (HelloFS fs = new HelloFS ()) {
 				string[] unhandled = fs.ParseFuseArguments (args);
-				foreach (string key in fs.Options.Keys) {
-					Console.WriteLine ("Option: {0}={1}", key, fs.Options [key]);
+				foreach (string key in fs.FuseOptions.Keys) {
+					Console.WriteLine ("Option: {0}={1}", key, fs.FuseOptions [key]);
 				}
 				if (!fs.ParseArguments (unhandled))
 					return;

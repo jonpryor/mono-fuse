@@ -10,10 +10,14 @@ all: $(ASSEMBLY) hellofs
 
 REFS = -r:Mono.Fuse.dll -r:Mono.Posix.dll
 
-$(ASSEMBLY): $(build_sources) Mono.Fuse.dll
-	$(CSC) $(CSC_FLAGS) $(build_sources) $(REFS) /out:$(ASSEMBLY)
+$(ASSEMBLY): $(build_sources) Mono.Fuse.dll Mono.Fuse.dll.mdb
+	$(CSC) -debug+ $(CSC_FLAGS) $(build_sources) $(REFS) /out:$(ASSEMBLY)
 
 Mono.Fuse.dll : $(top_builddir)/lib/mono-fuse/Mono.Fuse.dll
+	-rm $@
+	ln -s $< $@
+
+Mono.Fuse.dll.mdb : $(top_builddir)/lib/mono-fuse/Mono.Fuse.dll.mdb
 	-rm $@
 	ln -s $< $@
 

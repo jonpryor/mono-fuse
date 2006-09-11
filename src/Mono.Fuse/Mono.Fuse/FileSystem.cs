@@ -152,10 +152,10 @@ namespace Mono.Fuse {
 	delegate int FlushHandleCb (string path, IntPtr info);
 	delegate int ReleaseHandleCb (string path, IntPtr info);
 	delegate int SynchronizeHandleCb (string path, bool onlyUserData, IntPtr info);
-	delegate int SetPathExtendedAttributesCb (string path, string name, 
+	delegate int SetPathExtendedAttributeCb (string path, string name, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size, int flags);
-	delegate int GetPathExtendedAttributesCb (string path, string name, 
+	delegate int GetPathExtendedAttributeCb (string path, string name, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size, out int bytesWritten);
 	delegate int ListPathExtendedAttributesCb (string path, 
@@ -196,8 +196,8 @@ namespace Mono.Fuse {
 		public FlushHandleCb                  flush;
 		public ReleaseHandleCb                release;
 		public SynchronizeHandleCb            fsync;
-		public SetPathExtendedAttributesCb    setxattr;
-		public GetPathExtendedAttributesCb    getxattr;
+		public SetPathExtendedAttributeCb     setxattr;
+		public GetPathExtendedAttributeCb     getxattr;
 		public ListPathExtendedAttributesCb   listxattr;
 		public RemovePathExtendedAttributeCb  removexattr;
 		public OpenDirectoryCb                opendir;
@@ -276,7 +276,7 @@ namespace Mono.Fuse {
 			MountPoint = unhandled [unhandled.Length - 1];
 		}
 
-		public IDictionary <string, string> Options {
+		public IDictionary <string, string> FuseOptions {
 			get {return opts;}
 		}
 
@@ -588,10 +588,10 @@ namespace Mono.Fuse {
 					delegate (Operations to, FileSystem from) {to.release = from._OnReleaseHandle;});
 			operations.Add ("OnSynchronizeHandle", 
 					delegate (Operations to, FileSystem from) {to.fsync = from._OnSynchronizeHandle;});
-			operations.Add ("OnSetPathExtendedAttributes", 
-					delegate (Operations to, FileSystem from) {to.setxattr = from._OnSetPathExtendedAttributes;});
-			operations.Add ("OnGetPathExtendedAttributes", 
-					delegate (Operations to, FileSystem from) {to.getxattr = from._OnGetPathExtendedAttributes;});
+			operations.Add ("OnSetPathExtendedAttribute", 
+					delegate (Operations to, FileSystem from) {to.setxattr = from._OnSetPathExtendedAttribute;});
+			operations.Add ("OnGetPathExtendedAttribute", 
+					delegate (Operations to, FileSystem from) {to.getxattr = from._OnGetPathExtendedAttribute;});
 			operations.Add ("OnListPathExtendedAttributes", 
 					delegate (Operations to, FileSystem from) {to.listxattr = from._OnListPathExtendedAttributes;});
 			operations.Add ("OnRemovePathExtendedAttribute", 
@@ -1223,12 +1223,12 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private int _OnSetPathExtendedAttributes (string path, string name, byte[] value, ulong size, int flags)
+		private int _OnSetPathExtendedAttribute (string path, string name, byte[] value, ulong size, int flags)
 		{
 			Errno errno;
 			try {
 				XattrFlags f = NativeConvert.ToXattrFlags (flags);
-				errno = OnSetPathExtendedAttributes (path, name, value, f);
+				errno = OnSetPathExtendedAttribute (path, name, value, f);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1237,16 +1237,16 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnSetPathExtendedAttributes (string path, string name, byte[] value, XattrFlags flags)
+		protected virtual Errno OnSetPathExtendedAttribute (string path, string name, byte[] value, XattrFlags flags)
 		{
 			return Errno.ENOSYS;
 		}
 
-		private int _OnGetPathExtendedAttributes (string path, string name, byte[] value, ulong size, out int bytesWritten)
+		private int _OnGetPathExtendedAttribute (string path, string name, byte[] value, ulong size, out int bytesWritten)
 		{
 			Errno errno;
 			try {
-				errno = OnGetPathExtendedAttributes (path, name, value, out bytesWritten);
+				errno = OnGetPathExtendedAttribute (path, name, value, out bytesWritten);
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1256,7 +1256,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnGetPathExtendedAttributes (string path, string name, byte[] value, out int bytesWritten)
+		protected virtual Errno OnGetPathExtendedAttribute (string path, string name, byte[] value, out int bytesWritten)
 		{
 			bytesWritten = 0;
 			return Errno.ENOSYS;
@@ -1266,7 +1266,32 @@ namespace Mono.Fuse {
 		{
 			Errno errno;
 			try {
-				errno = OnListPathExtendedAttributes (path, list, out bytesWritten);
+				bytesWritten = 0;
+				string[] names;
+				errno = OnListPathExtendedAttributes (path, out names);
+				if (errno == 0 && names != null) {
+					int bytesNeeded = 0;
+					for (int i = 0; i < names.Length; ++i) {
+						bytesNeeded += encoding.GetByteCount (names [i]) + 1;
+					}
+					if (size == 0)
+						bytesWritten = bytesNeeded;
+					if (size < (ulong) bytesNeeded) {
+						errno = Errno.ERANGE;
+					}
+					else {
+						int dest = 0;
+						for (int i = 0; i < names.Length; ++i) {
+							int b = encoding.GetBytes (names [i], 0, names [i].Length, 
+									list, dest);
+							list[dest+b] = (byte) '\0';
+							dest += (b + 1);
+						}
+						bytesWritten = dest;
+					}
+				}
+				else
+					bytesWritten = 0;
 			}
 			catch (Exception e) {
 				Trace.WriteLine (e.ToString());
@@ -1276,9 +1301,9 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnListPathExtendedAttributes (string path, byte[] list, out int bytesWritten)
+		protected virtual Errno OnListPathExtendedAttributes (string path, out string[] names)
 		{
-			bytesWritten = 0;
+			names = null;
 			return Errno.ENOSYS;
 		}
 
