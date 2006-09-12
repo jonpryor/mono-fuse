@@ -1,3 +1,21 @@
+2006-09-12  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/Mono.Fuse/Makefile.am: Add FileNameMarshaler to the build.
+	* src/Mono.Fuse/Mono.Fuse/FileNameMarshaler.cs: Added; marshals filenames
+	  with any encoding to/from managed code (from
+	  Mono.Unix.Native.FileNameMarshaler).
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: 
+	  - Use the FileNameMarshaler custom marshaler to manipulate filenames 
+	    entering/leaving managed code.  This allows manipulation of filenames 
+	    with non-UTF8 encodings.
+	  - Reimplement FillEntries().  When mfh_invoke_filler() returns 1, it means
+	    that the current entry was not inserted, and needs to be inserted during
+	    the next call.  Previously, if a directory had many files (i.e.
+	    _OnReadDirectory() was called > 2 times), it would "drop" the file that
+	    was passed to mfh_invoke_filler() when it returned 1.  Now, when
+	    mfh_invoke_filler() return 1, we remember this and return the current
+	    entry a 2nd time so that nothing is lost.
+
 2006-09-11  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* configure.in: Fix test for HAVE_MONO_UNIX_NATIVE_COPY_FUNCS; Add check for

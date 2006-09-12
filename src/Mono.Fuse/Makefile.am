@@ -1,7 +1,8 @@
 
 FILES = \
 	MapAttribute.cs \
-	Mono.Fuse/FileSystem.cs
+	Mono.Fuse/FileSystem.cs \
+	Mono.Fuse/FileNameMarshaler.cs
 
 build_sources = $(addprefix $(srcdir)/, $(FILES))
 

@@ -29,6 +29,7 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -128,50 +129,126 @@ namespace Mono.Fuse {
 		}
 	}
 
-	delegate int GetPathStatusCb (string path, IntPtr stat);
-	delegate int ReadSymbolicLinkCb (string path, IntPtr buf, ulong bufsize);
-	delegate int CreateSpecialFileCb (string path, uint perms, ulong dev);
-	delegate int CreateDirectoryCb (string path, uint mode);
-	delegate int RemoveFileCb (string path);
-	delegate int RemoveDirectoryCb (string path);
-	delegate int CreateSymbolicLinkCb (string oldpath, string newpath);
-	delegate int RenamePathCb (string oldpath, string newpath);
-	delegate int CreateHardLinkCb (string oldpath, string newpath);
-	delegate int ChangePathPermissionsCb (string path, uint mode);
-	delegate int ChangePathOwnerCb (string path, long owner, long group);
-	delegate int TruncateFileb (string path, long length);
-	delegate int ChangePathTimesCb (string path, IntPtr buf);
-	delegate int OpenHandleCb (string path, IntPtr info); 
-	delegate int ReadHandleCb (string path, 
+	delegate int GetPathStatusCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr stat);
+	delegate int ReadSymbolicLinkCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr buf, ulong bufsize);
+	delegate int CreateSpecialFileCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, uint perms, ulong dev);
+	delegate int CreateDirectoryCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, uint mode);
+	delegate int RemoveFileCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path);
+	delegate int RemoveDirectoryCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path);
+	delegate int CreateSymbolicLinkCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string oldpath, 
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string newpath);
+	delegate int RenamePathCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string oldpath, 
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string newpath);
+	delegate int CreateHardLinkCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string oldpath, 
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string newpath);
+	delegate int ChangePathPermissionsCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, uint mode);
+	delegate int ChangePathOwnerCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, long owner, long group);
+	delegate int TruncateFileb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, long length);
+	delegate int ChangePathTimesCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr buf);
+	delegate int OpenHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr info); 
+	delegate int ReadHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] buf, ulong size, long offset, IntPtr info, out int bytesRead);
-	delegate int WriteHandleCb (string path, 
+	delegate int WriteHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] buf, ulong size, long offset, IntPtr info, out int bytesRead);
-	delegate int GetFileSystemStatusCb (string path, IntPtr buf);
-	delegate int FlushHandleCb (string path, IntPtr info);
-	delegate int ReleaseHandleCb (string path, IntPtr info);
-	delegate int SynchronizeHandleCb (string path, bool onlyUserData, IntPtr info);
-	delegate int SetPathExtendedAttributeCb (string path, string name, 
+	delegate int GetFileSystemStatusCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr buf);
+	delegate int FlushHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr info);
+	delegate int ReleaseHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr info);
+	delegate int SynchronizeHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, bool onlyUserData, IntPtr info);
+	delegate int SetPathExtendedAttributeCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, 
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string name, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size, int flags);
-	delegate int GetPathExtendedAttributeCb (string path, string name, 
+	delegate int GetPathExtendedAttributeCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, 
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string name, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=3)]
 			byte[] value, ulong size, out int bytesWritten);
-	delegate int ListPathExtendedAttributesCb (string path, 
+	delegate int ListPathExtendedAttributesCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, 
 			[Out, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
 			byte[] list, ulong size, out int bytesWritten);
-	delegate int RemovePathExtendedAttributeCb (string path, string name);
-	delegate int OpenDirectoryCb (string path, IntPtr info);
-	delegate int ReadDirectoryCb (string path, IntPtr buf, IntPtr filler, 
+	delegate int RemovePathExtendedAttributeCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, 
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string name);
+	delegate int OpenDirectoryCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr info);
+	delegate int ReadDirectoryCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr buf, IntPtr filler, 
 			long offset, IntPtr info, IntPtr stbuf);
-	delegate int CloseDirectoryCb (string path, IntPtr info);
-	delegate int SynchronizeDirectoryCb (string path, bool onlyUserData, IntPtr info);
+	delegate int CloseDirectoryCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr info);
+	delegate int SynchronizeDirectoryCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, bool onlyUserData, IntPtr info);
 	delegate IntPtr InitCb ();
-	delegate int AccessPathCb (string path, int mode);
-	delegate int CreateHandleCb (string path, uint mode, IntPtr info);
-	delegate int TruncateHandleCb (string path, long length, IntPtr info);
-	delegate int GetHandleStatusCb (string path, IntPtr buf, IntPtr info);
+	delegate int AccessPathCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, int mode);
+	delegate int CreateHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, uint mode, IntPtr info);
+	delegate int TruncateHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, long length, IntPtr info);
+	delegate int GetHandleStatusCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr buf, IntPtr info);
 
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
@@ -230,10 +307,14 @@ namespace Mono.Fuse {
 		private static extern int mfh_fuse_get_context (FileSystemOperationContext context);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_fuse_mount (string path, Args args);
+		private static extern int mfh_fuse_mount (
+				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+				string path, Args args);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_fuse_unmount (string path);
+		private static extern int mfh_fuse_unmount (
+				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+				string path);
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern void mfh_fuse_destroy (IntPtr fusep);
@@ -249,6 +330,7 @@ namespace Mono.Fuse {
 
 		[DllImport (LIB, SetLastError=false)]
 		private static extern int mfh_invoke_filler (IntPtr filler, IntPtr buf,
+				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 				string path, IntPtr stbuf, long offset);
 
 		[DllImport (LIB, SetLastError=false)]
@@ -1349,8 +1431,8 @@ namespace Mono.Fuse {
 
 		private object directoryLock = new object ();
 
-		private Dictionary<string, IEnumerator<FileSystemEntry>> directoryReaders = 
-			new Dictionary <string, IEnumerator<FileSystemEntry>> ();
+		private Dictionary<string, EntryEnumerator> directoryReaders = 
+			new Dictionary <string, EntryEnumerator> ();
 
 		private Random directoryKeys = new Random ();
 
@@ -1364,7 +1446,7 @@ namespace Mono.Fuse {
 				if (errno != 0)
 					return ConvertErrno (errno);
 
-				IEnumerator<FileSystemEntry> entries = null;
+				EntryEnumerator entries = null;
 				lock (directoryLock) {
 					string key = offset.ToString ();
 					if (directoryReaders.ContainsKey (key))
@@ -1381,6 +1463,7 @@ namespace Mono.Fuse {
 				bool cleanup = FillEntries (filler, buf, stbuf, offset, entries);
 
 				if (cleanup) {
+					entries.Dispose ();
 					lock (directoryLock) {
 						directoryReaders.Remove (offset.ToString ());
 					}
@@ -1420,7 +1503,7 @@ namespace Mono.Fuse {
 				do {
 					key = directoryKeys.Next (1, int.MaxValue);
 				} while (directoryReaders.ContainsKey (key.ToString()));
-				directoryReaders [key.ToString()] = e;
+				directoryReaders [key.ToString()] = new EntryEnumerator (e);
 			}
 
 			CopyOpenedPathInfo (info, fi);
@@ -1429,8 +1512,49 @@ namespace Mono.Fuse {
 			errno  = 0;
 		}
 
+		class EntryEnumerator : IEnumerator<FileSystemEntry> {
+			private IEnumerator<FileSystemEntry> entries;
+			bool repeat;
+
+			public EntryEnumerator (IEnumerator<FileSystemEntry> entries)
+			{
+				this.entries = entries;
+			}
+
+			public FileSystemEntry Current {
+				get {return entries.Current;}
+			}
+
+			object IEnumerator.Current {
+				get {return Current;}
+			}
+
+			public bool Repeat {
+				set {repeat = value;}
+			}
+
+			public bool MoveNext ()
+			{
+				if (repeat) {
+					repeat = false;
+					return true;
+				}
+				return entries.MoveNext ();
+			}
+
+			public void Reset ()
+			{
+				throw new InvalidOperationException ();
+			}
+
+			public void Dispose ()
+			{
+				entries.Dispose ();
+			}
+		}
+
 		private bool FillEntries (IntPtr filler, IntPtr buf, IntPtr stbuf, 
-				long offset, IEnumerator<FileSystemEntry> entries)
+				long offset, EntryEnumerator entries)
 		{
 			while (entries.MoveNext ()) {
 				FileSystemEntry entry = entries.Current;
@@ -1441,6 +1565,7 @@ namespace Mono.Fuse {
 				}
 				int r = mfh_invoke_filler (filler, buf, entry.Path, _stbuf, offset);
 				if (r != 0) {
+					entries.Repeat = true;
 					return false;
 				}
 			}
