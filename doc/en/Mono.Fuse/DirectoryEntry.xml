@@ -1,0 +1,85 @@
+<Type Name="DirectoryEntry" FullName="Mono.Fuse.DirectoryEntry">
+  <TypeSignature Language="C#" Value="public class DirectoryEntry" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Fuse</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <ThreadingSafetyStatement>All public static members of this type are safe 
+  for multithreaded operations. No instance members are guaranteed to be 
+  thread safe.</ThreadingSafetyStatement>
+  <Base>
+    <BaseTypeName>System.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Members>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="public DirectoryEntry (string name);" />
+      <MemberType>Constructor</MemberType>
+      <Parameters><Parameter Name="name" Type="System.String" /></Parameters>
+      <Docs><param name="name">
+          A <see cref="T:System.String" /> containing the directory entry
+          name.
+        </param><summary>
+          Creates and initializes a new instance of the 
+          <see cref="T:Mono.Fuse.DirectoryEntry" /> class for the specified 
+          path.
+        </summary><exception cref="T:System.ArgumentNullException">
+          <paramref name="name" /> is <see langword="null" />.
+        </exception><exception cref="T:System.ArgumentException">
+          <paramref name="name" /> contains an invalid path character,
+          such as <c>/</c>.
+        </exception><remarks>
+          This constructor initializes the 
+          <see cref="P:Mono.Fuse.DirectoryEntry.Name" /> property of the new
+          instance using <paramref name="name" />.
+        </remarks></Docs>
+    </Member>
+    <Member MemberName="Stat">
+      <MemberSignature Language="C#" Value="public Mono.Unix.Native.Stat Stat;" />
+      <MemberType>Field</MemberType>
+      <ReturnValue><ReturnType>Mono.Unix.Native.Stat</ReturnType></ReturnValue>
+      <Docs><summary>
+          Provides <see cref="T:Mono.Unix.Native.Stat" /> information to
+          FUSE on a <see cref="M:Mono.Fuse.FileSystem.OnReadDirectory" /> call.
+        </summary><remarks>
+          <para>
+            This field is only used by 
+            <see cref="M:Mono.Fuse.FileSystem.OnReadDirectory" />
+            if the <see cref="F:Mono.Unix.Native.Stat.st_ino" /> field has a
+            non-zero value and the
+            <see cref="P:Mono.Fuse.FileSystem.SetsInode" /> property is
+            <see langword="true" />.
+          </para>
+          <para>
+            This field should be filled in if your filesystem needs more control
+            over the inode values returned to other programs.  This helps 
+            facilitate corner-cases with renaming files while they're open for 
+            reading, etc.
+          </para>
+        </remarks></Docs>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="public string Name { get; };" />
+      <MemberType>Property</MemberType>
+      <ReturnValue><ReturnType>System.String</ReturnType></ReturnValue>
+      <Docs><summary>Get the directory entry name.</summary><value>
+          A <see cref="T:System.String" /> containing the directory entry
+          name.
+        </value><remarks>
+        </remarks></Docs>
+    </Member>
+  </Members>
+  <Docs>
+    <summary>
+      Provides information about a directory entry.
+    </summary>
+    <remarks>
+      <para>
+        <see cref="T:Mono.Fuse.DirectoryEntry" /> contains information about
+        a directory entry returned by overriders of the
+        <see cref="M:Mono.Fuse.FileSystem.OnReadDirectory" /> method.
+      </para>
+    </remarks>
+    <altmember cref="M:Mono.Fuse.FileSystem.OnReadDirectory" />
+  </Docs>
+</Type>

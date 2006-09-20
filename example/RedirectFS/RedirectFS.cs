@@ -84,7 +84,7 @@ namespace Mono.Fuse.Samples {
 		}
 
 		protected override Errno OnReadDirectory (string path, OpenedPathInfo fi,
-				out IEnumerable<FileSystemEntry> paths)
+				out IEnumerable<DirectoryEntry> paths)
 		{
 			IntPtr dp = Syscall.opendir (basedir+path);
 			if (dp == IntPtr.Zero) {
@@ -93,9 +93,9 @@ namespace Mono.Fuse.Samples {
 			}
 
 			Dirent de;
-			List<FileSystemEntry> entries = new List<FileSystemEntry> ();
+			List<DirectoryEntry> entries = new List<DirectoryEntry> ();
 			while ((de = Syscall.readdir (dp)) != null) {
-				FileSystemEntry e = new FileSystemEntry (de.d_name);
+				DirectoryEntry e = new DirectoryEntry (de.d_name);
 				e.Stat.st_ino  = de.d_ino;
 				e.Stat.st_mode = (FilePermissions) (de.d_type << 12);
 				entries.Add (e);

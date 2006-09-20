@@ -1,3 +1,55 @@
+2006-09-20  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* doc/Makefile.am: Create mono-fuse-docs.* files, not mono-fuse.* files.
+	  This matches Gtk#, and allows for clarity if we ever have
+	  mono-fuse-docs.zip and mono-fuse-VERSION.tar.gz in the same directory.
+	* doc/en/index.xml, doc/en/Mono.Fuse.xml, doc/en/Mono.Fuse/DirectoryEntry.xml,
+	  doc/en/Mono.Fuse/FileSystem.xml, 
+	  doc/en/Mono.Fuse/FileSystemOperationContext.xml, 
+	  doc/en/Mono.Fuse/OpenedPathInfo.xml: Add documentation.
+	* doc/en/Mono.Fuse/FileSystemEntry.xml: Renamed to DirectoryEntry.xml.
+	* example/HelloFS/HelloFS.cs: Use DirectoryEntry instead of FileSystemEntry;
+	  use OpenedPathInfo.OpenAccess instead of OpenedPathInfo.OpenReadOnly.
+	* example/RedirectFS/RedirectFS.cs, example/RedirectFS/RedirectFS-FH.cs: Use
+	  DirectoryEntry instead of FileSystemEntry; 
+	  s/OnCloseDirectory/OnReleaseDirectory/.
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Changes by type:
+	  - FileSystemOperationContext:
+	    - Make sealed (this should only be created internally).
+	    - Constructor is now internal.
+	  - FileSystemEntry: 
+	    - Renamed to DirectoryEntry.
+	    - Renamed Path property to Name.
+	    - Add argument checking to DirectoryEntry constructor. 
+	    - Remove implicit conversion to string (as constructor may generate
+	      exceptions).
+	  - OpenedPathInfo:
+	    - Make seaeled (this should only be created internally).
+	    - Constructor now internal.
+	    - Remove OpenReadOnly, OpenWriteOnly, OpenReadWrite properties 
+	    - Add OpenAccess property.
+	  - FileSystem:
+	    - Now `abstract'.  There are no abstract methods, but it's pointless 
+	      to create instances of this type, as it wouldn't do anything.
+	    - Make constructors protected (to emphasize the above).
+	    - Rename FileSystemName property to Name.
+	    - Rename ImmediateRemoval property to ImmediatePathRemoval.
+	    - Rename DirectIO property to EnableDirectIO.
+	    - Rename Umask property to DefaultUmask.
+	    - Add EnableKernelCache property.
+	    - Rename UserId property to DefaultUserId.
+	    - Rename GroupId property to DefaultGroupId.
+	    - Rename EntryTimeout property to PathTimeout.
+	    - Rename DeletedNameTimeout property to DeletedPathTimeout.
+	    - Change types of Timeout properties to `double' from `int'; changes
+	      PathTimeout, DeletedPathTimeout, AttributeTimeout.
+	    - Rename OnCloseDirectory() method to OnReleaseDirectory() (for 
+	      consistency with OnReleaseHandle).
+	    - Rename Exit() method to Stop().
+	    - Rename parameters of many methods to match the method names -- e.g.
+	      OnReadSymbolicLink() takes a `link' parameter instead of `path',
+	      OnOpenDirectory() takes a `directory' parameter instead of `path', etc.
+
 2006-09-12  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/Mono.Fuse/Makefile.am: Add FileNameMarshaler to the build.

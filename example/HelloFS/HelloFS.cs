@@ -89,7 +89,7 @@ namespace Mono.Fuse.Samples {
 		}
 
 		protected override Errno OnReadDirectory (string path, OpenedPathInfo fi,
-				out IEnumerable<FileSystemEntry> paths)
+				out IEnumerable<DirectoryEntry> paths)
 		{
 			Trace.WriteLine ("(OnReadDirectory {0})", path);
 			paths = null;
@@ -100,14 +100,14 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		private IEnumerable<FileSystemEntry> GetEntries ()
+		private IEnumerable<DirectoryEntry> GetEntries ()
 		{
-			yield return ".";
-			yield return "..";
-			yield return "hello";
-			yield return "data";
+			yield return new DirectoryEntry (".");
+			yield return new DirectoryEntry ("..");
+			yield return new DirectoryEntry ("hello");
+			yield return new DirectoryEntry ("data");
 			if (have_data_im)
-				yield return "data.im";
+				yield return new DirectoryEntry ("data.im");
 		}
 
 		protected override Errno OnOpenHandle (string path, OpenedPathInfo fi)
@@ -117,7 +117,7 @@ namespace Mono.Fuse.Samples {
 				return Errno.ENOENT;
 			if (path == data_im_path && !have_data_im)
 				return Errno.ENOENT;
-			if (!fi.OpenReadOnly)
+			if (fi.OpenAccess != OpenFlags.O_RDONLY)
 				return Errno.EACCES;
 			return 0;
 		}

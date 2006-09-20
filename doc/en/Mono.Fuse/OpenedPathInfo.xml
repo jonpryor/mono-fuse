@@ -1,71 +1,204 @@
 <Type Name="OpenedPathInfo" FullName="Mono.Fuse.OpenedPathInfo">
-  <TypeSignature Language="C#" Value="public class OpenedPathInfo" />
+  <TypeSignature Language="C#" Value="public sealed class OpenedPathInfo" />
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
   </AssemblyInfo>
+  <ThreadingSafetyStatement>All public static members of this type are safe 
+  for multithreaded operations. No instance members are guaranteed to be 
+  thread safe.</ThreadingSafetyStatement>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
   </Base>
   <Interfaces />
   <Members>
-    <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public OpenedPathInfo ();" />
-      <MemberType>Constructor</MemberType>
-      <Parameters />
-      <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
-    </Member>
     <Member MemberName="OpenFlags">
       <MemberSignature Language="C#" Value="public Mono.Unix.Native.OpenFlags OpenFlags { set; get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>Mono.Unix.Native.OpenFlags</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          Gets a <see cref="T:Mono.Unix.Native.OpenFlags" /> instance containing a 
+          specification for how the resource (file or directory) should be opened.
+        </summary><value>
+          A <see cref="T:Mono.Unix.Native.OpenFlags" /> instance containing a
+          specification for how the resource (file or directory) should be
+          opened or was opened.
+        </value><remarks>
+          <para>
+            The <see cref="T:Mono.Unix.Native.OpenFlags" /> value contains two
+            sets of information:
+          </para>
+          <list type="bullet">
+            <item><term>
+              <paramref name="How the file should be opened" />, (e.g.
+              read-only, read/write).
+            </term></item>
+            <item><term>
+              <paramref name="Miscellaneous information" />, (open exclusively,
+              truncate on open, open for appending, large file support, etc.).
+            </term></item>
+          </list>
+          <para>
+            The <see cref="P:Mono.Fuse.FileSystem.OpenAccess" /> property
+            returns the first piece of information as a convenience property 
+            so that no bitwise masking is required to determine how the file 
+            should be opened.
+          </para>
+        </remarks><altmember cref="P:Mono.Fuse.FileSystem.OpenAccess" /></Docs>
     </Member>
-    <Member MemberName="OpenReadOnly">
-      <MemberSignature Language="C#" Value="public bool OpenReadOnly { get; };" />
+    <Member MemberName="OpenAccess">
+      <MemberSignature Language="C#" Value="public Mono.Unix.Native.OpenFlags OpenAccess { get; };" />
       <MemberType>Property</MemberType>
-      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
-    </Member>
-    <Member MemberName="OpenWriteOnly">
-      <MemberSignature Language="C#" Value="public bool OpenWriteOnly { get; };" />
-      <MemberType>Property</MemberType>
-      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
-    </Member>
-    <Member MemberName="OpenReadWrite">
-      <MemberSignature Language="C#" Value="public bool OpenReadWrite { get; };" />
-      <MemberType>Property</MemberType>
-      <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <ReturnValue><ReturnType>Mono.Unix.Native.OpenFlags</ReturnType></ReturnValue>
+      <Docs><summary>
+          Gets a <see cref="T:Mono.Unix.Native.OpenFlags" /> instance 
+          containing a specification for how the resource (file or directory) 
+          should be accessed.
+        </summary><value>
+          A <see cref="T:Mono.Unix.Native.OpenFlags" /> instance containing a
+          specification for how the resource (file or directory) should be
+          accessed or was opened.
+        </value><remarks>
+          <para>
+            This property returns 
+            <see cref="P:Mono.Fuse.OpenedPathInfo.OpenFlags" /> value masked so
+            that it will only return one of:
+          </para>
+          <list type="table">
+            <listheader>
+              <term>Value</term>
+              <description>Description</description>
+            </listheader>
+            <item>
+              <term>
+                <see cref="F:Mono.Unix.Native.OpenFlags.O_RDONLY" />
+              </term>
+              <description>
+                The file or directory should be opened read-only.
+              </description>
+            </item>
+            <item>
+              <term>
+                <see cref="F:Mono.Unix.Native.OpenFlags.O_RDWR" />
+              </term>
+              <description>
+                The file or directory should be opened read-write.
+              </description>
+            </item>
+            <item>
+              <term>
+                <see cref="F:Mono.Unix.Native.OpenFlags.O_WRONLY" />
+              </term>
+              <description>
+                The file or directory should be opened write-only.
+              </description>
+            </item>
+          </list>
+        </remarks><altmember cref="P:Mono.Fuse.FileSystem.OpenFlags" /></Docs>
     </Member>
     <Member MemberName="WritePage">
       <MemberSignature Language="C#" Value="public int WritePage { set; get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          Indicates if a write operation was caused by a writepage.
+        </summary><value>
+          A <see cref="T:System.Int32" /> indicating if this write operation
+          was caused by a writepage operation.
+        </value><remarks>
+          <para>Should this be a <see cref="T:System.Boolean" />?.</para>
+          <para>TODO: What is a writepage operation?</para>
+        </remarks></Docs>
     </Member>
     <Member MemberName="DirectIO">
       <MemberSignature Language="C#" Value="public bool DirectIO { set; get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          Indicates whether or not direct I/O can be used on this file.
+        </summary><value>
+          A <see cref="T:System.Boolean" /> indicating whether or not direct
+          I/O can be used on this file.
+        </value><remarks>
+          This should only be changed by 
+          <see cref="M:Mono.Fuse.FileSystem.OnCreateHandle" /> or
+          <see cref="M:Mono.Fuse.FileSystem.OnOpenHandle" />.
+        </remarks><altmember cref="M:Mono.Fuse.FileSystem.OnCreateHandle" /><altmember cref="M:Mono.Fuse.FileSystem.OnOpenHandle" /></Docs>
     </Member>
     <Member MemberName="KeepCache">
       <MemberSignature Language="C#" Value="public bool KeepCache { set; get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>System.Boolean</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          Indicates that cached file data should not be invalidated.
+        </summary><value>
+          A <see cref="T:System.Boolean" /> indicating that cached file data
+          need not be invalidated.
+        </value><remarks>
+          This should only be changed by
+          <see cref="M:Mono.Fuse.FileSystem.OnCreateHandle" /> or
+          <see cref="M:Mono.Fuse.FileSystem.OnOpenHandle" />.
+        </remarks><altmember cref="M:Mono.Fuse.FileSystem.OnCreateHandle" /><altmember cref="M:Mono.Fuse.FileSystem.OnOpenHandle" /></Docs>
     </Member>
     <Member MemberName="Handle">
       <MemberSignature Language="C#" Value="public IntPtr Handle { set; get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>System.IntPtr</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          Handle to an open file or directory.
+        </summary><value>
+          A <see cref="T:System.IntPtr" /> containing a handle to an open file 
+          or directory.
+        </value><remarks>
+          <para>This can be set in an <paramref name="open" /> operation 
+            (<see cref="M:Mono.Fuse.FileSystem.OnCreateHandle" />,
+            <see cref="M:Mono.Fuse.FileSystem.OnOpenHandle" />,
+            <see cref="M:Mono.Fuse.FileSystem.OnOpenDirectory" />)
+            so that its value is available from the other related operations
+            (<see cref="M:Mono.Fuse.FileSystem.OnReadDirectory" />,
+            <see cref="M:Mono.Fuse.FileSystem.OnReadHandle" />,
+            <see cref="M:Mono.Fuse.FileSystem.OnWriteHandle" />, etc.).
+          </para>
+          <para>
+            If set in an open operation, then the underlying resource should be
+            released in the appropriate corresponding close operation
+            (<see cref="M:Mono.Fuse.FileSystem.OnReleaseDirectory" />,
+            <see cref="M:Mono.Fuse.FileSystem.OnReleaseHandle" />).
+          </para>
+          <para>
+            This does not need to be set to support reading and writing.
+            For example, if <see cref="M:Mono.Fuse.FileSystem.OnOpenHandle" />
+            is not overridden, a file can still be "opened" for reading &amp; 
+            writing as long as the 
+            <see cref="F:Mono.Unix.Native.Stat.st_mode" /> instance
+            filled in by <see cref="M:Mono.Fuse.FileSystem.OnGetPathStatus" />
+            permits reading or writing.  In this case, if e.g.
+            <see cref="M:Mono.Fuse.FileSystem.OnReadHandle" /> is overridden
+            then it will be invoked with a 
+            <see cref="P:Mono.Fuse.OpenedPathInfo.Handle" /> value of
+            <see cref="F:System.IntPtr.Zero" />.
+          </para>
+          <para>
+            It is recommended that this property be used, so that if a file or 
+            directory is renamed 
+            (<see cref="M:Mono.Fuse.FileSystem.OnRenamePath" />)
+            while a file is open the reading program won't notice and get 
+            "bizarre" data.
+          </para>
+        </remarks><altmember cref="M:Mono.Fuse.FileSystem.OnCreateHandle" /><altmember cref="M:Mono.Fuse.FileSystem.OnOpenHandle" /><altmember cref="M:Mono.Fuse.FileSystem.OnReleaseHandle" /><altmember cref="M:Mono.Fuse.FileSystem.OnOpenDirectory" /><altmember cref="M:Mono.Fuse.FileSystem.OnReadDirectory" /><altmember cref="M:Mono.Fuse.FileSystem.OnReleaseDirectory" /></Docs>
     </Member>
   </Members>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Contains information about an opened file or directory.</summary>
+    <remarks>
+      <para>
+        The <see cref="T:Mono.Fuse.OpenedPathInfo" /> class provides information
+        about a request to open a file or directory, and information for using
+        an opened file or directory.
+      </para>
+    </remarks>
+    <altmember cref="M:Mono.Fuse.FileSystem.OnCreateHandle" />
+    <altmember cref="M:Mono.Fuse.FileSystem.OnOpenDirectory" />
+    <altmember cref="M:Mono.Fuse.FileSystem.OnOpenHandle" />
   </Docs>
 </Type>

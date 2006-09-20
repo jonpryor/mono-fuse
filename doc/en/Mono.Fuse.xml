@@ -1,6 +1,17 @@
 <Namespace Name="Mono.Fuse">
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>
+      C# binding for the FUSE (Filesystem in Userspace) 
+      library high-level interface.
+    </summary>
+    <remarks>
+      <para>
+        FUSE permits userspace programs to implement a filesystem 
+        interface, permitting any other userspace program to interact with the
+        FUSE program as if it were a filesystem.  
+        The <see cref="T:Mono.Fuse.FileSystem" /> type allows FUSE programs
+        to be simply created from any managed language.
+      </para>
+    </remarks>
   </Docs>
 </Namespace>

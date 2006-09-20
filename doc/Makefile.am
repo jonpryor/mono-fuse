@@ -7,7 +7,7 @@ UPDATER = $(MONODOCER) -path:en $(UPDATE_ASSEMBLIES)
 
 if ENABLE_MONODOC
 SOURCESDIR=$(prefix)/lib/monodoc/sources
-TARGETS=mono-fuse.zip mono-fuse.tree mono-fuse.source
+TARGETS=mono-fuse-docs.zip mono-fuse-docs.tree mono-fuse-docs.source
 else
 SOURCESDIR=$(datadir)
 TARGETS=
@@ -16,10 +16,10 @@ endif
 monodocdir=$(SOURCESDIR)
 monodoc_DATA=$(TARGETS)
 
-assemble: mono-fuse.zip mono-fuse.tree
+assemble: mono-fuse-docs.zip mono-fuse-docs.tree
 
-mono-fuse.zip mono-fuse.tree: $(srcdir)/en/*/*.xml $(srcdir)/en/*.xml
-	$(MDASSEMBLER) --ecma $(srcdir)/en -o mono-fuse
+mono-fuse-docs.zip mono-fuse-docs.tree: $(srcdir)/en/*/*.xml $(srcdir)/en/*.xml
+	$(MDASSEMBLER) --ecma $(srcdir)/en -o mono-fuse-docs
 
 update: $(addprefix ../lib/mono-fuse/, $(ASSEMBLIES))
 	$(UPDATER)
@@ -27,10 +27,10 @@ update: $(addprefix ../lib/mono-fuse/, $(ASSEMBLIES))
 update-delete: $(addprefix ../lib/mono-fuse/, $(ASSEMBLIES))
 	$(UPDATER) --delete
 
-CLEANFILES = mono-fuse.zip mono-fuse.tree
+CLEANFILES = mono-fuse-docs.zip mono-fuse-docs.tree
 
 EXTRA_DIST =			\
-	mono-fuse.source
+	mono-fuse-docs.source
 
 NAMESPACES=Mono.Fuse
 
@@ -41,4 +41,7 @@ dist-hook:
 		mkdir -p $(distdir)/en/$$i;			\
 		cp $(srcdir)/en/$$i/*.xml $(distdir)/en/$$i;	\
 	done
+
+edit:
+	monodoc --edit $(srcdir)/en
 

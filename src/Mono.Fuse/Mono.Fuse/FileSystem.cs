@@ -42,11 +42,15 @@ using Mono.Unix.Native;
 namespace Mono.Fuse {
 
 	[StructLayout (LayoutKind.Sequential)]
-	public class FileSystemOperationContext {
+	public sealed class FileSystemOperationContext {
 		private IntPtr fuse;
 		[Map ("uid_t")] private long userId;
 		[Map ("gid_t")] private long groupId;
 		[Map ("pid_t")] private int  processId;
+
+		internal FileSystemOperationContext ()
+		{
+		}
 
 		public long UserId {
 			get {return userId;}
@@ -61,51 +65,53 @@ namespace Mono.Fuse {
 		}
 	}
 
-	public class FileSystemEntry {
-		private string path;
+	public class DirectoryEntry {
+		private string name;
 
-		public string Path {
-			get {return path;}
+		public string Name {
+			get {return name;}
 		}
 
-		// This is used only if st_ino is non-zero.
+		// This is used only if st_ino is non-zero and
+		// FileSystem.SetsInodes is true
 		public Stat Stat;
 
-		public FileSystemEntry (string path)
-		{
-			this.path = path;
-		}
+		private static char[] invalidPathChars = new char[]{'/'};
 
-		public static implicit operator FileSystemEntry (string path)
+		public DirectoryEntry (string name)
 		{
-			return new FileSystemEntry (path);
+			if (name == null)
+				throw new ArgumentNullException ("name");
+			if (name.IndexOfAny (invalidPathChars) != -1)
+				throw new ArgumentException (
+					"name cannot contain directory separator char", "name");
+			this.name = name;
 		}
 	}
 
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
-	public class OpenedPathInfo {
+	public sealed class OpenedPathInfo {
 		internal OpenFlags flags;
 		private int   write_page;
 		private bool  direct_io;
 		private bool  keep_cache;
 		private ulong file_handle;
 
+		internal OpenedPathInfo ()
+		{
+		}
+
 		public OpenFlags OpenFlags {
 			get {return flags;}
 			set {flags = value;}
 		}
 
-		public bool OpenReadOnly {
-			get {return ((OpenFlags) ((int) flags & 3)) == OpenFlags.O_RDONLY;}
-		}
+		private const OpenFlags accessMask = 
+			OpenFlags.O_RDONLY | OpenFlags.O_WRONLY | OpenFlags.O_RDWR;
 
-		public bool OpenWriteOnly {
-			get {return ((OpenFlags) ((int) flags & 3)) == OpenFlags.O_WRONLY;}
-		}
-
-		public bool OpenReadWrite {
-			get {return ((OpenFlags) ((int) flags & 3)) == OpenFlags.O_RDWR;}
+		public OpenFlags OpenAccess {
+			get {return flags & accessMask;}
 		}
 
 		public int WritePage {
@@ -230,7 +236,7 @@ namespace Mono.Fuse {
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, IntPtr buf, IntPtr filler, 
 			long offset, IntPtr info, IntPtr stbuf);
-	delegate int CloseDirectoryCb (
+	delegate int ReleaseDirectoryCb (
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, IntPtr info);
 	delegate int SynchronizeDirectoryCb (
@@ -279,7 +285,7 @@ namespace Mono.Fuse {
 		public RemovePathExtendedAttributeCb  removexattr;
 		public OpenDirectoryCb                opendir;
 		public ReadDirectoryCb                readdir;
-		public CloseDirectoryCb               releasedir;
+		public ReleaseDirectoryCb             releasedir;
 		public SynchronizeDirectoryCb         fsyncdir;
 		public InitCb                         init;
 		public AccessPathCb                   access;
@@ -296,7 +302,7 @@ namespace Mono.Fuse {
 		public int allocated;
 	}
 
-	public class FileSystem : IDisposable {
+	public abstract class FileSystem : IDisposable {
 
 		const string LIB = "MonoFuseHelper";
 
@@ -343,16 +349,16 @@ namespace Mono.Fuse {
 		private Operations ops;
 		private IntPtr opsp;
 
-		public FileSystem (string mountPoint)
+		protected FileSystem (string mountPoint)
 		{
 			this.mountPoint = mountPoint;
 		}
 
-		public FileSystem ()
+		protected FileSystem ()
 		{
 		}
 
-		public FileSystem (string[] args)
+		protected FileSystem (string[] args)
 		{
 			string[] unhandled = ParseFuseArguments (args);
 			MountPoint = unhandled [unhandled.Length - 1];
@@ -387,7 +393,7 @@ namespace Mono.Fuse {
 			set {Set ("default_permissions", value ? "" : null);}
 		}
 
-		public string FileSystemName {
+		public string Name {
 			get {return GetString ("fsname");}
 			set {Set ("fsname", value);}
 		}
@@ -402,7 +408,7 @@ namespace Mono.Fuse {
 			set {Set ("max_read", value.ToString ());}
 		}
 
-		public bool ImmediateRemoval {
+		public bool ImmediatePathRemoval {
 			get {return GetBool ("hard_remove");}
 			set {Set ("hard_remove", value ? "" : null);}
 		}
@@ -417,44 +423,61 @@ namespace Mono.Fuse {
 			set {Set ("readdir_ino", value ? "" : null);}
 		}
 
-		public bool DirectIO {
+		public bool EnableDirectIO {
 			get {return GetBool ("direct_io");}
 			set {Set ("direct_io", value ? "" : null);}
 		}
 
-		public string Umask {
-			get {return GetString ("umask");}
-			set {Set ("umask", value);}
+		public bool EnableKernelCache {
+			get {return GetBool ("kernel_cache");}
+			set {Set ("kernel_cache", value ? "" : null);}
 		}
 
-		public long UserId {
+		public FilePermissions DefaultUmask {
+			get {
+				string umask = GetString ("umask") ?? "0000";
+				return NativeConvert.FromOctalPermissionString (umask);
+			}
+			set {
+				Set ("umask", NativeConvert.ToOctalPermissionString (value));
+			}
+		}
+
+		public long DefaultUserId {
 			get {return GetLong ("uid");}
 			set {Set ("uid", value.ToString ());}
 		}
 
-		public long GroupId {
+		public long DefaultGroupId {
 			get {return GetLong ("gid");}
 			set {Set ("gid", value.ToString ());}
 		}
 
-		public int EntryTimeout {
-			get {return (int) GetLong ("entry_timeout");}
+		public double PathTimeout {
+			get {return (int) GetDouble ("entry_timeout");}
 			set {Set ("entry_timeout", value.ToString ());}
 		}
 
-		public int DeletedNameTimeout {
-			get {return (int) GetLong ("negative_timeout");}
+		public double DeletedPathTimeout {
+			get {return (int) GetDouble ("negative_timeout");}
 			set {Set ("negative_timeout", value.ToString ());}
 		}
 
-		public int AttributeTimeout {
-			get {return (int) GetLong ("attr_timeout");}
+		public double AttributeTimeout {
+			get {return (int) GetDouble ("attr_timeout");}
 			set {Set ("attr_timeout", value.ToString ());}
 		}
 
 		private bool GetBool (string key)
 		{
 			return opts.ContainsKey (key);
+		}
+
+		private double GetDouble (string key)
+		{
+			if (opts.ContainsKey (key))
+				return double.Parse (opts [key]);
+			return 0.0;
 		}
 
 		private string GetString (string key)
@@ -682,8 +705,8 @@ namespace Mono.Fuse {
 					delegate (Operations to, FileSystem from) {to.opendir = from._OnOpenDirectory;});
 			operations.Add ("OnReadDirectory", 
 					delegate (Operations to, FileSystem from) {to.readdir = from._OnReadDirectory;});
-			operations.Add ("OnCloseDirectory", 
-					delegate (Operations to, FileSystem from) {to.releasedir = from._OnCloseDirectory;});
+			operations.Add ("OnReleaseDirectory", 
+					delegate (Operations to, FileSystem from) {to.releasedir = from._OnReleaseDirectory;});
 			operations.Add ("OnSynchronizeDirectory", 
 					delegate (Operations to, FileSystem from) {to.fsyncdir = from._OnSynchronizeDirectory;});
 			operations.Add ("OnAccessPath", 
@@ -765,7 +788,7 @@ namespace Mono.Fuse {
 			}
 		}
 
-		public void Exit ()
+		public void Stop ()
 		{
 			mfh_fuse_exit (fusep);
 		}
@@ -938,7 +961,7 @@ namespace Mono.Fuse {
 
 		static Encoding encoding = new UTF8Encoding (false, true);
 
-		protected virtual Errno OnReadSymbolicLink (string path, out string target)
+		protected virtual Errno OnReadSymbolicLink (string link, out string target)
 		{
 			target = null;
 			return Errno.ENOSYS;
@@ -958,7 +981,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnCreateSpecialFile (string path, FilePermissions perms, ulong dev)
+		protected virtual Errno OnCreateSpecialFile (string file, FilePermissions perms, ulong dev)
 		{
 			return Errno.ENOSYS;
 		}
@@ -977,7 +1000,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnCreateDirectory (string path, FilePermissions mode)
+		protected virtual Errno OnCreateDirectory (string directory, FilePermissions mode)
 		{
 			return Errno.ENOSYS;
 		}
@@ -995,7 +1018,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnRemoveFile (string path)
+		protected virtual Errno OnRemoveFile (string file)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1013,7 +1036,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnRemoveDirectory (string path)
+		protected virtual Errno OnRemoveDirectory (string directory)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1031,7 +1054,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnCreateSymbolicLink (string oldpath, string newpath)
+		protected virtual Errno OnCreateSymbolicLink (string target, string link)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1067,7 +1090,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnCreateHardLink (string oldpath, string newpath)
+		protected virtual Errno OnCreateHardLink (string oldpath, string link)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1122,11 +1145,12 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnTruncateFile (string path, long length)
+		protected virtual Errno OnTruncateFile (string file, long length)
 		{
 			return Errno.ENOSYS;
 		}
 
+		// TODO: can buf be null?
 		private int _OnChangePathTimes (string path, IntPtr buf)
 		{
 			Errno errno;
@@ -1166,7 +1190,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnOpenHandle (string path, OpenedPathInfo info)
+		protected virtual Errno OnOpenHandle (string file, OpenedPathInfo info)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1189,7 +1213,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnReadHandle (string path, OpenedPathInfo info, byte[] buf, long offset, out int bytesWritten)
+		protected virtual Errno OnReadHandle (string file, OpenedPathInfo info, byte[] buf, long offset, out int bytesWritten)
 		{
 			bytesWritten = 0;
 			return Errno.ENOSYS;
@@ -1213,7 +1237,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnWriteHandle (string path, OpenedPathInfo info, byte[] buf, long offset, out int bytesRead)
+		protected virtual Errno OnWriteHandle (string file, OpenedPathInfo info, byte[] buf, long offset, out int bytesRead)
 		{
 			bytesRead = 0;
 			return Errno.ENOSYS;
@@ -1258,7 +1282,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnFlushHandle (string path, OpenedPathInfo info)
+		protected virtual Errno OnFlushHandle (string file, OpenedPathInfo info)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1278,7 +1302,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnReleaseHandle (string path, OpenedPathInfo info)
+		protected virtual Errno OnReleaseHandle (string file, OpenedPathInfo info)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1300,7 +1324,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnSynchronizeHandle (string path, OpenedPathInfo info, bool onlyUserData)
+		protected virtual Errno OnSynchronizeHandle (string file, OpenedPathInfo info, bool onlyUserData)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1424,7 +1448,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnOpenDirectory (string path, OpenedPathInfo info)
+		protected virtual Errno OnOpenDirectory (string directory, OpenedPathInfo info)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1483,7 +1507,7 @@ namespace Mono.Fuse {
 
 			offset = -1;
 
-			IEnumerable<FileSystemEntry> paths;
+			IEnumerable<DirectoryEntry> paths;
 			errno = OnReadDirectory (path, info, out paths);
 			if (errno != 0)
 				return;
@@ -1492,7 +1516,7 @@ namespace Mono.Fuse {
 				errno = Errno.EIO;
 				return;
 			}
-			IEnumerator<FileSystemEntry> e = paths.GetEnumerator ();
+			IEnumerator<DirectoryEntry> e = paths.GetEnumerator ();
 			if (e == null) {
 				Trace.WriteLine ("OnReadDirectory: errno = 0 but enumerator is null!");
 				errno = Errno.EIO;
@@ -1512,16 +1536,16 @@ namespace Mono.Fuse {
 			errno  = 0;
 		}
 
-		class EntryEnumerator : IEnumerator<FileSystemEntry> {
-			private IEnumerator<FileSystemEntry> entries;
+		class EntryEnumerator : IEnumerator<DirectoryEntry> {
+			private IEnumerator<DirectoryEntry> entries;
 			bool repeat;
 
-			public EntryEnumerator (IEnumerator<FileSystemEntry> entries)
+			public EntryEnumerator (IEnumerator<DirectoryEntry> entries)
 			{
 				this.entries = entries;
 			}
 
-			public FileSystemEntry Current {
+			public DirectoryEntry Current {
 				get {return entries.Current;}
 			}
 
@@ -1557,13 +1581,13 @@ namespace Mono.Fuse {
 				long offset, EntryEnumerator entries)
 		{
 			while (entries.MoveNext ()) {
-				FileSystemEntry entry = entries.Current;
+				DirectoryEntry entry = entries.Current;
 				IntPtr _stbuf = IntPtr.Zero;
 				if (entry.Stat.st_ino != 0) {
 					CopyStat (ref entry.Stat, stbuf);
 					_stbuf = stbuf;
 				}
-				int r = mfh_invoke_filler (filler, buf, entry.Path, _stbuf, offset);
+				int r = mfh_invoke_filler (filler, buf, entry.Name, _stbuf, offset);
 				if (r != 0) {
 					entries.Repeat = true;
 					return false;
@@ -1572,20 +1596,20 @@ namespace Mono.Fuse {
 			return true;
 		}
 
-		protected virtual Errno OnReadDirectory (string path, OpenedPathInfo info, 
-				out IEnumerable<FileSystemEntry> paths)
+		protected virtual Errno OnReadDirectory (string directory, OpenedPathInfo info, 
+				out IEnumerable<DirectoryEntry> paths)
 		{
 			paths = null;
 			return Errno.ENOSYS;
 		}
 
-		private int _OnCloseDirectory (string path, IntPtr fi)
+		private int _OnReleaseDirectory (string path, IntPtr fi)
 		{
 			Errno errno;
 			try {
 				OpenedPathInfo info = new OpenedPathInfo ();
 				CopyOpenedPathInfo (fi, info);
-				errno = OnCloseDirectory (path, info);
+				errno = OnReleaseDirectory (path, info);
 				if (errno == 0)
 					CopyOpenedPathInfo (info, fi);
 			}
@@ -1596,7 +1620,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnCloseDirectory (string path, OpenedPathInfo info)
+		protected virtual Errno OnReleaseDirectory (string directory, OpenedPathInfo info)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1618,7 +1642,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnSynchronizeDirectory (string path, OpenedPathInfo info, bool onlyUserData)
+		protected virtual Errno OnSynchronizeDirectory (string directory, OpenedPathInfo info, bool onlyUserData)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1665,7 +1689,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnCreateHandle (string path, OpenedPathInfo info, FilePermissions mode)
+		protected virtual Errno OnCreateHandle (string file, OpenedPathInfo info, FilePermissions mode)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1687,7 +1711,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnTruncateHandle (string path, OpenedPathInfo info, long length)
+		protected virtual Errno OnTruncateHandle (string file, OpenedPathInfo info, long length)
 		{
 			return Errno.ENOSYS;
 		}
@@ -1713,7 +1737,7 @@ namespace Mono.Fuse {
 			return ConvertErrno (errno);
 		}
 
-		protected virtual Errno OnGetHandleStatus (string path, OpenedPathInfo info, out Stat buf)
+		protected virtual Errno OnGetHandleStatus (string file, OpenedPathInfo info, out Stat buf)
 		{
 			buf = new Stat ();
 			return Errno.ENOSYS;

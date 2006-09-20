@@ -102,7 +102,7 @@ namespace Mono.Fuse.Samples {
 		}
 
 		protected override Errno OnReadDirectory (string path, OpenedPathInfo fi,
-				out IEnumerable<FileSystemEntry> paths)
+				out IEnumerable<DirectoryEntry> paths)
 		{
 			IntPtr dp = (IntPtr) fi.Handle;
 
@@ -111,18 +111,18 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
-		private IEnumerable<FileSystemEntry> ReadDirectory (IntPtr dp)
+		private IEnumerable<DirectoryEntry> ReadDirectory (IntPtr dp)
 		{
 			Dirent de;
 			while ((de = Syscall.readdir (dp)) != null) {
-				FileSystemEntry e = new FileSystemEntry (de.d_name);
+				DirectoryEntry e = new DirectoryEntry (de.d_name);
 				e.Stat.st_ino  = de.d_ino;
 				e.Stat.st_mode = (FilePermissions) (de.d_type << 12);
 				yield return e;
 			}
 		}
 
-		protected override Errno OnCloseDirectory (string path, OpenedPathInfo info)
+		protected override Errno OnReleaseDirectory (string path, OpenedPathInfo info)
 		{
 			IntPtr dp = (IntPtr) info.Handle;
 			Syscall.closedir (dp);
@@ -309,7 +309,7 @@ namespace Mono.Fuse.Samples {
 
 		protected override Errno OnReleaseHandle (string path, OpenedPathInfo info)
 		{
-			int r = Syscall .close ((int) info.Handle);
+			int r = Syscall.close ((int) info.Handle);
 			if (r == -1)
 				return Stdlib.GetLastError ();
 			return 0;

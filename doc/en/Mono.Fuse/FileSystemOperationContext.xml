@@ -1,41 +1,85 @@
 <Type Name="FileSystemOperationContext" FullName="Mono.Fuse.FileSystemOperationContext">
-  <TypeSignature Language="C#" Value="public class FileSystemOperationContext" />
+  <TypeSignature Language="C#" Value="public sealed class FileSystemOperationContext" />
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
   </AssemblyInfo>
+  <ThreadingSafetyStatement>All public static members of this type are safe 
+  for multithreaded operations. No instance members are guaranteed to be 
+  thread safe.</ThreadingSafetyStatement>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
   </Base>
   <Interfaces />
   <Members>
-    <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public FileSystemOperationContext ();" />
-      <MemberType>Constructor</MemberType>
-      <Parameters />
-      <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
-    </Member>
     <Member MemberName="UserId">
       <MemberSignature Language="C#" Value="public long UserId { get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>System.Int64</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          User ID of the calling process.
+        </summary><value>
+          A <see cref="T:System.Int64" /> containing the User ID of the 
+          process requesting the operation.
+        </value><remarks>
+          <para>
+            This property returns <c>0</c> in the case of a writepage operation.
+          </para>
+          <para>
+            TODO: specify what a writepage operation is.
+          </para>
+        </remarks></Docs>
     </Member>
     <Member MemberName="GroupId">
       <MemberSignature Language="C#" Value="public long GroupId { get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>System.Int64</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          Group ID of the calling process.
+        </summary><value>
+          A <see cref="T:System.Int64" /> containing the Group ID of the 
+          process requesting the operation.
+        </value><remarks>
+          <para>
+            This property returns <c>0</c> in the case of a writepage operation.
+          </para>
+          <para>
+            TODO: specify what a writepage operation is.
+          </para>
+        </remarks></Docs>
     </Member>
     <Member MemberName="ProcessId">
       <MemberSignature Language="C#" Value="public int ProcessId { get; };" />
       <MemberType>Property</MemberType>
       <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
-      <Docs><summary>To be added.</summary><value>To be added.</value><remarks>To be added.</remarks></Docs>
+      <Docs><summary>
+          Process ID of the calling process.
+        </summary><value>
+          A <see cref="T:System.Int32" /> containing the Process ID of the 
+          process requesting the operation.
+        </value><remarks>
+          <para>
+            This property returns <c>0</c> in the case of a writepage operation.
+          </para>
+          <para>
+            TODO: specify what a writepage operation is.
+          </para>
+        </remarks></Docs>
     </Member>
   </Members>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>
+      File system operation contextual information
+    </summary>
+    <remarks>
+      <para>
+        The <see cref="T:Mono.Fuse.FileSystemOperationContext" /> type contains
+        contextual information for a file system operation.  This information 
+        can be obtained from within any overridden
+        <see cref="T:Mono.Fuse.FileSystem" /> method with the
+        <see cref="M:Mono.Fuse.FileSystem.GetOperationContext" /> method.
+      </para>
+    </remarks>
+    <altmember cref="M:Mono.Fuse.FileSystem.GetOperationContext" />
   </Docs>
 </Type>
