@@ -39,12 +39,12 @@
             </term></item>
           </list>
           <para>
-            The <see cref="P:Mono.Fuse.FileSystem.OpenAccess" /> property
+            The <see cref="P:Mono.Fuse.OpenedPathInfo.OpenAccess" /> property
             returns the first piece of information as a convenience property 
             so that no bitwise masking is required to determine how the file 
             should be opened.
           </para>
-        </remarks><altmember cref="P:Mono.Fuse.FileSystem.OpenAccess" /></Docs>
+        </remarks><altmember cref="P:Mono.Fuse.OpenedPathInfo.OpenAccess" /></Docs>
     </Member>
     <Member MemberName="OpenAccess">
       <MemberSignature Language="C#" Value="public Mono.Unix.Native.OpenFlags OpenAccess { get; };" />

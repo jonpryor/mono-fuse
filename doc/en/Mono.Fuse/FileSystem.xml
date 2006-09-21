@@ -56,7 +56,7 @@
         </summary><remarks>
           <para>
             This constructor is equivalent to calling the 
-            <see cref="C:Mono.Fuse.FileSystem()" /> constructor, calling
+            <see cref="C:Mono.Fuse.FileSystem" /> constructor, calling
             <see cref="M:Mono.Fuse.FileSystem.ParseFuseArguments" /> with
             <paramref name="args" />, and setting 
             <see cref="P:Mono.Fuse.FileSystem.MountPoint" /> to the last 

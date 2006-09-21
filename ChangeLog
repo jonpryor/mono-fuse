@@ -1,5 +1,10 @@
 2006-09-20  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* doc/en/Mono.Fuse/FileSystem.xml, doc/en/Mono.Fuse/OpenedPathInfo.xml:
+	  Minor doc updates.
+
+2006-09-20  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* doc/Makefile.am: Create mono-fuse-docs.* files, not mono-fuse.* files.
 	  This matches Gtk#, and allows for clarity if we ever have
 	  mono-fuse-docs.zip and mono-fuse-VERSION.tar.gz in the same directory.
