@@ -14,10 +14,7 @@ AC_PATH_PROG(MONO, mono)
 AC_PATH_PROG(MCS, gmcs)
 
 if test "x$MONO" = "x" ; then
-  AC_PATH_PROG(MINT, mint)
-  if test "x$MINT" = "x" ; then
-	AC_MSG_ERROR([Can't find "mono" or "mint" in your PATH])
-  fi
+	AC_MSG_ERROR([Can't find "mono" in your PATH])
 fi
 
 if test "x$MCS" = "x" ; then
@@ -36,7 +33,6 @@ FUSE_REQUIRED_VERSION=2.5.2
 GLIB_REQUIRED_VERSION=1.3.11
 MONO_REQUIRED_VERSION=1.1.13
 PKG_CHECK_MODULES(MONO,mono >= $MONO_REQUIRED_VERSION, has_mono=true, has_mono=false)
-PKG_CHECK_MODULES(MINT,mint >= $MONO_REQUIRED_VERSION, has_mint=true, has_mint=false)
 
 PKG_CHECK_MODULES(FUSE, fuse >= $FUSE_REQUIRED_VERSION)
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED_VERSION)
@@ -58,13 +54,6 @@ if test "x$has_mono" = "xtrue"; then
 		LIB_PREFIX=
 		LIB_SUFFIX=.dylib
 	else
-		LIB_PREFIX=.so
-		LIB_SUFFIX=
-	fi
-else
-	if test "x$has_mint" = "xtrue"; then
-		AC_PATH_PROG(RUNTIME, mint, no)
-		AC_PATH_PROG(CSC, gmcs, no)
 		LIB_PREFIX=.so
 		LIB_SUFFIX=
 	fi

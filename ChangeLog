@@ -1,4 +1,8 @@
-2006-09-20  Jonathan Pryor  <jonpryor@vt.edu>
+2006-09-21  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* configure.in: Remove checks for mint.  Mint is dead.
+
+2006-09-21  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* doc/en/Mono.Fuse/FileSystem.xml, doc/en/Mono.Fuse/OpenedPathInfo.xml:
 	  Minor doc updates.
