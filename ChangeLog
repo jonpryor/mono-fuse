@@ -1,3 +1,18 @@
+2006-10-12  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* doc/Makefile.am: Add `-pretty' so monodocer produces nicely indented XML.
+	* doc/en/Mono.Fuse/DirectoryEntry.xml, doc/en/Mono.Fuse/FileSystem.xml,
+	  doc/en/Mono.Fuse/FileSystemOperationContext.xml,
+	  doc/en/Mono.Fuse/OpenedPathInfo.xml: Flush documentation (largest change
+	  was due to reformatting of XML).  Also used svn version of monodocer to
+	  get proper Generics-formatted method declarations, so
+	  FileSystem.OnReadDirectory now lists a parameter of
+	  System.Collections.Generic.IEnumerable<Mono.Fuse.DirectoryEntry> instead
+	  of System.Collections.Generic.IEnumerable`1[[Mono.Fuse.DirectoryEntry,
+	  Mono.Fuse, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]].
+	* src/Mono.Fuse/create-native-map.exe: Commit latest version; fixes #ifndef
+	  name formatting so that SYMBOL in "#ifndef SYMBOL" doesn't contain `/'.
+
 2006-09-21  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* configure.in: Remove checks for mint.  Mint is dead.

@@ -3,7 +3,7 @@ ASSEMBLIES = 				\
 
 UPDATE_ASSEMBLIES = $(addprefix -assembly:../lib/mono-fuse/, $(ASSEMBLIES))
 
-UPDATER = $(MONODOCER) -path:en $(UPDATE_ASSEMBLIES)
+UPDATER = $(MONODOCER) -pretty -path:en $(UPDATE_ASSEMBLIES)
 
 if ENABLE_MONODOC
 SOURCESDIR=$(prefix)/lib/monodoc/sources

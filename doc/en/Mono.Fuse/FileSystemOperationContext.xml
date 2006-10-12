@@ -15,56 +15,74 @@
     <Member MemberName="UserId">
       <MemberSignature Language="C#" Value="public long UserId { get; };" />
       <MemberType>Property</MemberType>
-      <ReturnValue><ReturnType>System.Int64</ReturnType></ReturnValue>
-      <Docs><summary>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
           User ID of the calling process.
-        </summary><value>
+        </summary>
+        <value>
           A <see cref="T:System.Int64" /> containing the User ID of the 
           process requesting the operation.
-        </value><remarks>
+        </value>
+        <remarks>
           <para>
             This property returns <c>0</c> in the case of a writepage operation.
           </para>
           <para>
             TODO: specify what a writepage operation is.
           </para>
-        </remarks></Docs>
+        </remarks>
+      </Docs>
     </Member>
     <Member MemberName="GroupId">
       <MemberSignature Language="C#" Value="public long GroupId { get; };" />
       <MemberType>Property</MemberType>
-      <ReturnValue><ReturnType>System.Int64</ReturnType></ReturnValue>
-      <Docs><summary>
+      <ReturnValue>
+        <ReturnType>System.Int64</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
           Group ID of the calling process.
-        </summary><value>
+        </summary>
+        <value>
           A <see cref="T:System.Int64" /> containing the Group ID of the 
           process requesting the operation.
-        </value><remarks>
+        </value>
+        <remarks>
           <para>
             This property returns <c>0</c> in the case of a writepage operation.
           </para>
           <para>
             TODO: specify what a writepage operation is.
           </para>
-        </remarks></Docs>
+        </remarks>
+      </Docs>
     </Member>
     <Member MemberName="ProcessId">
       <MemberSignature Language="C#" Value="public int ProcessId { get; };" />
       <MemberType>Property</MemberType>
-      <ReturnValue><ReturnType>System.Int32</ReturnType></ReturnValue>
-      <Docs><summary>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
           Process ID of the calling process.
-        </summary><value>
+        </summary>
+        <value>
           A <see cref="T:System.Int32" /> containing the Process ID of the 
           process requesting the operation.
-        </value><remarks>
+        </value>
+        <remarks>
           <para>
             This property returns <c>0</c> in the case of a writepage operation.
           </para>
           <para>
             TODO: specify what a writepage operation is.
           </para>
-        </remarks></Docs>
+        </remarks>
+      </Docs>
     </Member>
   </Members>
   <Docs>
