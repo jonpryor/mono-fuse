@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
 <monodoc>
-  <source provider="ecma" basefile="mono-fuse" path="classlib-mono"/>
+  <source provider="ecma" basefile="mono-fuse-docs" path="classlib-mono"/>
 </monodoc>

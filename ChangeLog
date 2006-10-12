@@ -1,5 +1,10 @@
 2006-10-12  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* doc/mono-fuse-docs.source: Update @basefile to contain the actual
+	  basefile.  Allows installed monodoc documentation to work.
+
+2006-10-12  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* doc/Makefile.am: Add `-pretty' so monodocer produces nicely indented XML.
 	* doc/en/Mono.Fuse/DirectoryEntry.xml, doc/en/Mono.Fuse/FileSystem.xml,
 	  doc/en/Mono.Fuse/FileSystemOperationContext.xml,
