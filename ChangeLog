@@ -1,3 +1,10 @@
+2006-10-23  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/Mono.Fuse/Mono.Fuse/FileSystem.cs: Add [In,Out] to the
+	  FileSystmeOperationContext parameter in mfh_fuse_get_context().
+	  Otherwise, the data is never marshaled back into managed memory, so all
+	  fields are zero'd out (making the method useless).  Oops!
+
 2006-10-12  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* doc/mono-fuse-docs.source: Update @basefile to contain the actual

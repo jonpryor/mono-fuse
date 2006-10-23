@@ -310,7 +310,7 @@ namespace Mono.Fuse {
 		private static extern IntPtr mfh_fuse_new (int fd, Args args, IntPtr ops);
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_fuse_get_context (FileSystemOperationContext context);
+		private static extern int mfh_fuse_get_context ([In, Out] FileSystemOperationContext context);
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern int mfh_fuse_mount (
