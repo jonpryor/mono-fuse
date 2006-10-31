@@ -157,6 +157,7 @@ namespace Mono.Fuse.Samples {
 
 		protected override Errno OnGetPathExtendedAttribute (string path, string name, byte[] value, out int bytesWritten)
 		{
+			Trace.WriteLine ("(OnGetPathExtendedAttribute {0})", path);
 			bytesWritten = 0;
 			if (path != hello_path) {
 				return 0;
@@ -177,6 +178,7 @@ namespace Mono.Fuse.Samples {
 
 		protected override Errno OnSetPathExtendedAttribute (string path, string name, byte[] value, XattrFlags flags)
 		{
+			Trace.WriteLine ("(OnSetPathExtendedAttribute {0})", path);
 			if (path != hello_path) {
 				return Errno.ENOSPC;
 			}
@@ -188,6 +190,7 @@ namespace Mono.Fuse.Samples {
 
 		protected override Errno OnRemovePathExtendedAttribute (string path, string name)
 		{
+			Trace.WriteLine ("(OnRemovePathExtendedAttribute {0})", path);
 			if (path != hello_path)
 				return Errno.ENODATA;
 			lock (hello_attrs) {
@@ -200,6 +203,7 @@ namespace Mono.Fuse.Samples {
 
 		protected override Errno OnListPathExtendedAttributes (string path, out string[] names)
 		{
+			Trace.WriteLine ("(OnListPathExtendedAttributes {0})", path);
 			if (path != hello_path) {
 				names = new string[]{};
 				return 0;
@@ -264,61 +268,3 @@ namespace Mono.Fuse.Samples {
 	}
 }
 
-#if false
-int main(int argc, char *argv[])
-{
-    // return fuse_main(argc, argv, &hello_oper);
-    struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-    struct fuse *fuse;
-	char *mountpoint;
-	int multithreaded;
-    int foreground;
-    int res;
-	int fd;
-
-    res = fuse_parse_cmdline(&args, &mountpoint, &multithreaded, &foreground);
-    if (res == -1) {
-	  	fprintf (stderr, "hwfs2: unable to parse command line\n");
-		return 1;
-	}
-
-    fd = fuse_mount(mountpoint, &args);
-    if (fd == -1) {
-        fuse_opt_free_args(&args);
-	  	fprintf (stderr, "hwfs2: unable to mount %s\n", mountpoint);
-		free (mountpoint);
-		return 1;
-    }
-
-	fuse = fuse_new (fd, &args, &hello_oper, sizeof(*(&hello_oper)));
-    fuse_opt_free_args(&args);
-    if (fuse == NULL) {
-	  	fprintf (stderr, "hwfs2: Unable to create new fuse instance\n");
-	  	fuse_unmount (mountpoint);
-		free (mountpoint);
-		return 2;
-	}
-
-
-#if false
-    res = fuse_set_signal_handlers(fuse_get_session(fuse));
-    if (res == -1) {
-        fuse_destroy (fuse);
-        fuse_unmount (mountpoint);
-        free (mountpoint);
-        fprintf (stderr, "hwfs2: Unable to set signal handlers\n");
-        return 3;
-	}
-#endif
-
-    if (multithreaded)
-        res = fuse_loop_mt(fuse);
-    else
-        res = fuse_loop(fuse);
-
-    fuse_teardown(fuse, fd, mountpoint);
-
-    return 0;
-}
-
-#endif
