@@ -1,3 +1,9 @@
+2007-01-17  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/MonoFuseHelper/Makefile.am: Use $(LIBTOOL), not `libtool', as the
+	  libtool program may go by different names on different platforms (e.g.
+	  glibtool on OS X).
+
 2006-10-31  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* example/HelloFS/HelloFS.cs: Add extra Trace statements; remove unused code.

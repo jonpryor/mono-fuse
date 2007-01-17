@@ -19,7 +19,7 @@ buildlibdir = $(shell cd $(top_builddir)/lib && pwd)
 all: libMonoFuseHelper.la $(buildlibdir)/libMonoFuseHelper.so
 
 $(buildlibdir)/libMonoFuseHelper.so: $(MFH_SOURCE)
-	libtool --mode=install install -c libMonoFuseHelper.la $(buildlibdir)
+	$(LIBTOOL) --mode=install install -c libMonoFuseHelper.la $(buildlibdir)
 
 CLEANFILES = \
 	$(top_builddir)/lib/libMonoFuseHelper.so \
