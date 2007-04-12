@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libMonoFuseHelper.la
 
 INCLUDES = $(GLIB_CFLAGS) $(FUSE_CFLAGS) -I$(top_srcdir) -I$(top_builddir)/lib
-AM_CFLAGS = $(MFH_CFLAGS)
+AM_CFLAGS = $(MFH_CFLAGS) -DHAVE_STRUCT_FUSE_ARGS
 
 MFH_SOURCE = \
 	mfh.c \

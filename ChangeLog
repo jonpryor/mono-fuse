@@ -1,5 +1,11 @@
 2007-04-17  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* src/MonoFuseHelper/Makefile.am: Define HAVE_STRUCT_FUSE_ARGS so that
+	  map.c's Mono_Fuse_ToArgs() and Mono_Fuse_FromArgs() will be compiled.
+	  Otherwise, we get an unsatisfied link error when loading MonoFuseHelper.
+
+2007-04-17  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* src/Mono.Fuse/create-native-map.exe, src/Mono.Fuse/MapAttribute.cs: Update
 	  to latest versions (fixes buggy overflow checking in MonoFuseHelper).
 	* lib/Mono.Fuse/Makefile.am: FUSE_USE_VERSION should be in the .c file, not
