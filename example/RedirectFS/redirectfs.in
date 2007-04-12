@@ -3,6 +3,7 @@
 libdir="@TOP_BUILDDIR@/lib"
 builddir="@BUILDDIR@"
 
+DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH:+$DYLD_LIBRARY_PATH:}$libdir" \
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$libdir" \
 	mono --debug "$builddir/RedirectFS.exe" "$@"
 

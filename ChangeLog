@@ -1,5 +1,15 @@
 2007-04-17  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* example/HelloFS/hellofs.in, example/RedirectFS/redirectfs.in,
+	  example/RedirectFS/redirects-fh.in: Define DYLD_LIBRARY_PATH so that
+	  example programs work seamlessly on OS X as well as Linux.
+	* lib/mono-fuse/Mono.Fuse.dll.config: Added; Mono dllmap config file so that
+	  MonoFuseHelper is redirected to libMonoFuseHelper.dylib on Mac OS X.
+	* src/Mono.Fuse/Makefile.am: Install the Mono.Fuse.dll.mdb and
+	  Mono.Fuse.dll.config files.
+
+2007-04-17  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* src/MonoFuseHelper/Makefile.am: Define HAVE_STRUCT_FUSE_ARGS so that
 	  map.c's Mono_Fuse_ToArgs() and Mono_Fuse_FromArgs() will be compiled.
 	  Otherwise, we get an unsatisfied link error when loading MonoFuseHelper.

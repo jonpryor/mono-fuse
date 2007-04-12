@@ -30,7 +30,7 @@ $(map_files) : $(DLL)
 		$(DLL) $(map_p)
 
 assemblydir = $(MF_DIR)
-assembly_DATA = $(DLL)
+assembly_DATA = $(DLL) $(DLL).mdb $(DLL).config
 
 update-map-source:
 	cp `pkg-config --variable=Programs create-native-map` .
