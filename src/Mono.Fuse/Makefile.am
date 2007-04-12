@@ -21,7 +21,7 @@ $(DLL) : $(build_sources)
 
 $(map_files) : $(DLL)
 	mono $(srcdir)/create-native-map.exe  \
-		--public-macro:FUSE_USE_VERSION=25  \
+		--impl-macro:FUSE_USE_VERSION=25    \
 		--impl-header:"<fuse.h>"            \
 		--library=MonoFuseHelper            \
 		--rename-member:st_atime=st_atime_  \

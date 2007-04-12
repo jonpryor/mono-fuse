@@ -37,6 +37,7 @@ using System;
 		AttributeTargets.Struct)]
 internal class MapAttribute : Attribute {
 	private string nativeType;
+	private string suppressFlags;
 
 	public MapAttribute ()
 	{
@@ -49,6 +50,11 @@ internal class MapAttribute : Attribute {
 
 	public string NativeType {
 		get {return nativeType;}
+	}
+
+	public string SuppressFlags {
+		get {return suppressFlags;}
+		set {suppressFlags = value;}
 	}
 }
 

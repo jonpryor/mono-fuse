@@ -1,3 +1,12 @@
+2007-04-17  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* src/Mono.Fuse/create-native-map.exe, src/Mono.Fuse/MapAttribute.cs: Update
+	  to latest versions (fixes buggy overflow checking in MonoFuseHelper).
+	* lib/Mono.Fuse/Makefile.am: FUSE_USE_VERSION should be in the .c file, not
+	  the .h file.  Also fixes Mac OS X compilation, as FUSE_USE_VERSION needs
+	  to be defined *before* including <fuse.h>, but <fuse.h> is inserted before
+	  the include of lib/map.h -- bad order.
+
 2007-01-17  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* src/MonoFuseHelper/Makefile.am: Use $(LIBTOOL), not `libtool', as the
