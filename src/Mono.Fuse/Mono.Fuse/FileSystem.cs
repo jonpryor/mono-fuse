@@ -4,7 +4,7 @@
 // Authors:
 //   Jonathan Pryor (jonpryor@vt.edu)
 //
-// (C) 2006 Jonathan Pryor
+// (C) 2006-2007 Jonathan Pryor
 //
 
 //
@@ -830,7 +830,8 @@ namespace Mono.Fuse {
 		private static void CopyStat (IntPtr source, out Stat dest)
 		{
 #if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
-			NativeConvert.Copy (source, out dest);
+			if (!NativeConvert.TryCopy (source, out dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy `struct stat' into Mono.Unix.Native.Stat.");
 #else
 			Mono_Fuse_ToStat (source, out dest);
 			dest.st_mode = NativeConvert.ToFilePermissions ((uint) dest.st_mode);
@@ -840,7 +841,8 @@ namespace Mono.Fuse {
 		private static void CopyStat (ref Stat source, IntPtr dest)
 		{
 #if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
-			NativeConvert.Copy (ref source, dest);
+			if (!NativeConvert.TryCopy (ref source, dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy Mono.Unix.Native.Stat into `struct stat'.");
 #else
 			source.st_mode = (FilePermissions) 
 				NativeConvert.FromFilePermissions (source.st_mode);
@@ -851,7 +853,8 @@ namespace Mono.Fuse {
 		private static void CopyStatvfs (IntPtr source, out Statvfs dest)
 		{
 #if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
-			NativeConvert.Copy (source, out dest);
+			if (!NativeConvert.TryCopy (source, out dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy `struct statvfs' into Mono.Unix.Native.Statvfs.");
 #else
 			Mono_Fuse_ToStatvfs (source, out dest);
 			dest.f_flag = NativeConvert.ToMountFlags ((ulong) dest.f_flag);
@@ -861,7 +864,8 @@ namespace Mono.Fuse {
 		private static void CopyStatvfs (ref Statvfs source, IntPtr dest)
 		{
 #if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
-			NativeConvert.Copy (ref source, dest);
+			if (!NativeConvert.TryCopy (ref source, dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy Mono.Unix.Native.Statvfs into `struct statvfs'.");
 #else
 			source.f_flag = (MountFlags) NativeConvert.FromMountFlags (source.f_flag);
 			Mono_Fuse_FromStatvfs (ref source, dest);
@@ -871,7 +875,8 @@ namespace Mono.Fuse {
 		private static void CopyUtimbuf (IntPtr source, out Utimbuf dest)
 		{
 #if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
-			NativeConvert.Copy (source, out dest);
+			if (!NativeConvert.TryCopy (source, out dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy `struct utimbuf' into Mono.Unix.Native.Utimbuf.");
 #else
 			Mono_Fuse_ToUtimbuf (source, out dest);
 #endif
@@ -880,7 +885,8 @@ namespace Mono.Fuse {
 		private static void CopyUtimbuf (ref Utimbuf source, IntPtr dest)
 		{
 #if HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
-			NativeConvert.Copy (ref source, dest);
+			if (!NativeConvert.TryCopy (ref source, dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy Mono.Unix.Native.Utimbuf into `struct utimbuf'.");
 #else
 			Mono_Fuse_FromUtimbuf (ref source, dest);
 #endif

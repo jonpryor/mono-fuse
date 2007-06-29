@@ -75,7 +75,35 @@ AC_ARG_ENABLE(nunit,
 
 AM_CONDITIONAL(ENABLE_NUNIT, test x$enable_nunit = xyes)
 
-AC_CHECK_LIB(MonoPosixHelper, Mono_Posix_ToStat, HAVE_MONO_UNIX_NATIVE_COPY_FUNCS=1)
+AC_MSG_CHECKING([if Mono.Posix.dll has Mono.Unix.Native.NativeConvert.TryCopy methods])
+cat > try-copy.cs << EOF
+using System;
+using Mono.Unix.Native;
+class Test {
+	public static void Main ()
+	{
+		Stat stat;
+		NativeConvert.TryCopy (IntPtr.Zero, out stat);
+		NativeConvert.TryCopy (ref stat, IntPtr.Zero);
+
+		Statvfs statvfs;
+		NativeConvert.TryCopy (IntPtr.Zero, out statvfs);
+		NativeConvert.TryCopy (ref statvfs, IntPtr.Zero);
+
+		Utimbuf utimbuf;
+		NativeConvert.TryCopy (IntPtr.Zero, out utimbuf);
+		NativeConvert.TryCopy (ref utimbuf, IntPtr.Zero);
+	}
+}
+EOF
+gmcs try-copy.cs -r:Mono.Posix.dll
+if test $? ; then
+	AC_MSG_RESULT([yes])
+	HAVE_MONO_UNIX_NATIVE_COPY_FUNCS=1
+else
+	AC_MSG_RESULT([no])
+fi
+rm try-copy.*
 
 CSC_FLAGS=
 MFH_CFLAGS=
