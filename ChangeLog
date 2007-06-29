@@ -1,5 +1,10 @@
 2007-06-29  Jonathan Pryor  <jonpryor@vt.edu>
 
+	* configure.in: My sh-fu needs work.  Properly check the return value of
+	  `gmcs' so I can determine whether it compiled successfully.
+
+2007-06-29  Jonathan Pryor  <jonpryor@vt.edu>
+
 	* configure.in: Use a better check for the
 	  Mono.Unix.Native.NativeConvert.TryCopy() methods, as relying on
 	  libMonoPosixHelper.so is inadequate.

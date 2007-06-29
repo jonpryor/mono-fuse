@@ -96,8 +96,7 @@ class Test {
 	}
 }
 EOF
-gmcs try-copy.cs -r:Mono.Posix.dll
-if test $? ; then
+if gmcs try-copy.cs -r:Mono.Posix.dll 2>/dev/null >/dev/null ; then
 	AC_MSG_RESULT([yes])
 	HAVE_MONO_UNIX_NATIVE_COPY_FUNCS=1
 else
