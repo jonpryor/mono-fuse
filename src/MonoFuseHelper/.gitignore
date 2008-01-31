@@ -1,0 +1,7 @@
+.deps
+.libs
+libMonoFuseHelper.la
+map.lo
+map.o
+mfh.lo
+mfh.o

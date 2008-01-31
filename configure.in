@@ -1,4 +1,4 @@
-AC_INIT([mono-fuse], 0.1, [jonpryor@vt.edu])
+AC_INIT([mono-fuse], 0.4.3, [jonpryor@vt.edu])
 AC_CANONICAL_SYSTEM
 AC_PREREQ(2.53)
 AM_INIT_AUTOMAKE([1.9 tar-ustar])
@@ -8,7 +8,7 @@ AC_PROG_CC
 AC_LIBTOOL_DLOPEN
 AM_PROG_LIBTOOL
 
-ASSEMBLY_VERSION=0.1.0.0
+ASSEMBLY_VERSION=0.4.3.0
 
 AC_PATH_PROG(MONO, mono)
 AC_PATH_PROG(MCS, gmcs)
@@ -135,17 +135,19 @@ AM_CONDITIONAL(ENABLE_MONODOC, test "x$enable_monodoc" = "xyes")
 
 AC_OUTPUT([
 Makefile
+mono-fuse.spec
 doc/Makefile
+example/Makefile
+example/HelloFS/Makefile
+example/RedirectFS/Makefile
 lib/Makefile
 lib/mono-fuse/Makefile
 lib/pkgconfig/Makefile
 lib/pkgconfig/mono-fuse.pc
 src/Makefile
+src/Mono.Fuse/AssemblyInfo.cs
 src/Mono.Fuse/Makefile
 src/MonoFuseHelper/Makefile
-example/Makefile
-example/HelloFS/Makefile
-example/RedirectFS/Makefile
 ])
 
 echo ""

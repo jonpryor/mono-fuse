@@ -6,6 +6,8 @@ FILES = \
 
 build_sources = $(addprefix $(srcdir)/, $(FILES))
 
+EXTRA_DIST = $(build_sources) $(srcdir)/hellofs.in
+
 all: $(ASSEMBLY) hellofs
 
 REFS = -r:Mono.Fuse.dll -r:Mono.Posix.dll
@@ -33,5 +35,5 @@ hellofs: hellofs.in
 		sed 's,@BUILDDIR@,$(abs_builddir),' > $@ && \
 	chmod +x hellofs
 
-CLEANFILES = hellofs Mono.Fuse.dll HelloFS.exe
+CLEANFILES = hellofs Mono.Fuse.dll HelloFS.exe Mono.Fuse.dll.mdb HelloFS.exe.mdb
 

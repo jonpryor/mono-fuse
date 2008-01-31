@@ -13,6 +13,12 @@ REDIRECT_FS_FH_FILES = \
 
 redirect_fs_fh_sources = $(addprefix $(srcdir)/, $(REDIRECT_FS_FH_FILES))
 
+EXTRA_DIST = \
+	$(redirect_fs_sources) \
+	$(srcdir)/redirectfs.in \
+	$(redirect_fs_fh_sources) \
+	$(srcdir)/redirectfs-fh.in
+
 all: $(REDIRECT_FS) redirectfs $(REDIRECT_FS_FH) redirectfs-fh
 
 REFS = -r:Mono.Fuse.dll -r:Mono.Posix.dll
@@ -44,5 +50,5 @@ redirectfs-fh : redirectfs-fh.in
 		sed 's,@BUILDDIR@,$(abs_builddir),' > $@ && \
 	chmod +x redirectfs-fh
 
-CLEANFILES = redirectfs redirectfs-fh Mono.Fuse.dll RedirectFS.exe
+CLEANFILES = redirectfs redirectfs-fh Mono.Fuse.dll RedirectFS.exe RedirectFS-FH.exe
 

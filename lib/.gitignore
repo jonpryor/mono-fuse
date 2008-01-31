@@ -1,0 +1,7 @@
+libMonoFuseHelper.a
+libMonoFuseHelper.la
+libMonoFuseHelper.so
+map.c
+map.cs
+map.h
+map.xml

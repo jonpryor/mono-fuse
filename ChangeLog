@@ -1,3 +1,19 @@
+2008-01-30  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* configure.in: Bump version numbers; genreate mono-fuse.spec.
+	* Makefile.am: Add `rpm', `prepare-release' targets.
+	* example/HelloFS/Makefile.am, example/RedirectFS/Makefile.am,
+	  lib/mono-fuse/Makefile.am, src/Mono.Fuse/Makefile.am,
+	  src/MonoFuseHelper/Makefile.am: Enhance so `make distcheck works`.
+	* .gitignore, doc/.gitignore, example/HelloFS/.gitignore,
+	  example/RedirectFS/.gitignore, lib/.gitignore, lib/mono-fuse/.gitignore,
+	  lib/pkgconfig/.gitignore, src/Mono.Fuse/.gitignore,
+	  src/MonoFuseHelper/.gitignore: Added; ignore generated files.
+	* INSTALL: Added; install information.
+	* src/Mono.Fuse/AssemblyInfo.cs.in: Added; contains assembly version info.
+	* mono-fuse.spec.in: Added; RPM .spec file; thanks to 
+	  Jay Miller <jnmiller@cryptofreak.org> for the original version.
+
 2007-06-29  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* configure.in: My sh-fu needs work.  Properly check the return value of

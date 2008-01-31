@@ -1,10 +1,13 @@
 
 FILES = \
 	MapAttribute.cs \
+	AssemblyInfo.cs \
 	Mono.Fuse/FileSystem.cs \
 	Mono.Fuse/FileNameMarshaler.cs
 
 build_sources = $(addprefix $(srcdir)/, $(FILES))
+
+EXTRA_DIST = $(build_sources) create-native-map.exe
 
 DLL = $(top_builddir)/lib/mono-fuse/Mono.Fuse.dll
 

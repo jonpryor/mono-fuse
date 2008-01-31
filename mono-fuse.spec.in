@@ -1,0 +1,44 @@
+
+Summary: Mono.Fuse is a C# binding for FUSE.
+Name: mono-fuse
+Version: @VERSION@
+Release: 1
+License: MIT
+Group: Development/Languages/Mono
+Requires: mono-core >= 1.2.0
+Requires: monodoc-core >= 1.2.0
+Requires: fuse-devel >= 2.5.2
+Source: http://www.jprl.com/Projects/mono-fuse/mono-fuse-@VERSION@.tar.gz
+URL: http://www.jprl.com/Blog/archive/development/mono.fuse/
+Packager: Jonathan Pryor <jonpryor@vt.edu>
+BuildRoot: %{_tmppath}/%{name}-root
+
+%description
+Mono.Fuse is a binding for the FUSE library,
+permitting user-space file systems to be
+written in C#.
+
+%prep
+%setup
+
+%build
+./configure --libdir=%_libdir --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+make
+
+%install
+rm -rf %{buildroot}
+%makeinstall
+
+%clean
+make clean
+rm -rf %{buildroot}
+
+%files
+/usr/lib/mono-fuse/*
+/usr/lib/monodoc/sources/*
+%_libdir
+
+%changelog
+* Tue Jan 16 2008 Jay Miller <jnmiller@cryptofreak.org>
+- Initial creation.
+
