@@ -1,3 +1,8 @@
+2008-04-01  Jonathan Pryor  <jonpryor@vt.edu>
+
+	* configure.in: Error if `mono' can't be found (not continue), and continue
+	  if `monodoc' can't be found (not error).  Simplify.
+
 2008-01-30  Jonathan Pryor  <jonpryor@vt.edu>
 
 	* configure.in: Bump version numbers; genreate mono-fuse.spec.
