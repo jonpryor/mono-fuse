@@ -28,7 +28,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#define FUSE_USE_VERSION 25
+#define FUSE_USE_VERSION 26
 
 #include <map.h>
 #include <fuse.h>
@@ -310,6 +310,12 @@ mfh_fsyncdir (const char *path, int onlyUserData, struct fuse_file_info *info)
 	return r;
 }
 
+void
+mfh_destroy (void* user_data)
+{
+	_mfh_get_private_data ()->destroy (user_data);
+}
+
 static int
 mfh_access (const char *path, int flags)
 {
@@ -342,6 +348,26 @@ mfh_fgetattr (const char *path, struct stat *stat, struct fuse_file_info *info)
 	int r;
 
 	r = _mfh_get_private_data ()->fgetattr (path, stat, info);
+
+	return r;
+}
+
+static int
+mfh_lock (const char *path, struct fuse_file_info *info, int cmd, struct flock *lock)
+{
+	int r;
+
+	r = _mfh_get_private_data ()->lock (path, info, cmd, lock);
+
+	return r;
+}
+
+static int
+mfh_bmap (const char *path, size_t blocksize, uint64_t *idx)
+{
+	int r;
+
+	r = _mfh_get_private_data ()->bmap (path, blocksize, idx);
 
 	return r;
 }
@@ -380,31 +406,13 @@ _to_fuse_operations (struct Mono_Fuse_Operations *from, struct fuse_operations *
 	if (from->releasedir)   to->releasedir  = mfh_releasedir;
 	if (from->fsyncdir)     to->fsyncdir    = mfh_fsyncdir;
 	if (from->init)         to->init        = from->init;
+	if (from->init)         to->destroy     = mfh_destroy;
 	if (from->access)       to->access      = mfh_access;
 	if (from->create)       to->create      = mfh_create;
 	if (from->ftruncate)    to->ftruncate   = mfh_ftruncate;
 	if (from->fgetattr)     to->fgetattr    = mfh_fgetattr;
-}
-
-void*
-mfh_fuse_new (int fd, struct Mono_Fuse_Args* args, void* ops)
-{
-	struct Mono_Fuse_Operations *mops;
-	struct fuse_operations _ops;
-	struct fuse_args _args;
-	struct fuse *fuse;
-
-	mops = (struct Mono_Fuse_Operations*) ops;
-
-	_to_fuse_operations (mops, &_ops);
-
-	if (Mono_Fuse_FromArgs (args, &_args) != 0)
-		return NULL;
-
-	fuse = fuse_new (fd, &_args, &_ops, sizeof(_ops));
-
-	Mono_Fuse_ToArgs (&_args, args);
-	return fuse;
+	if (from->lock)         to->lock        = mfh_lock;
+	if (from->bmap)         to->bmap        = mfh_bmap;
 }
 
 void
@@ -418,28 +426,16 @@ mfh_show_fuse_help (const char *appname)
 	char *mountpoint;
 	int mt, foreground;
 	struct fuse_args args;
-	struct fuse_operations ops;
-	struct fuse *f;
-	int r;
 
-	memset (&ops, 0, sizeof(ops));
 	memset (&args, 0, sizeof(args));
 
 	args.argc = 2;
 	args.argv = help;
 	args.allocated = 0;
 
-	r = fuse_parse_cmdline (&args, &mountpoint, &mt, &foreground);
-	r = fuse_mount ("mountpoint", &args);
-	f = fuse_new (-1, &args, &ops, sizeof(ops));
+	fuse_parse_cmdline (&args, &mountpoint, &mt, &foreground);
 
 	fuse_opt_free_args (&args);
-}
-
-void
-mfh_fuse_destroy (void* fusep)
-{
-	fuse_destroy (fusep);
 }
 
 int
@@ -460,24 +456,19 @@ mfh_fuse_get_context (struct Mono_Fuse_FileSystemOperationContext* context)
 }
 
 int
-mfh_fuse_mount (const char* path, struct Mono_Fuse_Args* args)
+mfh_fuse_main (int argc, void *argv, void* ops)
 {
-	struct fuse_args _args;
+	struct Mono_Fuse_Operations *mops;
+	struct fuse_operations fops;
 	int r;
-	if (Mono_Fuse_FromArgs (args, &_args) != 0) {
-		errno = EINVAL;
-		return -1;
-	}
-	r = fuse_mount (path, &_args);
-	Mono_Fuse_ToArgs (&_args, args);
-	return r;
-}
 
-int
-mfh_fuse_unmount (const char* path)
-{
-	fuse_unmount (path);
-	return 0;
+	mops = (struct Mono_Fuse_Operations*) ops;
+
+	_to_fuse_operations (mops, &fops);
+
+	r = fuse_main (argc, argv, &fops, NULL);
+
+	return r;
 }
 
 void

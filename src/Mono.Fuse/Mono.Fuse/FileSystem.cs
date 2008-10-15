@@ -43,7 +43,7 @@ namespace Mono.Fuse {
 
 	[StructLayout (LayoutKind.Sequential)]
 	public sealed class FileSystemOperationContext {
-		private IntPtr fuse;
+		internal IntPtr fuse;
 		[Map ("uid_t")] private long userId;
 		[Map ("gid_t")] private long groupId;
 		[Map ("pid_t")] private int  processId;
@@ -192,7 +192,7 @@ namespace Mono.Fuse {
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, 
 			[In, MarshalAs (UnmanagedType.LPArray, ArraySubType=UnmanagedType.U1, SizeParamIndex=2)]
-			byte[] buf, ulong size, long offset, IntPtr info, out int bytesRead);
+			byte[] buf, ulong size, long offset, IntPtr info, out int bytesWritten);
 	delegate int GetFileSystemStatusCb (
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, IntPtr buf);
@@ -242,7 +242,8 @@ namespace Mono.Fuse {
 	delegate int SynchronizeDirectoryCb (
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, bool onlyUserData, IntPtr info);
-	delegate IntPtr InitCb ();
+	delegate IntPtr InitCb (IntPtr conn);
+	delegate void DestroyCb (IntPtr conn);
 	delegate int AccessPathCb (
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, int mode);
@@ -255,6 +256,12 @@ namespace Mono.Fuse {
 	delegate int GetHandleStatusCb (
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, IntPtr buf, IntPtr info);
+	delegate int LockHandleCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, IntPtr info, int cmd, IntPtr flockp);
+	delegate int MapBlockIndexCb (
+			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
+			string path, ulong blocksize, out ulong index);
 
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
@@ -288,10 +295,13 @@ namespace Mono.Fuse {
 		public ReleaseDirectoryCb             releasedir;
 		public SynchronizeDirectoryCb         fsyncdir;
 		public InitCb                         init;
+		public DestroyCb                      destroy;
 		public AccessPathCb                   access;
 		public CreateHandleCb                 create;
 		public TruncateHandleCb               ftruncate;
 		public GetHandleStatusCb              fgetattr;
+		public LockHandleCb                   @lock;
+		public MapBlockIndexCb                bmap;
 	}
 
 	[Map ("struct fuse_args")]
@@ -302,34 +312,55 @@ namespace Mono.Fuse {
 		public int allocated;
 	}
 
+	public class ConnectionInformation {
+		private IntPtr conn;
+
+		// fuse_conn_info member offsets
+		const int 
+			ProtMajor = 0,
+			ProtMinor = 1,
+			AsyncRead = 2,
+			MaxWrite  = 3,
+			MaxRead   = 4;
+
+		internal ConnectionInformation (IntPtr conn)
+		{
+			this.conn = conn;
+		}
+
+		public uint ProtocolMajorVersion {
+			get {return (uint) Marshal.ReadInt32 (conn, ProtMajor);}
+		}
+
+		public uint ProtocolMinorVersion {
+			get {return (uint) Marshal.ReadInt32 (conn, ProtMinor);}
+		}
+
+		public bool AsynchronousReadSupported {
+			get {return Marshal.ReadInt32 (conn, AsyncRead) != 0;}
+			set {Marshal.WriteInt32 (conn, AsyncRead, value ? 1 : 0);}
+		}
+
+		public uint MaxWriteBufferSize {
+			get {return (uint) Marshal.ReadInt32 (conn, MaxWrite);}
+			set {Marshal.WriteInt32 (conn, MaxWrite, (int) value);}
+		}
+
+		public uint MaxReadahead {
+			get {return (uint) Marshal.ReadInt32 (conn, MaxRead);}
+			set {Marshal.WriteInt32 (conn, MaxRead, (int) value);}
+		}
+	}
+
 	public abstract class FileSystem : IDisposable {
 
 		const string LIB = "MonoFuseHelper";
 
 		[DllImport (LIB, SetLastError=true)]
-		private static extern IntPtr mfh_fuse_new (int fd, Args args, IntPtr ops);
+		private static extern int mfh_fuse_main (int argc, IntPtr argv, IntPtr op);
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern int mfh_fuse_get_context ([In, Out] FileSystemOperationContext context);
-
-		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_fuse_mount (
-				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
-				string path, Args args);
-
-		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_fuse_unmount (
-				[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
-				string path);
-
-		[DllImport (LIB, SetLastError=true)]
-		private static extern void mfh_fuse_destroy (IntPtr fusep);
-
-		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_fuse_loop (IntPtr fusep);
-
-		[DllImport (LIB, SetLastError=true)]
-		private static extern int mfh_fuse_loop_mt (IntPtr fusep);
 
 		[DllImport (LIB, SetLastError=true)]
 		private static extern void mfh_fuse_exit (IntPtr fusep);
@@ -343,8 +374,6 @@ namespace Mono.Fuse {
 		private static extern void mfh_show_fuse_help (string appname);
 
 		private string mountPoint;
-		private int fd = -1;
-		private IntPtr fusep = IntPtr.Zero;
 		Dictionary <string, string> opts = new Dictionary <string, string> ();
 		private Operations ops;
 		private IntPtr opsp;
@@ -564,45 +593,9 @@ namespace Mono.Fuse {
 			mfh_show_fuse_help (appname);
 		}
 
-		private void Create ()
-		{
-			if (mountPoint == null)
-				throw new InvalidOperationException ("MountPoint must not be null");
-			string[] _args = GetFuseArgs ();
-			Args args = new Args ();
-			bool unmount = false;
-			try {
-				args.argc = _args.Length;
-				args.argv = AllocArgv (_args);
-				args.allocated = 1;
-				this.ops = GetOperations ();
-				fd = mfh_fuse_mount (mountPoint, args);
-				if (fd == -1) {
-					throw new NotSupportedException (
-							string.Format ("Unable to mount directory `{0}'; " +
-								"try running `/sbin/modprobe fuse' as the root user", mountPoint));
-				}
-				unmount = true;
-				this.opsp = UnixMarshal.AllocHeap (Marshal.SizeOf (ops));
-				Marshal.StructureToPtr (ops, opsp, false);
-				fusep = mfh_fuse_new (fd, args, opsp);
-				if (fusep == IntPtr.Zero) {
-					this.ops = null;
-					throw new NotSupportedException ("Unable to create FUSE object: " + 
-							"is the fuse kernel module installed?");
-				}
-				unmount = false;
-			}
-			finally {
-				FreeArgv (args.argc, args.argv);
-				if (unmount)
-					mfh_fuse_unmount (mountPoint);
-			}
-		}
-
 		private string[] GetFuseArgs ()
 		{
-			string[] args = new string [opts.Keys.Count + 1];
+			string[] args = new string [opts.Keys.Count + 3 + (!MultiThreaded ? 1 : 0)];
 			int i = 0;
 			args [i++] = Environment.GetCommandLineArgs () [0];
 			foreach (string key in opts.Keys) {
@@ -617,9 +610,10 @@ namespace Mono.Fuse {
 				}
 				args [i++] = a;
 			}
-			Console.WriteLine ("FUSE Arguments");
-			foreach (string s in args)
-				Console.WriteLine ("\t" + s);
+			args [i++] = "-f";    // force foreground operation
+			if (!MultiThreaded)
+				args [i++] = "-s";  // disable multi-threaded operation
+			args [i++] = mountPoint;
 			return args;
 		}
 
@@ -651,79 +645,48 @@ namespace Mono.Fuse {
 
 		static FileSystem ()
 		{
-			operations = new Dictionary <string, CopyOperation> ();
-
-			operations.Add ("OnGetPathStatus", 
-					delegate (Operations to, FileSystem from) {to.getattr = from._OnGetPathStatus;});
-			operations.Add ("OnReadSymbolicLink", 
-					delegate (Operations to, FileSystem from) {to.readlink = from._OnReadSymbolicLink;});
-			operations.Add ("OnCreateSpecialFile", 
-					delegate (Operations to, FileSystem from) {to.mknod = from._OnCreateSpecialFile;});
-			operations.Add ("OnCreateDirectory", 
-					delegate (Operations to, FileSystem from) {to.mkdir = from._OnCreateDirectory;});
-			operations.Add ("OnRemoveFile", 
-					delegate (Operations to, FileSystem from) {to.unlink = from._OnRemoveFile;});
-			operations.Add ("OnRemoveDirectory", 
-					delegate (Operations to, FileSystem from) {to.rmdir = from._OnRemoveDirectory;});
-			operations.Add ("OnCreateSymbolicLink", 
-					delegate (Operations to, FileSystem from) {to.symlink = from._OnCreateSymbolicLink;});
-			operations.Add ("OnRenamePath", 
-					delegate (Operations to, FileSystem from) {to.rename = from._OnRenamePath;});
-			operations.Add ("OnCreateHardLink", 
-					delegate (Operations to, FileSystem from) {to.link = from._OnCreateHardLink;});
-			operations.Add ("OnChangePathPermissions", 
-					delegate (Operations to, FileSystem from) {to.chmod = from._OnChangePathPermissions;});
-			operations.Add ("OnChangePathOwner", 
-					delegate (Operations to, FileSystem from) {to.chown = from._OnChangePathOwner;});
-			operations.Add ("OnTruncateFile", 
-					delegate (Operations to, FileSystem from) {to.truncate = from._OnTruncateFile;});
-			operations.Add ("OnChangePathTimes", 
-					delegate (Operations to, FileSystem from) {to.utime = from._OnChangePathTimes;});
-			operations.Add ("OnOpenHandle", 
-					delegate (Operations to, FileSystem from) {to.open = from._OnOpenHandle;});
-			operations.Add ("OnReadHandle", 
-					delegate (Operations to, FileSystem from) {to.read = from._OnReadHandle;});
-			operations.Add ("OnWriteHandle", 
-					delegate (Operations to, FileSystem from) {to.write = from._OnWriteHandle;});
-			operations.Add ("OnGetFileSystemStatus", 
-					delegate (Operations to, FileSystem from) {to.statfs = from._OnGetFileSystemStatus;});
-			operations.Add ("OnFlushHandle", 
-					delegate (Operations to, FileSystem from) {to.flush = from._OnFlushHandle;});
-			operations.Add ("OnReleaseHandle", 
-					delegate (Operations to, FileSystem from) {to.release = from._OnReleaseHandle;});
-			operations.Add ("OnSynchronizeHandle", 
-					delegate (Operations to, FileSystem from) {to.fsync = from._OnSynchronizeHandle;});
-			operations.Add ("OnSetPathExtendedAttribute", 
-					delegate (Operations to, FileSystem from) {to.setxattr = from._OnSetPathExtendedAttribute;});
-			operations.Add ("OnGetPathExtendedAttribute", 
-					delegate (Operations to, FileSystem from) {to.getxattr = from._OnGetPathExtendedAttribute;});
-			operations.Add ("OnListPathExtendedAttributes", 
-					delegate (Operations to, FileSystem from) {to.listxattr = from._OnListPathExtendedAttributes;});
-			operations.Add ("OnRemovePathExtendedAttribute", 
-					delegate (Operations to, FileSystem from) {to.removexattr = from._OnRemovePathExtendedAttribute;});
-			operations.Add ("OnOpenDirectory", 
-					delegate (Operations to, FileSystem from) {to.opendir = from._OnOpenDirectory;});
-			operations.Add ("OnReadDirectory", 
-					delegate (Operations to, FileSystem from) {to.readdir = from._OnReadDirectory;});
-			operations.Add ("OnReleaseDirectory", 
-					delegate (Operations to, FileSystem from) {to.releasedir = from._OnReleaseDirectory;});
-			operations.Add ("OnSynchronizeDirectory", 
-					delegate (Operations to, FileSystem from) {to.fsyncdir = from._OnSynchronizeDirectory;});
-			operations.Add ("OnAccessPath", 
-					delegate (Operations to, FileSystem from) {to.access = from._OnAccessPath;});
-			operations.Add ("OnCreateHandle", 
-					delegate (Operations to, FileSystem from) {to.create = from._OnCreateHandle;});
-			operations.Add ("OnTruncateHandle", 
-					delegate (Operations to, FileSystem from) {to.ftruncate = from._OnTruncateHandle;});
-			operations.Add ("OnGetHandleStatus", 
-					delegate (Operations to, FileSystem from) {to.fgetattr = from._OnGetHandleStatus;});
+			operations = new Dictionary <string, CopyOperation> {
+				{"OnGetPathStatus",               (to, from) => {to.getattr     = from._OnGetPathStatus;} },
+				{"OnReadSymbolicLink",            (to, from) => {to.readlink    = from._OnReadSymbolicLink;} },
+				{"OnCreateSpecialFile",           (to, from) => {to.mknod       = from._OnCreateSpecialFile;} },
+				{"OnCreateDirectory",             (to, from) => {to.mkdir       = from._OnCreateDirectory;} },
+				{"OnRemoveFile",                  (to, from) => {to.unlink      = from._OnRemoveFile;} },
+				{"OnRemoveDirectory",             (to, from) => {to.rmdir       = from._OnRemoveDirectory;} },
+				{"OnCreateSymbolicLink",          (to, from) => {to.symlink     = from._OnCreateSymbolicLink;} },
+				{"OnRenamePath",                  (to, from) => {to.rename      = from._OnRenamePath;} },
+				{"OnCreateHardLink",              (to, from) => {to.link        = from._OnCreateHardLink;} },
+				{"OnChangePathPermissions",       (to, from) => {to.chmod       = from._OnChangePathPermissions;} },
+				{"OnChangePathOwner",             (to, from) => {to.chown       = from._OnChangePathOwner;} },
+				{"OnTruncateFile",                (to, from) => {to.truncate    = from._OnTruncateFile;} },
+				{"OnChangePathTimes",             (to, from) => {to.utime       = from._OnChangePathTimes;} },
+				{"OnOpenHandle",                  (to, from) => {to.open        = from._OnOpenHandle;} },
+				{"OnReadHandle",                  (to, from) => {to.read        = from._OnReadHandle;} },
+				{"OnWriteHandle",                 (to, from) => {to.write       = from._OnWriteHandle;} },
+				{"OnGetFileSystemStatus",         (to, from) => {to.statfs      = from._OnGetFileSystemStatus;} },
+				{"OnFlushHandle",                 (to, from) => {to.flush       = from._OnFlushHandle;} },
+				{"OnReleaseHandle",               (to, from) => {to.release     = from._OnReleaseHandle;} },
+				{"OnSynchronizeHandle",           (to, from) => {to.fsync       = from._OnSynchronizeHandle;} },
+				{"OnSetPathExtendedAttribute",    (to, from) => {to.setxattr    = from._OnSetPathExtendedAttribute;} },
+				{"OnGetPathExtendedAttribute",    (to, from) => {to.getxattr    = from._OnGetPathExtendedAttribute;} },
+				{"OnListPathExtendedAttributes",  (to, from) => {to.listxattr   = from._OnListPathExtendedAttributes;} },
+				{"OnRemovePathExtendedAttribute", (to, from) => {to.removexattr = from._OnRemovePathExtendedAttribute;} },
+				{"OnOpenDirectory",               (to, from) => {to.opendir     = from._OnOpenDirectory;} },
+				{"OnReadDirectory",               (to, from) => {to.readdir     = from._OnReadDirectory;} },
+				{"OnReleaseDirectory",            (to, from) => {to.releasedir  = from._OnReleaseDirectory;} },
+				{"OnSynchronizeDirectory",        (to, from) => {to.fsyncdir    = from._OnSynchronizeDirectory;} },
+				{"OnAccessPath",                  (to, from) => {to.access      = from._OnAccessPath;} },
+				{"OnCreateHandle",                (to, from) => {to.create      = from._OnCreateHandle;} },
+				{"OnTruncateHandle",              (to, from) => {to.ftruncate   = from._OnTruncateHandle;} },
+				{"OnGetHandleStatus",             (to, from) => {to.fgetattr    = from._OnGetHandleStatus;} },
+			};
 		}
 
  		private Operations GetOperations ()
  		{
  			Operations ops = new Operations ();
 
-			ops.init = OnInit;
+			ops.init = _OnInit;
+			ops.destroy = _OnDestroy;
 			foreach (string method in operations.Keys) {
 				MethodInfo m = this.GetType().GetMethod (method, 
 						BindingFlags.NonPublic | BindingFlags.Instance);
@@ -758,18 +721,6 @@ namespace Mono.Fuse {
 		{
 			if (disposing)
 				ops = null;
-
-			if (opsp != IntPtr.Zero) {
-				Marshal.DestroyStructure (opsp, typeof(Operations));
-				UnixMarshal.FreeHeap (opsp);
-				opsp = IntPtr.Zero;
-			}
-
-			if (fusep != IntPtr.Zero) {
-				mfh_fuse_unmount (MountPoint);
-				mfh_fuse_destroy (fusep);
-				fusep = IntPtr.Zero;
-			}
 		}
 
 		~FileSystem ()
@@ -779,18 +730,29 @@ namespace Mono.Fuse {
 
 		public void Start ()
 		{
-			Create ();
-			if (MultiThreaded) {
-				mfh_fuse_loop_mt (fusep);
+			if (mountPoint == null)
+				throw new InvalidOperationException ("MountPoint must not be null");
+			string[] args = GetFuseArgs ();
+			IntPtr argv = AllocArgv (args);
+			try {
+				this.ops    = GetOperations ();
+				this.opsp   = UnixMarshal.AllocHeap (Marshal.SizeOf (ops));
+				Marshal.StructureToPtr (ops, opsp, false);
+
+				int r = mfh_fuse_main (args.Length, argv, opsp);
+				if (r != 0)
+					throw new NotSupportedException (
+							string.Format ("Unable to mount directory `{0}'; " +
+								"try running `/sbin/modprobe fuse' as the root user", mountPoint));
 			}
-			else {
-				mfh_fuse_loop (fusep);
+			finally {
+				FreeArgv (args.Length, argv);
 			}
 		}
 
 		public void Stop ()
 		{
-			mfh_fuse_exit (fusep);
+			mfh_fuse_exit (GetOperationContext ().fuse);
 		}
 
 		protected static FileSystemOperationContext GetOperationContext ()
@@ -1653,9 +1615,30 @@ namespace Mono.Fuse {
 			return Errno.ENOSYS;
 		}
 
-		private IntPtr OnInit ()
+		private IntPtr _OnInit (IntPtr conn)
 		{
-			return opsp;
+			try {
+				OnInit (new ConnectionInformation (conn));
+				return opsp;
+			}
+			catch (Exception e) {
+				return IntPtr.Zero;
+			}
+		}
+
+		protected virtual void OnInit (ConnectionInformation connection)
+		{
+		}
+
+		private void _OnDestroy (IntPtr opsp)
+		{
+			Debug.Assert (opsp == this.opsp);
+
+			Marshal.DestroyStructure (opsp, typeof(Operations));
+			UnixMarshal.FreeHeap (opsp);
+			this.opsp = IntPtr.Zero;
+
+			Dispose (true);
 		}
 
 		private int _OnAccessPath (string path, int mode)
