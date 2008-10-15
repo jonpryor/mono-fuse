@@ -406,7 +406,7 @@ _to_fuse_operations (struct Mono_Fuse_Operations *from, struct fuse_operations *
 	if (from->releasedir)   to->releasedir  = mfh_releasedir;
 	if (from->fsyncdir)     to->fsyncdir    = mfh_fsyncdir;
 	if (from->init)         to->init        = from->init;
-	if (from->init)         to->destroy     = mfh_destroy;
+	if (from->destroy)      to->destroy     = mfh_destroy;
 	if (from->access)       to->access      = mfh_access;
 	if (from->create)       to->create      = mfh_create;
 	if (from->ftruncate)    to->ftruncate   = mfh_ftruncate;
