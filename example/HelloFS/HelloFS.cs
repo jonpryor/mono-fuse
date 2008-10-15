@@ -58,7 +58,7 @@ namespace Mono.Fuse.Samples {
 			hello_attrs ["foo"] = Encoding.UTF8.GetBytes ("bar");
 		}
 
-		protected override Errno OnGetPathStatus (string path, ref Stat stbuf)
+		protected override Errno OnGetPathStatus (string path, out Stat stbuf)
 		{
 			Trace.WriteLine ("(OnGetPathStatus {0})", path);
 
