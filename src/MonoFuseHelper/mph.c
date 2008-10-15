@@ -42,7 +42,7 @@
 
 #include <map.h>
 
-#ifndef HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+#ifndef HAVE_MONO_UNIX_NATIVE_COPY_FLOCK
 
 #include <fcntl.h>
 
@@ -76,7 +76,7 @@ Mono_Fuse_ToFlock (void *_from, struct Mono_Unix_Native_Flock *to)
 	return 0;
 }
 
-#endif /* ndef HAVE_MONO_UNIX_NATIVE_FLOCK_COPY */
+#endif /* ndef HAVE_MONO_UNIX_NATIVE_COPY_FLOCK */
 
 #ifndef HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
 
