@@ -386,6 +386,7 @@ namespace Mono.Fuse.Samples {
 
 		private static void ShowHelp ()
 		{
+			Console.Error.WriteLine ("usage: redirectfs [options] mountpoint:");
 			FileSystem.ShowFuseHelp ("redirectfs-fh");
 			Console.Error.WriteLine ("redirectfs-fh options");
 			Console.Error.WriteLine ("    basedir                Directory to mirror");

@@ -225,6 +225,7 @@ namespace Mono.Fuse.Samples {
 						break;
 					case "-h":
 					case "--help":
+						Console.Error.WriteLine ("usage: hellofs [options] mountpoint");
 						FileSystem.ShowFuseHelp ("hellofs");
 						Console.Error.WriteLine ("hellofs options:");
 						Console.Error.WriteLine ("    --data.im-in-memory    Add data.im file");

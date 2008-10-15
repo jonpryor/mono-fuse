@@ -405,7 +405,7 @@ _to_fuse_operations (struct Mono_Fuse_Operations *from, struct fuse_operations *
 	if (from->readdir)      to->readdir     = mfh_readdir;
 	if (from->releasedir)   to->releasedir  = mfh_releasedir;
 	if (from->fsyncdir)     to->fsyncdir    = mfh_fsyncdir;
-	if (from->init)         to->init        = from->init;
+	if (from->init)         to->init        = (void* (*)(struct fuse_conn_info*)) from->init;
 	if (from->destroy)      to->destroy     = mfh_destroy;
 	if (from->access)       to->access      = mfh_access;
 	if (from->create)       to->create      = mfh_create;
@@ -419,13 +419,14 @@ void
 mfh_show_fuse_help (const char *appname)
 {
 	char *help[3];
-	help [0] = (char*) appname;
-	help [1] = "-h";
-	help [2] = NULL;
-
 	char *mountpoint;
 	int mt, foreground;
 	struct fuse_args args;
+	struct fuse_operations ops = {};
+
+	help [0] = (char*) appname;
+	help [1] = "-ho";
+	help [2] = NULL;
 
 	memset (&args, 0, sizeof(args));
 
@@ -434,6 +435,8 @@ mfh_show_fuse_help (const char *appname)
 	args.allocated = 0;
 
 	fuse_parse_cmdline (&args, &mountpoint, &mt, &foreground);
+	fuse_mount ("mountpoint", &args);
+	fuse_new (NULL, &args, &ops, sizeof(ops), NULL);
 
 	fuse_opt_free_args (&args);
 }
