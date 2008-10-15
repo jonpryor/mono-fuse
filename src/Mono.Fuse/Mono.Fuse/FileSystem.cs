@@ -792,7 +792,7 @@ namespace Mono.Fuse {
 		private static extern int Mono_Fuse_ToUtimbuf (IntPtr source, out Utimbuf dest);
 #endif
 
-#if !HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+#if !HAVE_MONO_UNIX_NATIVE_COPY_FLOCK
 		[DllImport (LIB, SetLastError=true)]
 		private static extern int Mono_Fuse_FromFlock (ref Flock source, IntPtr dest);
 
@@ -802,7 +802,7 @@ namespace Mono.Fuse {
 
 		private static void CopyFlock (IntPtr source, out Flock dest)
 		{
-#if HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+#if HAVE_MONO_UNIX_NATIVE_COPY_FLOCK
 			if (!NativeConvert.TryCopy (source, out dest))
 				throw new ArgumentOutOfRangeException ("Unable to copy `struct flock' into Mono.Unix.Native.Flock.");
 #else
@@ -814,7 +814,7 @@ namespace Mono.Fuse {
 
 		private static void CopyFlock (ref Flock source, IntPtr dest)
 		{
-#if HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+#if HAVE_MONO_UNIX_NATIVE_COPY_FLOCK
 			if (!NativeConvert.TryCopy (ref source, dest))
 				throw new ArgumentOutOfRangeException ("Unable to copy Mono.Unix.Native.Flock into `struct flock'.");
 #else

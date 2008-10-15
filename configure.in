@@ -99,12 +99,38 @@ else
 fi
 rm try-copy.*
 
+AC_MSG_CHECKING([if Mono.Posix.dll has Mono.Unix.Native.NativeConvert.TryCopy(Flock) support])
+cat > try-copy.cs << EOF
+using System;
+using Mono.Unix.Native;
+class Test {
+	public static void Main ()
+	{
+		Flock f;
+		NativeConvert.TryCopy (IntPtr.Zero, out f);
+		NativeConvert.TryCopy (ref f, IntPtr.Zero);
+	}
+}
+EOF
+if gmcs try-copy.cs -r:Mono.Posix.dll 2>/dev/null >/dev/null ; then
+	AC_MSG_RESULT([yes])
+	HAVE_MONO_UNIX_NATIVE_COPY_FLOCK=1
+else
+	AC_MSG_RESULT([no])
+fi
+rm try-copy.*
+
 CSC_FLAGS=
 MFH_CFLAGS=
 
 if test "x$HAVE_MONO_UNIX_NATIVE_COPY_FUNCS" = "x1" ; then
 	CSC_FLAGS="$CSC_FLAGS -d:HAVE_MONO_UNIX_NATIVE_COPY_FUNCS"
 	MFH_CFLAGS="-DHAVE_MONO_UNIX_NATIVE_COPY_FUNCS"
+fi
+
+if test "x$HAVE_MONO_UNIX_NATIVE_COPY_FLOCK" = "x1" ; then
+	CSC_FLAGS="$CSC_FLAGS -d:HAVE_MONO_UNIX_NATIVE_COPY_FLOCK"
+	MFH_CFLAGS="$MFH_CFLAGS -DHAVE_MONO_UNIX_NATIVE_COPY_FLOCK"
 fi
 
 AC_SUBST(LIB_SUFFIX)
