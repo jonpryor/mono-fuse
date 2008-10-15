@@ -306,6 +306,14 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
+		protected override Errno OnLockHandle (string file, OpenedPathInfo info, FcntlCommand cmd, ref Flock @lock)
+		{
+			Flock _lock = @lock;
+			Errno e = ProcessFile (basedir+file, info.OpenFlags, fd => Syscall.fcntl (fd, cmd, ref _lock));
+			@lock = _lock;
+			return e;
+		}
+
 		private bool ParseArguments (string[] args)
 		{
 			for (int i = 0; i < args.Length; ++i) {
@@ -333,8 +341,9 @@ namespace Mono.Fuse.Samples {
 
 		private static void ShowHelp ()
 		{
-			Console.Error.WriteLine ("usage: redirectfs [options] mountpoint:");
+			Console.Error.WriteLine ("usage: redirectfs [options] mountpoint basedir:");
 			FileSystem.ShowFuseHelp ("redirectfs");
+			Console.Error.WriteLine ();
 			Console.Error.WriteLine ("redirectfs options:");
 			Console.Error.WriteLine ("    basedir                Directory to mirror");
 		}

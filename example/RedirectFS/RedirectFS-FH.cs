@@ -359,6 +359,17 @@ namespace Mono.Fuse.Samples {
 			return 0;
 		}
 
+		protected override Errno OnLockHandle (string file, OpenedPathInfo info, FcntlCommand cmd, ref Flock @lock)
+		{
+			Console.Error.WriteLine ("# OnLockHandle {0}; cmd={1}", file, cmd);
+			Console.WriteLine ("l_type={0}, l_whence={1}, l_start={2}, l_len={3}, l_pid={4}",
+				@lock.l_type, @lock.l_whence, @lock.l_start, @lock.l_len, @lock.l_pid);
+			int r = Syscall.fcntl ((int) info.Handle, cmd, ref @lock);
+			if (r == -1)
+				return Stdlib.GetLastError ();
+			return 0;
+		}
+
 		private bool ParseArguments (string[] args)
 		{
 			for (int i = 0; i < args.Length; ++i) {
@@ -388,6 +399,7 @@ namespace Mono.Fuse.Samples {
 		{
 			Console.Error.WriteLine ("usage: redirectfs [options] mountpoint:");
 			FileSystem.ShowFuseHelp ("redirectfs-fh");
+			Console.Error.WriteLine ();
 			Console.Error.WriteLine ("redirectfs-fh options");
 			Console.Error.WriteLine ("    basedir                Directory to mirror");
 		}

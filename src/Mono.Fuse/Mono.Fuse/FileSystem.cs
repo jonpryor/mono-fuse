@@ -259,9 +259,10 @@ namespace Mono.Fuse {
 	delegate int LockHandleCb (
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
 			string path, IntPtr info, int cmd, IntPtr flockp);
-	delegate int MapBlockIndexCb (
+	// TODO: utimens
+	delegate int MapPathLogicalToPhysicalIndexCb (
 			[MarshalAs (UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(FileNameMarshaler))]
-			string path, ulong blocksize, out ulong index);
+			string path, ulong logical, out ulong physical);
 
 	[Map]
 	[StructLayout (LayoutKind.Sequential)]
@@ -301,7 +302,7 @@ namespace Mono.Fuse {
 		public TruncateHandleCb               ftruncate;
 		public GetHandleStatusCb              fgetattr;
 		public LockHandleCb                   @lock;
-		public MapBlockIndexCb                bmap;
+		public MapPathLogicalToPhysicalIndexCb  bmap;
 	}
 
 	[Map ("struct fuse_args")]
@@ -678,6 +679,8 @@ namespace Mono.Fuse {
 				{"OnCreateHandle",                (to, from) => {to.create      = from._OnCreateHandle;} },
 				{"OnTruncateHandle",              (to, from) => {to.ftruncate   = from._OnTruncateHandle;} },
 				{"OnGetHandleStatus",             (to, from) => {to.fgetattr    = from._OnGetHandleStatus;} },
+				{"OnLockHandle",                  (to, from) => {to.@lock       = from._OnLockHandle;} },
+				{"OnMapPathLogicalToPhysicalIndex",	(to, from) => {to.bmap      = from._OnMapPathLogicalToPhysicalIndex;} },
 			};
 		}
 
@@ -788,6 +791,39 @@ namespace Mono.Fuse {
 		[DllImport (LIB, SetLastError=true)]
 		private static extern int Mono_Fuse_ToUtimbuf (IntPtr source, out Utimbuf dest);
 #endif
+
+#if !HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_FromFlock (ref Flock source, IntPtr dest);
+
+		[DllImport (LIB, SetLastError=true)]
+		private static extern int Mono_Fuse_ToFlock (IntPtr source, out Flock dest);
+#endif
+
+		private static void CopyFlock (IntPtr source, out Flock dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+			if (!NativeConvert.TryCopy (source, out dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy `struct flock' into Mono.Unix.Native.Flock.");
+#else
+			Mono_Fuse_ToFlock (source, out dest);
+			dest.l_type   = NativeConvert.ToLockType ((short) dest.l_type);
+			dest.l_whence = NativeConvert.ToSeekFlags ((short) dest.l_whence);
+#endif
+		}
+
+		private static void CopyFlock (ref Flock source, IntPtr dest)
+		{
+#if HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+			if (!NativeConvert.TryCopy (ref source, dest))
+				throw new ArgumentOutOfRangeException ("Unable to copy Mono.Unix.Native.Flock into `struct flock'.");
+#else
+			Flock c     = source;
+			c.l_type    = (LockType) NativeConvert.FromLockType (c.l_type);
+			c.l_whence  = (SeekFlags) NativeConvert.FromSeekFlags (c.l_whence);
+			Mono_Fuse_FromFlock (ref source, dest);
+#endif
+		}
 
 		private static void CopyStat (IntPtr source, out Stat dest)
 		{
@@ -1729,6 +1765,53 @@ namespace Mono.Fuse {
 		protected virtual Errno OnGetHandleStatus (string file, OpenedPathInfo info, out Stat buf)
 		{
 			buf = new Stat ();
+			return Errno.ENOSYS;
+		}
+
+		private int _OnLockHandle (string file, IntPtr fi, int cmd, IntPtr lockp)
+		{
+			Errno errno;
+			try {
+				OpenedPathInfo info = new OpenedPathInfo ();
+				CopyOpenedPathInfo (fi, info);
+				FcntlCommand _cmd = NativeConvert.ToFcntlCommand (cmd);
+				Flock @lock;
+				CopyFlock (lockp, out @lock);
+				errno = OnLockHandle (file, info, _cmd, ref @lock);
+				if (errno == 0) {
+					CopyFlock (ref @lock, lockp);
+					CopyOpenedPathInfo (info, fi);
+				}
+			}
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
+				errno = Errno.EIO;
+			}
+			return ConvertErrno (errno);
+		}
+
+		protected virtual Errno OnLockHandle (string file, OpenedPathInfo info, FcntlCommand cmd, ref Flock @lock)
+		{
+			return Errno.ENOSYS;
+		}
+
+		private int _OnMapPathLogicalToPhysicalIndex (string path, ulong logical, out ulong physical)
+		{
+			Errno errno;
+			try {
+				errno = OnMapPathLogicalToPhysicalIndex (path, logical, out physical);
+			}
+			catch (Exception e) {
+				Trace.WriteLine (e.ToString());
+				physical = ulong.MaxValue;
+				errno = Errno.EIO;
+			}
+			return ConvertErrno (errno);
+		}
+
+		protected virtual Errno OnMapPathLogicalToPhysicalIndex (string path, ulong logical, out ulong physical)
+		{
+			physical = ulong.MaxValue;
 			return Errno.ENOSYS;
 		}
 	}

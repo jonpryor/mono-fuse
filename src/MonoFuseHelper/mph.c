@@ -6,6 +6,7 @@
  *   Jonathan Pryor  (jonpryor@vt.edu)
  *
  * Copyright (C) 2006 Jonathan Pryor
+ * Copyright (C) 2008 Novell, Inc.
  */
 
 /*
@@ -29,8 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
-
 #include <config.h>
 
 #include <sys/stat.h>
@@ -39,7 +38,47 @@
 #include <string.h>
 #include <utime.h>
 
+#include <glib.h>
+
 #include <map.h>
+
+#ifndef HAVE_MONO_UNIX_NATIVE_FLOCK_COPY
+
+#include <fcntl.h>
+
+int
+Mono_Fuse_FromFlock (struct Mono_Unix_Native_Flock *from, void *_to)
+{
+	struct flock *to = _to;
+	memset (to, 0, sizeof(*to));
+
+	to->l_type    = from->l_type;
+	to->l_whence  = from->l_whence;
+	to->l_start   = from->l_start;
+	to->l_len     = from->l_len;
+	to->l_pid     = from->l_pid;
+
+	return 0;
+}
+
+int
+Mono_Fuse_ToFlock (void *_from, struct Mono_Unix_Native_Flock *to)
+{
+	struct flock *from = _from;
+	memset (to, 0, sizeof(*to));
+
+	to->l_type    = from->l_type;
+	to->l_whence  = from->l_whence;
+	to->l_start   = from->l_start;
+	to->l_len     = from->l_len;
+	to->l_pid     = from->l_pid;
+
+	return 0;
+}
+
+#endif /* ndef HAVE_MONO_UNIX_NATIVE_FLOCK_COPY */
+
+#ifndef HAVE_MONO_UNIX_NATIVE_COPY_FUNCS
 
 int
 Mono_Fuse_FromStat (struct Mono_Unix_Native_Stat *from, void *_to)
