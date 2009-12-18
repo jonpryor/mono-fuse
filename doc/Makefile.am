@@ -19,7 +19,7 @@ monodoc_DATA=$(TARGETS)
 assemble: mono-fuse-docs.zip mono-fuse-docs.tree
 
 mono-fuse-docs.zip mono-fuse-docs.tree: $(srcdir)/en/*/*.xml $(srcdir)/en/*.xml
-	$(MDASSEMBLER) --ecma $(srcdir)/en -o mono-fuse-docs
+	$(MDOC) assemble -o mono-fuse-docs $(srcdir)/en
 
 update: $(UPDATE_ASSEMBLIES)
 	$(UPDATER) $^
