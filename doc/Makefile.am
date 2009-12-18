@@ -1,11 +1,11 @@
 ASSEMBLIES = 				\
 	Mono.Fuse.dll
 
-UPDATE_ASSEMBLIES = $(addprefix -assembly:../lib/mono-fuse/, $(ASSEMBLIES))
+UPDATE_ASSEMBLIES = $(addprefix ../lib/mono-fuse/, $(ASSEMBLIES))
 
-UPDATER = $(MONODOCER) -pretty -path:en $(UPDATE_ASSEMBLIES)
+UPDATER = $(MDOC) update -o en
 
-if ENABLE_MONODOC
+if ENABLE_DOCS
 SOURCESDIR=$(prefix)/lib/monodoc/sources
 TARGETS=mono-fuse-docs.zip mono-fuse-docs.tree mono-fuse-docs.source
 else
@@ -21,11 +21,11 @@ assemble: mono-fuse-docs.zip mono-fuse-docs.tree
 mono-fuse-docs.zip mono-fuse-docs.tree: $(srcdir)/en/*/*.xml $(srcdir)/en/*.xml
 	$(MDASSEMBLER) --ecma $(srcdir)/en -o mono-fuse-docs
 
-update: $(addprefix ../lib/mono-fuse/, $(ASSEMBLIES))
-	$(UPDATER)
+update: $(UPDATE_ASSEMBLIES)
+	$(UPDATER) $^
 
-update-delete: $(addprefix ../lib/mono-fuse/, $(ASSEMBLIES))
-	$(UPDATER) --delete
+update-delete: $(UPDATE_ASSEMBLIES)
+	$(UPDATER) --delete $^
 
 CLEANFILES = mono-fuse-docs.zip mono-fuse-docs.tree
 

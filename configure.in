@@ -142,17 +142,15 @@ AC_SUBST(MFH_CFLAGS)
 MF_DIR='$(prefix)/lib/mono-fuse'
 AC_SUBST(MF_DIR)
 
-AC_PATH_PROG(MDASSEMBLER, mdassembler, no)
-AC_PATH_PROG(MONODOCER, monodocer, no)
-if test "x$MONODOCER" = "xno" -o "x$MDASSEMBLER" = "xno"; then
-  enable_monodoc=no
+AC_PATH_PROG(MDOC, mdoc, no)
+if test "x$MDOC" = "xno" ; then
+  enable_docs=no
 else
-  enable_monodoc=yes
+  enable_docs=yes
 fi
-AC_SUBST(MDASSEMBLER)
-AC_SUBST(MONODOCER)
+AC_SUBST(MDOC)
 
-AM_CONDITIONAL(ENABLE_MONODOC, test "x$enable_monodoc" = "xyes")
+AM_CONDITIONAL(ENABLE_DOCS, test "x$enable_docs" = "xyes")
 
 AC_OUTPUT([
 Makefile
