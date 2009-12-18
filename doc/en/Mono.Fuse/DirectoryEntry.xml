@@ -3,6 +3,7 @@
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <AssemblyVersion>0.4.3.0</AssemblyVersion>
   </AssemblyInfo>
   <ThreadingSafetyStatement>All public static members of this type are safe 
   for multithreaded operations. No instance members are guaranteed to be 
@@ -11,6 +12,19 @@
     <BaseTypeName>System.Object</BaseTypeName>
   </Base>
   <Interfaces />
+  <Docs>
+    <summary>
+      Provides information about a directory entry.
+    </summary>
+    <remarks>
+      <para>
+        <see cref="T:Mono.Fuse.DirectoryEntry" /> contains information about
+        a directory entry returned by overriders of the
+        <see cref="M:Mono.Fuse.FileSystem.OnReadDirectory" /> method.
+      </para>
+    </remarks>
+    <altmember cref="M:Mono.Fuse.FileSystem.OnReadDirectory" />
+  </Docs>
   <Members>
     <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="public DirectoryEntry (string name);" />
@@ -28,6 +42,11 @@
           <see cref="T:Mono.Fuse.DirectoryEntry" /> class for the specified 
           path.
         </summary>
+        <remarks>
+          This constructor initializes the 
+          <see cref="P:Mono.Fuse.DirectoryEntry.Name" /> property of the new
+          instance using <paramref name="name" />.
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="name" /> is <see langword="null" />.
         </exception>
@@ -35,12 +54,29 @@
           <paramref name="name" /> contains an invalid path character,
           such as <c>/</c>.
         </exception>
+      </Docs>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="public string Name { get; }" />
+      <MemberType>Property</MemberType>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Get the directory entry name.</summary>
+        <value>
+          A <see cref="T:System.String" /> containing the directory entry
+          name.
+        </value>
         <remarks>
-          This constructor initializes the 
-          <see cref="P:Mono.Fuse.DirectoryEntry.Name" /> property of the new
-          instance using <paramref name="name" />.
         </remarks>
       </Docs>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
     </Member>
     <Member MemberName="Stat">
       <MemberSignature Language="C#" Value="public Mono.Unix.Native.Stat Stat;" />
@@ -70,35 +106,9 @@
           </para>
         </remarks>
       </Docs>
-    </Member>
-    <Member MemberName="Name">
-      <MemberSignature Language="C#" Value="public string Name { get; };" />
-      <MemberType>Property</MemberType>
-      <ReturnValue>
-        <ReturnType>System.String</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>Get the directory entry name.</summary>
-        <value>
-          A <see cref="T:System.String" /> containing the directory entry
-          name.
-        </value>
-        <remarks>
-        </remarks>
-      </Docs>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
     </Member>
   </Members>
-  <Docs>
-    <summary>
-      Provides information about a directory entry.
-    </summary>
-    <remarks>
-      <para>
-        <see cref="T:Mono.Fuse.DirectoryEntry" /> contains information about
-        a directory entry returned by overriders of the
-        <see cref="M:Mono.Fuse.FileSystem.OnReadDirectory" /> method.
-      </para>
-    </remarks>
-    <altmember cref="M:Mono.Fuse.FileSystem.OnReadDirectory" />
-  </Docs>
 </Type>

@@ -1,9 +1,18 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="Mono.Fuse" Version="0.0.0.0">
+    <Assembly Name="Mono.Fuse" Version="0.4.3.0">
       <Attributes>
         <Attribute>
-          <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=True)</AttributeName>
+          <AttributeName>System.Reflection.AssemblyDescription("C# bindings for FUSE")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyProduct("Mono.Fuse")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyTitle("Mono.Fuse.dll")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>
         </Attribute>
       </Attributes>
     </Assembly>
@@ -15,10 +24,11 @@
   <Copyright>(C) 2006 Jonathan Pryor</Copyright>
   <Types>
     <Namespace Name="Mono.Fuse">
-      <Type Name="FileSystemOperationContext" />
-      <Type Name="OpenedPathInfo" />
-      <Type Name="FileSystem" />
-      <Type Name="DirectoryEntry" />
+      <Type Name="ConnectionInformation" Kind="Class" />
+      <Type Name="DirectoryEntry" Kind="Class" />
+      <Type Name="FileSystem" Kind="Class" />
+      <Type Name="FileSystemOperationContext" Kind="Class" />
+      <Type Name="OpenedPathInfo" Kind="Class" />
     </Namespace>
   </Types>
   <Title>Mono.Fuse</Title>
