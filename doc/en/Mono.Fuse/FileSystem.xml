@@ -98,7 +98,7 @@ class SimpleFS : FileSystem {
     }
   }
 
-  protected override Errno OnGetPathStatus (string path, ref Stat stbuf)
+  protected override Errno OnGetPathStatus (string path, out Stat stbuf)
   {
     stbuf = new Stat ();
     if (path == "/") {
