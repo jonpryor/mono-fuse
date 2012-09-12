@@ -1,0 +1,106 @@
+<Type Name="FileSystemCapabilities" FullName="Mono.Fuse.FileSystemCapabilities">
+  <TypeSignature Language="C#" Value="public enum FileSystemCapabilities" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed FileSystemCapabilities extends System.Enum" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Fuse</AssemblyName>
+    <AssemblyVersion>0.4.3.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Attributes>
+    <Attribute>
+      <AttributeName>System.Flags</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="AsyncRead">
+      <MemberSignature Language="C#" Value="AsyncRead" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Mono.Fuse.FileSystemCapabilities AsyncRead = int32(1)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="AtomicOTrunc">
+      <MemberSignature Language="C#" Value="AtomicOTrunc" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Mono.Fuse.FileSystemCapabilities AtomicOTrunc = int32(8)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="BigWrites">
+      <MemberSignature Language="C#" Value="BigWrites" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Mono.Fuse.FileSystemCapabilities BigWrites = int32(32)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="ExportSupport">
+      <MemberSignature Language="C#" Value="ExportSupport" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Mono.Fuse.FileSystemCapabilities ExportSupport = int32(16)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="NoMask">
+      <MemberSignature Language="C#" Value="NoMask" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Mono.Fuse.FileSystemCapabilities NoMask = int32(64)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="PosixLocks">
+      <MemberSignature Language="C#" Value="PosixLocks" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal valuetype Mono.Fuse.FileSystemCapabilities PosixLocks = int32(2)" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

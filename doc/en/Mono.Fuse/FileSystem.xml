@@ -1,5 +1,6 @@
 <Type Name="FileSystem" FullName="Mono.Fuse.FileSystem">
   <TypeSignature Language="C#" Value="public abstract class FileSystem : IDisposable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi abstract FileSystem extends System.Object implements class System.IDisposable" />
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -140,7 +141,11 @@ foo</code>
   <Members>
     <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="protected FileSystem ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>
@@ -150,13 +155,14 @@ foo</code>
         <remarks>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="protected FileSystem (string mountPoint);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string mountPoint) cil managed" />
       <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <Parameters>
         <Parameter Name="mountPoint" Type="System.String" />
       </Parameters>
@@ -178,13 +184,14 @@ foo</code>
           </para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="protected FileSystem (string[] args);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig specialname rtspecialname instance void .ctor(string[] args) cil managed" />
       <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <Parameters>
         <Parameter Name="args" Type="System.String[]" />
       </Parameters>
@@ -208,13 +215,14 @@ foo</code>
           </para>
         </remarks>
       </Docs>
+    </Member>
+    <Member MemberName="AllowAccessToOthers">
+      <MemberSignature Language="C#" Value="public bool AllowAccessToOthers { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool AllowAccessToOthers" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="AllowAccessToOthers">
-      <MemberSignature Language="C#" Value="public bool AllowAccessToOthers { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -243,13 +251,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="AllowAccessToRoot">
+      <MemberSignature Language="C#" Value="public bool AllowAccessToRoot { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool AllowAccessToRoot" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="AllowAccessToRoot">
-      <MemberSignature Language="C#" Value="public bool AllowAccessToRoot { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -277,13 +286,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="AllowMountOverNonEmptyDirectory">
+      <MemberSignature Language="C#" Value="public bool AllowMountOverNonEmptyDirectory { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool AllowMountOverNonEmptyDirectory" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="AllowMountOverNonEmptyDirectory">
-      <MemberSignature Language="C#" Value="public bool AllowMountOverNonEmptyDirectory { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -316,13 +326,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="AttributeTimeout">
+      <MemberSignature Language="C#" Value="public double AttributeTimeout { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance float64 AttributeTimeout" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="AttributeTimeout">
-      <MemberSignature Language="C#" Value="public double AttributeTimeout { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Double</ReturnType>
       </ReturnValue>
@@ -346,13 +357,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="DefaultGroupId">
+      <MemberSignature Language="C#" Value="public long DefaultGroupId { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 DefaultGroupId" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="DefaultGroupId">
-      <MemberSignature Language="C#" Value="public long DefaultGroupId { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
@@ -387,13 +399,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="DefaultUmask">
+      <MemberSignature Language="C#" Value="public Mono.Unix.Native.FilePermissions DefaultUmask { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Mono.Unix.Native.FilePermissions DefaultUmask" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="DefaultUmask">
-      <MemberSignature Language="C#" Value="public Mono.Unix.Native.FilePermissions DefaultUmask { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.FilePermissions</ReturnType>
       </ReturnValue>
@@ -428,13 +441,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="DefaultUserId">
+      <MemberSignature Language="C#" Value="public long DefaultUserId { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 DefaultUserId" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="DefaultUserId">
-      <MemberSignature Language="C#" Value="public long DefaultUserId { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
@@ -469,13 +483,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="DeletedPathTimeout">
+      <MemberSignature Language="C#" Value="public double DeletedPathTimeout { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance float64 DeletedPathTimeout" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="DeletedPathTimeout">
-      <MemberSignature Language="C#" Value="public double DeletedPathTimeout { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Double</ReturnType>
       </ReturnValue>
@@ -500,13 +515,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="Dispose">
       <MemberSignature Language="C#" Value="public void Dispose ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Dispose() cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
@@ -526,13 +542,14 @@ foo</code>
           </para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="Dispose">
       <MemberSignature Language="C#" Value="protected virtual void Dispose (bool disposing);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void Dispose(bool disposing) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
@@ -565,13 +582,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
+    </Member>
+    <Member MemberName="EnableDirectIO">
+      <MemberSignature Language="C#" Value="public bool EnableDirectIO { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool EnableDirectIO" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="EnableDirectIO">
-      <MemberSignature Language="C#" Value="public bool EnableDirectIO { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -598,13 +616,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="EnableFuseDebugOutput">
+      <MemberSignature Language="C#" Value="public bool EnableFuseDebugOutput { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool EnableFuseDebugOutput" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="EnableFuseDebugOutput">
-      <MemberSignature Language="C#" Value="public bool EnableFuseDebugOutput { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -630,13 +649,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="EnableKernelCache">
+      <MemberSignature Language="C#" Value="public bool EnableKernelCache { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool EnableKernelCache" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="EnableKernelCache">
-      <MemberSignature Language="C#" Value="public bool EnableKernelCache { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -663,13 +683,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="EnableKernelPermissionChecking">
+      <MemberSignature Language="C#" Value="public bool EnableKernelPermissionChecking { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool EnableKernelPermissionChecking" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="EnableKernelPermissionChecking">
-      <MemberSignature Language="C#" Value="public bool EnableKernelPermissionChecking { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -693,13 +714,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="EnableLargeReadRequests">
+      <MemberSignature Language="C#" Value="public bool EnableLargeReadRequests { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool EnableLargeReadRequests" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="EnableLargeReadRequests">
-      <MemberSignature Language="C#" Value="public bool EnableLargeReadRequests { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -726,12 +748,10 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="Finalize">
       <MemberSignature Language="C#" Value="~FileSystem ();" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Finalize() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -747,7 +767,11 @@ foo</code>
     </Member>
     <Member MemberName="FuseOptions">
       <MemberSignature Language="C#" Value="public System.Collections.Generic.IDictionary&lt;string,string&gt; FuseOptions { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IDictionary`2&lt;string, string&gt; FuseOptions" />
       <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.IDictionary&lt;System.String,System.String&gt;</ReturnType>
       </ReturnValue>
@@ -773,13 +797,14 @@ foo</code>
         </remarks>
         <altmember cref="M:Mono.Fuse.FileSystem.Start" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="GetOperationContext">
       <MemberSignature Language="C#" Value="protected static Mono.Fuse.FileSystemOperationContext GetOperationContext ();" />
+      <MemberSignature Language="ILAsm" Value=".method familystatic hidebysig class Mono.Fuse.FileSystemOperationContext GetOperationContext() cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Fuse.FileSystemOperationContext</ReturnType>
       </ReturnValue>
@@ -803,13 +828,14 @@ foo</code>
           </para>
         </remarks>
       </Docs>
+    </Member>
+    <Member MemberName="ImmediatePathRemoval">
+      <MemberSignature Language="C#" Value="public bool ImmediatePathRemoval { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool ImmediatePathRemoval" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="ImmediatePathRemoval">
-      <MemberSignature Language="C#" Value="public bool ImmediatePathRemoval { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -833,13 +859,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="MaxReadSize">
+      <MemberSignature Language="C#" Value="public int MaxReadSize { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 MaxReadSize" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="MaxReadSize">
-      <MemberSignature Language="C#" Value="public int MaxReadSize { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
@@ -865,13 +892,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="MountPoint">
+      <MemberSignature Language="C#" Value="public string MountPoint { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string MountPoint" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="MountPoint">
-      <MemberSignature Language="C#" Value="public string MountPoint { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
@@ -890,13 +918,14 @@ foo</code>
         </remarks>
         <altmember cref="M:Mono.Fuse.FileSystem.Start" />
       </Docs>
+    </Member>
+    <Member MemberName="MultiThreaded">
+      <MemberSignature Language="C#" Value="public bool MultiThreaded { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool MultiThreaded" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="MultiThreaded">
-      <MemberSignature Language="C#" Value="public bool MultiThreaded { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -925,13 +954,14 @@ foo</code>
           </para>
         </remarks>
       </Docs>
+    </Member>
+    <Member MemberName="Name">
+      <MemberSignature Language="C#" Value="public string Name { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Name" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="Name">
-      <MemberSignature Language="C#" Value="public string Name { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
@@ -956,13 +986,14 @@ foo</code>
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnAccessPath">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnAccessPath (string path, Mono.Unix.Native.AccessModes mode);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnAccessPath(string path, valuetype Mono.Unix.Native.AccessModes mode) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -1110,13 +1141,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnChangePathOwner">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnChangePathOwner (string path, long owner, long group);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnChangePathOwner(string path, int64 owner, int64 group) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -1261,13 +1293,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnChangePathPermissions">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnChangePathPermissions (string path, Mono.Unix.Native.FilePermissions mode);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnChangePathPermissions(string path, valuetype Mono.Unix.Native.FilePermissions mode) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -1418,13 +1451,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnChangePathTimes">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnChangePathTimes (string path, ref Mono.Unix.Native.Utimbuf buf);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnChangePathTimes(string path, valuetype Mono.Unix.Native.Utimbuf buf) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -1545,13 +1579,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnCreateDirectory">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateDirectory (string directory, Mono.Unix.Native.FilePermissions mode);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnCreateDirectory(string directory, valuetype Mono.Unix.Native.FilePermissions mode) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -1732,13 +1767,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnCreateHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateHandle (string file, Mono.Fuse.OpenedPathInfo info, Mono.Unix.Native.FilePermissions mode);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnCreateHandle(string file, class Mono.Fuse.OpenedPathInfo info, valuetype Mono.Unix.Native.FilePermissions mode) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -2136,13 +2172,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnCreateHardLink">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateHardLink (string oldpath, string link);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnCreateHardLink(string oldpath, string link) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -2383,13 +2420,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnCreateSpecialFile">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateSpecialFile (string file, Mono.Unix.Native.FilePermissions perms, ulong dev);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnCreateSpecialFile(string file, valuetype Mono.Unix.Native.FilePermissions perms, unsigned int64 dev) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -2602,13 +2640,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnCreateSymbolicLink">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnCreateSymbolicLink (string target, string link);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnCreateSymbolicLink(string target, string link) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -2830,13 +2869,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnFlushHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnFlushHandle (string file, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnFlushHandle(string file, class Mono.Fuse.OpenedPathInfo info) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -2959,13 +2999,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnGetFileSystemStatus">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetFileSystemStatus (string path, out Mono.Unix.Native.Statvfs buf);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnGetFileSystemStatus(string path, valuetype Mono.Unix.Native.Statvfs buf) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -3110,13 +3151,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnGetHandleStatus">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetHandleStatus (string file, Mono.Fuse.OpenedPathInfo info, out Mono.Unix.Native.Stat buf);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnGetHandleStatus(string file, class Mono.Fuse.OpenedPathInfo info, valuetype Mono.Unix.Native.Stat buf) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -3223,13 +3265,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnGetPathExtendedAttribute">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetPathExtendedAttribute (string path, string name, byte[] value, out int bytesWritten);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnGetPathExtendedAttribute(string path, string name, unsigned int8[] value, int32 bytesWritten) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -3317,13 +3360,14 @@ foo</code>
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnGetPathStatus">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnGetPathStatus (string path, out Mono.Unix.Native.Stat stat);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnGetPathStatus(string path, valuetype Mono.Unix.Native.Stat stat) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -3451,12 +3495,10 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnInit">
       <MemberSignature Language="C#" Value="protected virtual void OnInit (Mono.Fuse.ConnectionInformation connection);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance void OnInit(class Mono.Fuse.ConnectionInformation connection) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -3475,7 +3517,11 @@ pathname.
     </Member>
     <Member MemberName="OnListPathExtendedAttributes">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnListPathExtendedAttributes (string path, out string[] names);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnListPathExtendedAttributes(string path, string[] names) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -3535,12 +3581,10 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnLockHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnLockHandle (string file, Mono.Fuse.OpenedPathInfo info, Mono.Unix.Native.FcntlCommand cmd, ref Mono.Unix.Native.Flock lock);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnLockHandle(string file, class Mono.Fuse.OpenedPathInfo info, valuetype Mono.Unix.Native.FcntlCommand cmd, valuetype Mono.Unix.Native.Flock lock) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -3566,6 +3610,7 @@ pathname.
     </Member>
     <Member MemberName="OnMapPathLogicalToPhysicalIndex">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnMapPathLogicalToPhysicalIndex (string path, ulong logical, out ulong physical);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnMapPathLogicalToPhysicalIndex(string path, unsigned int64 logical, unsigned int64 physical) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -3589,7 +3634,11 @@ pathname.
     </Member>
     <Member MemberName="OnOpenDirectory">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnOpenDirectory (string directory, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnOpenDirectory(string directory, class Mono.Fuse.OpenedPathInfo info) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -3709,13 +3758,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnOpenHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnOpenHandle (string file, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnOpenHandle(string file, class Mono.Fuse.OpenedPathInfo info) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4116,13 +4166,14 @@ pathname.
         <altmember cref="M:Mono.Fuse.FileSystem.OnReleaseHandle" />
         <altmember cref="M:Mono.Fuse.FileSystem.OnSynchronizeHandle" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnReadDirectory">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReadDirectory (string directory, Mono.Fuse.OpenedPathInfo info, out System.Collections.Generic.IEnumerable&lt;Mono.Fuse.DirectoryEntry&gt; paths);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnReadDirectory(string directory, class Mono.Fuse.OpenedPathInfo info, class System.Collections.Generic.IEnumerable`1&lt;class Mono.Fuse.DirectoryEntry&gt; paths) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4248,13 +4299,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnReadHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReadHandle (string file, Mono.Fuse.OpenedPathInfo info, byte[] buf, long offset, out int bytesWritten);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnReadHandle(string file, class Mono.Fuse.OpenedPathInfo info, unsigned int8[] buf, int64 offset, int32 bytesWritten) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4412,13 +4464,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnReadSymbolicLink">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReadSymbolicLink (string link, out string target);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnReadSymbolicLink(string link, string target) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4535,13 +4588,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnReleaseDirectory">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReleaseDirectory (string directory, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnReleaseDirectory(string directory, class Mono.Fuse.OpenedPathInfo info) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4600,13 +4654,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnReleaseHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnReleaseHandle (string file, Mono.Fuse.OpenedPathInfo info);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnReleaseHandle(string file, class Mono.Fuse.OpenedPathInfo info) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4657,13 +4712,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnRemoveDirectory">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRemoveDirectory (string directory);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnRemoveDirectory(string directory) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4823,13 +4879,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnRemoveFile">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRemoveFile (string file);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnRemoveFile(string file) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -4999,13 +5056,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnRemovePathExtendedAttribute">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRemovePathExtendedAttribute (string path, string name);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnRemovePathExtendedAttribute(string path, string name) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -5072,13 +5130,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnRenamePath">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnRenamePath (string oldpath, string newpath);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnRenamePath(string oldpath, string newpath) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -5358,13 +5417,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnSetPathExtendedAttribute">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnSetPathExtendedAttribute (string path, string name, byte[] value, Mono.Unix.Native.XattrFlags flags);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnSetPathExtendedAttribute(string path, string name, unsigned int8[] value, valuetype Mono.Unix.Native.XattrFlags flags) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -5468,13 +5528,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnSynchronizeDirectory">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnSynchronizeDirectory (string directory, Mono.Fuse.OpenedPathInfo info, bool onlyUserData);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnSynchronizeDirectory(string directory, class Mono.Fuse.OpenedPathInfo info, bool onlyUserData) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -5564,13 +5625,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnSynchronizeHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnSynchronizeHandle (string file, Mono.Fuse.OpenedPathInfo info, bool onlyUserData);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnSynchronizeHandle(string file, class Mono.Fuse.OpenedPathInfo info, bool onlyUserData) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -5659,13 +5721,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnTruncateFile">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnTruncateFile (string file, long length);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnTruncateFile(string file, int64 length) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -5810,13 +5873,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnTruncateHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnTruncateHandle (string file, Mono.Fuse.OpenedPathInfo info, long length);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnTruncateHandle(string file, class Mono.Fuse.OpenedPathInfo info, int64 length) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -5904,13 +5968,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OnWriteHandle">
       <MemberSignature Language="C#" Value="protected virtual Mono.Unix.Native.Errno OnWriteHandle (string file, Mono.Fuse.OpenedPathInfo info, byte[] buf, long offset, out int bytesRead);" />
+      <MemberSignature Language="ILAsm" Value=".method familyhidebysig newslot virtual instance valuetype Mono.Unix.Native.Errno OnWriteHandle(string file, class Mono.Fuse.OpenedPathInfo info, unsigned int8[] buf, int64 offset, int32 bytesRead) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Errno</ReturnType>
       </ReturnValue>
@@ -6095,13 +6160,14 @@ pathname.
           </block>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="ParseFuseArguments">
       <MemberSignature Language="C#" Value="public string[] ParseFuseArguments (string[] args);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance string[] ParseFuseArguments(string[] args) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
       </ReturnValue>
@@ -6177,13 +6243,14 @@ pathname.
           a following <c>string</c> or <c>string=value</c> argument.
         </exception>
       </Docs>
+    </Member>
+    <Member MemberName="PathTimeout">
+      <MemberSignature Language="C#" Value="public double PathTimeout { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance float64 PathTimeout" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="PathTimeout">
-      <MemberSignature Language="C#" Value="public double PathTimeout { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Double</ReturnType>
       </ReturnValue>
@@ -6207,13 +6274,14 @@ pathname.
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="ReaddirSetsInode">
+      <MemberSignature Language="C#" Value="public bool ReaddirSetsInode { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool ReaddirSetsInode" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="ReaddirSetsInode">
-      <MemberSignature Language="C#" Value="public bool ReaddirSetsInode { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -6249,13 +6317,14 @@ pathname.
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
       </Docs>
+    </Member>
+    <Member MemberName="SetsInodes">
+      <MemberSignature Language="C#" Value="public bool SetsInodes { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool SetsInodes" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="SetsInodes">
-      <MemberSignature Language="C#" Value="public bool SetsInodes { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -6288,13 +6357,14 @@ pathname.
         <altmember cref="P:Mono.Fuse.FileSystem.FuseOptions" />
         <altmember cref="M:Mono.Fuse.FileSystem.OnReadDirectory" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="ShowFuseHelp">
       <MemberSignature Language="C#" Value="public static void ShowFuseHelp (string appname);" />
+      <MemberSignature Language="ILAsm" Value=".method public static hidebysig void ShowFuseHelp(string appname) cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
@@ -6369,13 +6439,14 @@ helpfs options:
     --argument-name-here   Summary Information</code>
         </example>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="Start">
       <MemberSignature Language="C#" Value="public void Start ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Start() cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
@@ -6439,13 +6510,14 @@ helpfs options:
         </exception>
         <altmember cref="M:Mono.Fuse.FileSystem.Stop" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="Stop">
       <MemberSignature Language="C#" Value="public void Stop ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Stop() cil managed" />
       <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
       </ReturnValue>
@@ -6461,9 +6533,6 @@ helpfs options:
           </para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
   </Members>
 </Type>

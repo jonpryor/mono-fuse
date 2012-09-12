@@ -1,5 +1,6 @@
 <Type Name="FileSystemOperationContext" FullName="Mono.Fuse.FileSystemOperationContext">
   <TypeSignature Language="C#" Value="public sealed class FileSystemOperationContext" />
+  <TypeSignature Language="ILAsm" Value=".class public sequential ansi sealed beforefieldinit FileSystemOperationContext extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -30,7 +31,11 @@
   <Members>
     <Member MemberName="GroupId">
       <MemberSignature Language="C#" Value="public long GroupId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 GroupId" />
       <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
@@ -51,13 +56,14 @@
           </para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="ProcessId">
       <MemberSignature Language="C#" Value="public int ProcessId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 ProcessId" />
       <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
@@ -78,13 +84,14 @@
           </para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="UserId">
       <MemberSignature Language="C#" Value="public long UserId { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int64 UserId" />
       <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
@@ -105,9 +112,6 @@
           </para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
   </Members>
 </Type>

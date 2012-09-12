@@ -1,5 +1,6 @@
 <Type Name="OpenedPathInfo" FullName="Mono.Fuse.OpenedPathInfo">
   <TypeSignature Language="C#" Value="public sealed class OpenedPathInfo" />
+  <TypeSignature Language="ILAsm" Value=".class public sequential ansi sealed beforefieldinit OpenedPathInfo extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -27,8 +28,12 @@
   </Docs>
   <Members>
     <Member MemberName="DirectIO">
-      <MemberSignature Language="C#" Value="public bool DirectIO { set; get; }" />
+      <MemberSignature Language="C#" Value="public bool DirectIO { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool DirectIO" />
       <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -48,13 +53,14 @@
         <altmember cref="M:Mono.Fuse.FileSystem.OnCreateHandle" />
         <altmember cref="M:Mono.Fuse.FileSystem.OnOpenHandle" />
       </Docs>
+    </Member>
+    <Member MemberName="Handle">
+      <MemberSignature Language="C#" Value="public IntPtr Handle { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int Handle" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="Handle">
-      <MemberSignature Language="C#" Value="public IntPtr Handle { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
@@ -110,13 +116,14 @@
         <altmember cref="M:Mono.Fuse.FileSystem.OnReadDirectory" />
         <altmember cref="M:Mono.Fuse.FileSystem.OnReleaseDirectory" />
       </Docs>
+    </Member>
+    <Member MemberName="KeepCache">
+      <MemberSignature Language="C#" Value="public bool KeepCache { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool KeepCache" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="KeepCache">
-      <MemberSignature Language="C#" Value="public bool KeepCache { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
@@ -136,13 +143,14 @@
         <altmember cref="M:Mono.Fuse.FileSystem.OnCreateHandle" />
         <altmember cref="M:Mono.Fuse.FileSystem.OnOpenHandle" />
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="OpenAccess">
       <MemberSignature Language="C#" Value="public Mono.Unix.Native.OpenFlags OpenAccess { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Mono.Unix.Native.OpenFlags OpenAccess" />
       <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.OpenFlags</ReturnType>
       </ReturnValue>
@@ -196,13 +204,14 @@
         </remarks>
         <altmember cref="P:Mono.Fuse.FileSystem.OpenFlags" />
       </Docs>
+    </Member>
+    <Member MemberName="OpenFlags">
+      <MemberSignature Language="C#" Value="public Mono.Unix.Native.OpenFlags OpenFlags { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Mono.Unix.Native.OpenFlags OpenFlags" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="OpenFlags">
-      <MemberSignature Language="C#" Value="public Mono.Unix.Native.OpenFlags OpenFlags { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.OpenFlags</ReturnType>
       </ReturnValue>
@@ -244,13 +253,14 @@
         </remarks>
         <altmember cref="P:Mono.Fuse.OpenedPathInfo.OpenAccess" />
       </Docs>
+    </Member>
+    <Member MemberName="WritePage">
+      <MemberSignature Language="C#" Value="public int WritePage { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int32 WritePage" />
+      <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
       </AssemblyInfo>
-    </Member>
-    <Member MemberName="WritePage">
-      <MemberSignature Language="C#" Value="public int WritePage { set; get; }" />
-      <MemberType>Property</MemberType>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
@@ -267,9 +277,6 @@
           <para>TODO: What is a writepage operation?</para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
   </Members>
 </Type>

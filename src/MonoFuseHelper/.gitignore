@@ -5,3 +5,5 @@ map.lo
 map.o
 mfh.lo
 mfh.o
+mph.lo
+mph.o
