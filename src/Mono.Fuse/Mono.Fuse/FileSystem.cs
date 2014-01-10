@@ -692,7 +692,7 @@ namespace Mono.Fuse {
 			ops.destroy = _OnDestroy;
 			foreach (string method in operations.Keys) {
 				MethodInfo m = this.GetType().GetMethod (method, 
-						BindingFlags.NonPublic | BindingFlags.Instance);
+						BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
 				MethodInfo bm = m.GetBaseDefinition ();
 				if (m.DeclaringType == typeof(FileSystem) ||
 						bm == null || bm.DeclaringType != typeof(FileSystem))
