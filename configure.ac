@@ -11,14 +11,14 @@ AM_PROG_LIBTOOL
 ASSEMBLY_VERSION=0.4.3.0
 
 AC_PATH_PROG(MONO, mono)
-AC_PATH_PROG(CSC, gmcs)
+AC_PATH_PROG(CSC, mcs)
 
 if test "x$MONO" = "x" ; then
 	AC_MSG_ERROR([Can't find "mono" in your PATH])
 fi
 
 if test "x$CSC" = "x" ; then
-  AC_MSG_ERROR([Can't find "gmcs" in your PATH])
+  AC_MSG_ERROR([Can't find "mcs" in your PATH])
 fi
 AC_SUBST(PATH)
 AC_SUBST(LD_LIBRARY_PATH)
@@ -91,7 +91,7 @@ class Test {
 	}
 }
 EOF
-if gmcs try-copy.cs -r:Mono.Posix.dll 2>/dev/null >/dev/null ; then
+if mcs try-copy.cs -r:Mono.Posix.dll 2>/dev/null >/dev/null ; then
 	AC_MSG_RESULT([yes])
 	HAVE_MONO_UNIX_NATIVE_COPY_FUNCS=1
 else
@@ -112,7 +112,7 @@ class Test {
 	}
 }
 EOF
-if gmcs try-copy.cs -r:Mono.Posix.dll 2>/dev/null >/dev/null ; then
+if mcs try-copy.cs -r:Mono.Posix.dll 2>/dev/null >/dev/null ; then
 	AC_MSG_RESULT([yes])
 	HAVE_MONO_UNIX_NATIVE_COPY_FLOCK=1
 else
@@ -176,4 +176,3 @@ echo "   * Installation prefix = $prefix"
 echo "   * C# compiler = $CSC"
 echo "   * NUnit support: $enable_nunit"
 echo ""
-

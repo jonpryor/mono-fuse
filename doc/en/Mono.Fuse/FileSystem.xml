@@ -120,7 +120,7 @@ class SimpleFS : FileSystem {
   }
 }</code>
       <para>The above program can be compiled as:</para>
-      <code lang="sh">gmcs -r:Mono.Fuse.dll -r:Mono.Posix.dll SimpleFS.cs</code>
+      <code lang="sh">mcs -r:Mono.Fuse.dll -r:Mono.Posix.dll SimpleFS.cs</code>
       <para>
       The resulting program can then be used by executing it and using
       normal shell programs to interact with it.
