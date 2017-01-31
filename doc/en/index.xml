@@ -27,6 +27,7 @@
       <Type Name="ConnectionInformation" Kind="Class" />
       <Type Name="DirectoryEntry" Kind="Class" />
       <Type Name="FileSystem" Kind="Class" />
+      <Type Name="FileSystemCapabilities" Kind="Enumeration" />
       <Type Name="FileSystemOperationContext" Kind="Class" />
       <Type Name="OpenedPathInfo" Kind="Class" />
     </Namespace>

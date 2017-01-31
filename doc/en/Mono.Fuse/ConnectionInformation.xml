@@ -1,5 +1,6 @@
 <Type Name="ConnectionInformation" FullName="Mono.Fuse.ConnectionInformation">
   <TypeSignature Language="C#" Value="public class ConnectionInformation" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit ConnectionInformation extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -14,7 +15,8 @@
   </Docs>
   <Members>
     <Member MemberName="AsynchronousReadSupported">
-      <MemberSignature Language="C#" Value="public bool AsynchronousReadSupported { set; get; }" />
+      <MemberSignature Language="C#" Value="public bool AsynchronousReadSupported { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance bool AsynchronousReadSupported" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -28,8 +30,41 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="EnabledCapabilities">
+      <MemberSignature Language="C#" Value="public Mono.Fuse.FileSystemCapabilities EnabledCapabilities { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Mono.Fuse.FileSystemCapabilities EnabledCapabilities" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="KernelSupportedCapabilities">
+      <MemberSignature Language="C#" Value="public Mono.Fuse.FileSystemCapabilities KernelSupportedCapabilities { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance valuetype Mono.Fuse.FileSystemCapabilities KernelSupportedCapabilities" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>Mono.Fuse.FileSystemCapabilities</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
     <Member MemberName="MaxReadahead">
-      <MemberSignature Language="C#" Value="public uint MaxReadahead { set; get; }" />
+      <MemberSignature Language="C#" Value="public uint MaxReadahead { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int32 MaxReadahead" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -44,7 +79,8 @@
       </Docs>
     </Member>
     <Member MemberName="MaxWriteBufferSize">
-      <MemberSignature Language="C#" Value="public uint MaxWriteBufferSize { set; get; }" />
+      <MemberSignature Language="C#" Value="public uint MaxWriteBufferSize { get; set; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int32 MaxWriteBufferSize" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -60,6 +96,7 @@
     </Member>
     <Member MemberName="ProtocolMajorVersion">
       <MemberSignature Language="C#" Value="public uint ProtocolMajorVersion { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int32 ProtocolMajorVersion" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>
@@ -75,6 +112,7 @@
     </Member>
     <Member MemberName="ProtocolMinorVersion">
       <MemberSignature Language="C#" Value="public uint ProtocolMinorVersion { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance unsigned int32 ProtocolMinorVersion" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.4.3.0</AssemblyVersion>

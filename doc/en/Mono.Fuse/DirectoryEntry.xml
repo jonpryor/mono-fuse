@@ -1,5 +1,6 @@
 <Type Name="DirectoryEntry" FullName="Mono.Fuse.DirectoryEntry">
   <TypeSignature Language="C#" Value="public class DirectoryEntry" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit DirectoryEntry extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>Mono.Fuse</AssemblyName>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -28,7 +29,11 @@
   <Members>
     <Member MemberName=".ctor">
       <MemberSignature Language="C#" Value="public DirectoryEntry (string name);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string name) cil managed" />
       <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <Parameters>
         <Parameter Name="name" Type="System.String" />
       </Parameters>
@@ -55,13 +60,14 @@
           such as <c>/</c>.
         </exception>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="Name">
       <MemberSignature Language="C#" Value="public string Name { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance string Name" />
       <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
@@ -74,13 +80,14 @@
         <remarks>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
     <Member MemberName="Stat">
       <MemberSignature Language="C#" Value="public Mono.Unix.Native.Stat Stat;" />
+      <MemberSignature Language="ILAsm" Value=".field public valuetype Mono.Unix.Native.Stat Stat" />
       <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.4.3.0</AssemblyVersion>
+      </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Mono.Unix.Native.Stat</ReturnType>
       </ReturnValue>
@@ -106,9 +113,6 @@
           </para>
         </remarks>
       </Docs>
-      <AssemblyInfo>
-        <AssemblyVersion>0.4.3.0</AssemblyVersion>
-      </AssemblyInfo>
     </Member>
   </Members>
 </Type>

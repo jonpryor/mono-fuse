@@ -313,6 +313,16 @@ namespace Mono.Fuse {
 		public int allocated;
 	}
 
+	[Flags]
+	public enum FileSystemCapabilities {
+		AsyncRead     = (1 << 0),
+		PosixLocks    = (1 << 1),
+		AtomicOTrunc  = (1 << 3),
+		ExportSupport = (1 << 4),
+		BigWrites     = (1 << 5),
+		NoMask        = (1 << 6)
+	};
+
 	public class ConnectionInformation {
 		private IntPtr conn;
 
@@ -322,7 +332,9 @@ namespace Mono.Fuse {
 			ProtMinor = 1,
 			AsyncRead = 2,
 			MaxWrite  = 3,
-			MaxRead   = 4;
+			MaxRead   = 4,
+			Capable   = 5,
+			Want      = 6;
 
 		internal ConnectionInformation (IntPtr conn)
 		{
@@ -350,6 +362,16 @@ namespace Mono.Fuse {
 		public uint MaxReadahead {
 			get {return (uint) Marshal.ReadInt32 (conn, MaxRead);}
 			set {Marshal.WriteInt32 (conn, MaxRead, (int) value);}
+		}
+
+		public FileSystemCapabilities KernelSupportedCapabilities  {
+			get {return (FileSystemCapabilities) Marshal.ReadInt32 (conn, Capable);}
+			set {Marshal.WriteInt32 (conn, Capable, (int) value);}
+		}
+
+		public FileSystemCapabilities EnabledCapabilities {
+			get {return (FileSystemCapabilities) Marshal.ReadInt32 (conn, Want);}
+			set {Marshal.WriteInt32 (conn, Want, (int)value);}
 		}
 	}
 
